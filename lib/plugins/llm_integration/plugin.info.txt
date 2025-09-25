@@ -1,4 +1,4 @@
-base    llm_integration
+base    doku_llm
 author  Costin Stroie
 email   costinstroie@eridu.eu.org
 date    2024-01-01
