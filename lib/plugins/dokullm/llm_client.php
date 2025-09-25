@@ -172,10 +172,26 @@ class llm_client_plugin_dokullm
         if (!empty($metadata)) {
             $contextInfo = "Context information for this request:\n";
             if (!empty($metadata['template'])) {
-                $contextInfo .= "- Template page: " . $metadata['template'] . "\n";
+                $templateContent = $this->getPageContent($metadata['template']);
+                if ($templateContent !== false) {
+                    $contextInfo .= "- Template page (" . $metadata['template'] . "):\n" . $templateContent . "\n";
+                } else {
+                    $contextInfo .= "- Template page: " . $metadata['template'] . " (content not available)\n";
+                }
             }
             if (!empty($metadata['examples'])) {
-                $contextInfo .= "- Example pages: " . implode(', ', $metadata['examples']) . "\n";
+                $examplesContent = [];
+                foreach ($metadata['examples'] as $example) {
+                    $content = $this->getPageContent($example);
+                    if ($content !== false) {
+                        $examplesContent[] = "- Example page (" . $example . "):\n" . $content;
+                    } else {
+                        $examplesContent[] = "- Example page: " . $example . " (content not available)";
+                    }
+                }
+                if (!empty($examplesContent)) {
+                    $contextInfo .= "- Example pages:\n" . implode("\n\n", $examplesContent) . "\n";
+                }
             }
             $systemPrompt .= "\n\n" . $contextInfo;
         }
@@ -276,5 +292,24 @@ class llm_client_plugin_dokullm
         }
         
         return $prompt;
+    }
+    
+    /**
+     * Get the content of a DokuWiki page
+     * 
+     * @param string $pageId The page ID to retrieve
+     * @return string|false The page content or false if not found
+     */
+    private function getPageContent($pageId)
+    {
+        // Convert page ID to file path
+        $pageFile = wikiFN($pageId);
+        
+        // Check if file exists and is readable
+        if (file_exists($pageFile) && is_readable($pageFile)) {
+            return file_get_contents($pageFile);
+        }
+        
+        return false;
     }
 }
