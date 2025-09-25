@@ -295,11 +295,15 @@ class llm_client_plugin_dokullm
         global $conf;
         $language = $conf['plugin']['dokullm']['language'];
         
-        // Try to load language-specific prompt first
+        // If a specific language is configured, attempt to load the language-specific prompt
         if ($language !== 'default') {
             $promptFile = DOKU_PLUGIN . 'dokullm/prompts/' . $language . '/' . $promptName . '.txt';
+            
+            // If the language-specific prompt file exists, load it
             if (file_exists($promptFile)) {
                 $prompt = file_get_contents($promptFile);
+                
+                // If the file was successfully read, replace placeholders and return
                 if ($prompt !== false) {
                     // Replace placeholders with actual values
                     foreach ($variables as $placeholder => $value) {
@@ -313,12 +317,15 @@ class llm_client_plugin_dokullm
         // Fall back to default language
         $promptFile = DOKU_PLUGIN . 'dokullm/prompts/' . $promptName . '.txt';
         
+        // If the default prompt file does not exist, throw an exception
         if (!file_exists($promptFile)) {
             throw new Exception('Prompt file not found: ' . $promptFile);
         }
         
+        // Load the default prompt file
         $prompt = file_get_contents($promptFile);
         
+        // If the file could not be read, throw an exception
         if ($prompt === false) {
             throw new Exception('Failed to read prompt file: ' . $promptFile);
         }
@@ -328,6 +335,7 @@ class llm_client_plugin_dokullm
             $prompt = str_replace('{' . $placeholder . '}', $value, $prompt);
         }
         
+        // Return the processed prompt
         return $prompt;
     }
     
