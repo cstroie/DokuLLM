@@ -1,0 +1,3 @@
+Corectează gramatica și ortografia în următorul text:
+
+{text}

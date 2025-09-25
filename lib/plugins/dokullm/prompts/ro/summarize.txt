@@ -1,0 +1,3 @@
+Rezumă următorul text într-un mod concis:
+
+{text}
