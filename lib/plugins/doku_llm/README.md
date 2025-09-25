@@ -22,7 +22,7 @@ This plugin adds a toolbar to DokuWiki's edit interface with the following LLM-p
 ## Installation
 
 1. Clone or download this repository
-2. Place the `doku_llm` folder in your DokuWiki's `lib/plugins/` directory
+2. Place the `dokullm` folder in your DokuWiki's `lib/plugins/` directory
 3. The plugin should be automatically recognized by DokuWiki
 
 ## Configuration
