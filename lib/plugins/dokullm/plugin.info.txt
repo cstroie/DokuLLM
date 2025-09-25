@@ -1,4 +1,4 @@
-base    doku_llm
+base    dokullm
 author  Costin Stroie
 email   costinstroie@eridu.eu.org
 date    2025-09-25

@@ -12,7 +12,7 @@ if (!defined('DOKU_INC')) {
 }
 
 /**
- * Main action component for the doku_llm plugin
+ * Main action component for the dokullm plugin
  * 
  * This class handles:
  * - Registering event handlers for page rendering and AJAX calls
@@ -62,7 +62,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     /**
      * Handle AJAX requests for the plugin
      * 
-     * Processes AJAX calls with the identifier 'plugin_doku_llm' and
+     * Processes AJAX calls with the identifier 'plugin_dokullm' and
      * routes them to the appropriate text processing method.
      * 
      * @param Doku_Event $event The event object
