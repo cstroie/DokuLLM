@@ -59,7 +59,7 @@ After installation, configure the plugin through DokuWiki's Configuration Manage
 To use metadata for better context:
 
 1. Add `~~LLM_TEMPLATE:reports:mri:templates:cerebral-normal~~` at the top of your page to specify a template
-2. Add `~~LLM_EXAMPLES:reports:mri:2025:g309-mantea-nicoleta-alina~~` to specify example pages
+2. Add `~~LLM_EXAMPLES:reports:mri:2025:example-report~~` to specify example pages
 3. The LLM will use these references when processing your content
 
 ## How It Works
