@@ -4,7 +4,7 @@
  * 
  * This class provides methods to interact with an LLM API for various
  * text processing tasks such as completion, rewriting, grammar correction,
- * summarization, conclusion creation, and translation.
+ * summarization, conclusion creation, text analysis, and custom prompts.
  */
 
 // must be run within Dokuwiki
@@ -17,6 +17,12 @@ if (!defined('DOKU_INC')) {
  * 
  * Manages configuration settings and provides methods for various
  * text processing operations through an LLM API.
+ * 
+ * The client handles:
+ * - API configuration and authentication
+ * - Prompt template loading and processing
+ * - Context-aware requests with metadata
+ * - DokuWiki page content retrieval
  */
 class llm_client_plugin_dokullm
 {
@@ -37,6 +43,13 @@ class llm_client_plugin_dokullm
      * 
      * Retrieves configuration values from DokuWiki's configuration system
      * for API URL, key, model, and timeout settings.
+     * 
+     * Configuration values:
+     * - api_url: The LLM API endpoint URL
+     * - api_key: Authentication key for the API (optional)
+     * - model: The model identifier to use for requests
+     * - timeout: Request timeout in seconds
+     * - language: Language code for prompt templates
      */
     public function __construct()
     {
@@ -175,7 +188,11 @@ class llm_client_plugin_dokullm
      * the prompt and other parameters. Handles authentication if an
      * API key is configured.
      * 
-     * @param string $prompt The prompt to send to the LLM
+     * The method constructs a conversation with system and user messages,
+     * including context information from metadata when available.
+     * 
+     * @param string $prompt The prompt to send to the LLM as user message
+     * @param array $metadata Optional metadata containing template and examples
      * @return string The response content from the LLM
      * @throws Exception If the API request fails or returns unexpected format
      */
@@ -264,9 +281,13 @@ class llm_client_plugin_dokullm
     /**
      * Load a prompt template from file and replace placeholders
      * 
+     * Loads prompt templates from the plugin's prompts directory, first
+     * attempting to load language-specific versions before falling back
+     * to default templates.
+     * 
      * @param string $promptName The name of the prompt file (without extension)
      * @param array $variables Associative array of placeholder => value pairs
-     * @return string The processed prompt
+     * @return string The processed prompt with placeholders replaced
      * @throws Exception If the prompt file cannot be loaded
      */
     private function loadPrompt($promptName, $variables = [])
@@ -313,8 +334,11 @@ class llm_client_plugin_dokullm
     /**
      * Get the content of a DokuWiki page
      * 
+     * Retrieves the raw content of a DokuWiki page by its ID.
+     * Used for loading template and example page content for context.
+     * 
      * @param string $pageId The page ID to retrieve
-     * @return string|false The page content or false if not found
+     * @return string|false The page content or false if not found/readable
      */
     public function getPageContent($pageId)
     {

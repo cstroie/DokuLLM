@@ -18,6 +18,9 @@ if (!defined('DOKU_INC')) {
  * - Registering event handlers for page rendering and AJAX calls
  * - Adding JavaScript to edit pages
  * - Processing AJAX requests from the frontend
+ * 
+ * The plugin provides integration with LLM APIs for text processing
+ * operations directly within the DokuWiki editor.
  */
 class action_plugin_dokullm extends DokuWiki_Action_Plugin
 {
@@ -84,9 +87,11 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     /**
      * Process the AJAX request and return JSON response
      * 
-     * Extracts action, text, and prompt parameters from the request,
+     * Extracts action, text, prompt, metadata, and template parameters from the request,
      * validates the input, and calls the appropriate processing method.
      * Returns JSON encoded result or error.
+     * 
+     * @return void
      */
     private function processRequest()
     {
@@ -129,8 +134,10 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      * 
      * @param string $action The action to perform (complete, rewrite, grammar, etc.)
      * @param string $text The text to process
-     * @param string $prompt Additional prompt information (used for translation target language)
-     * @return string The processed text result
+     * @param string $prompt Additional prompt information (used for translation target language or custom prompts)
+     * @param array $metadata Metadata array containing template and examples information
+     * @param string $template Template identifier for get_template action
+     * @return string|array The processed text result or array for template content
      * @throws Exception If an unknown action is provided
      */
     private function processText($action, $text, $prompt = '', $metadata = [], $template = '')
