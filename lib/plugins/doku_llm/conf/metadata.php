@@ -1,6 +1,6 @@
 <?php
 /**
- * Options for the doku_llm plugin
+ * Options for the dokullm plugin
  * 
  * This file defines the configuration metadata for the LLM integration plugin.
  * It specifies the type and validation rules for each configuration option.

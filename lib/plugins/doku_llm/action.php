@@ -1,6 +1,6 @@
 <?php
 /**
- * DokuWiki Plugin doku_llm (Action Component)
+ * DokuWiki Plugin dokullm (Action Component)
  *
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  Costin Stroie <costinstroie@eridu.eu.org>
@@ -19,7 +19,7 @@ if (!defined('DOKU_INC')) {
  * - Adding JavaScript to edit pages
  * - Processing AJAX requests from the frontend
  */
-class action_plugin_doku_llm extends DokuWiki_Action_Plugin
+class action_plugin_dokullm extends DokuWiki_Action_Plugin
 {
     /**
      * Register the event handlers for this plugin
@@ -70,7 +70,7 @@ class action_plugin_doku_llm extends DokuWiki_Action_Plugin
      */
     public function handleAjax(Doku_Event $event, $param)
     {
-        if ($event->data !== 'plugin_doku_llm') {
+        if ($event->data !== 'plugin_dokullm') {
             return;
         }
         
@@ -129,7 +129,7 @@ class action_plugin_doku_llm extends DokuWiki_Action_Plugin
     {
         require_once 'llm_client.php';
         
-        $client = new llm_client_plugin_doku_llm();
+        $client = new llm_client_plugin_dokullm();
         
         switch ($action) {
             case 'complete':

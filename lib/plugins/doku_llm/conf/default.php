@@ -1,6 +1,6 @@
 <?php
 /**
- * Default settings for the doku_llm plugin
+ * Default settings for the dokullm plugin
  * 
  * This file defines the default configuration values for the LLM integration plugin.
  * These values can be overridden by the user in the plugin configuration.

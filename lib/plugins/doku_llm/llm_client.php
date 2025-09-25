@@ -1,6 +1,6 @@
 <?php
 /**
- * LLM Client for the doku_llm plugin
+ * LLM Client for the dokullm plugin
  * 
  * This class provides methods to interact with an LLM API for various
  * text processing tasks such as completion, rewriting, grammar correction,
@@ -18,7 +18,7 @@ if (!defined('DOKU_INC')) {
  * Manages configuration settings and provides methods for various
  * text processing operations through an LLM API.
  */
-class llm_client_plugin_doku_llm
+class llm_client_plugin_dokullm
 {
     /** @var string The API endpoint URL */
     private $api_url;
@@ -41,10 +41,10 @@ class llm_client_plugin_doku_llm
     public function __construct()
     {
         global $conf;
-        $this->api_url = $conf['plugin']['doku_llm']['api_url'];
-        $this->api_key = $conf['plugin']['doku_llm']['api_key'];
-        $this->model = $conf['plugin']['doku_llm']['model'];
-        $this->timeout = $conf['plugin']['doku_llm']['timeout'];
+        $this->api_url = $conf['plugin']['dokullm']['api_url'];
+        $this->api_key = $conf['plugin']['dokullm']['api_key'];
+        $this->model = $conf['plugin']['dokullm']['model'];
+        $this->timeout = $conf['plugin']['dokullm']['timeout'];
     }
     
     /**
