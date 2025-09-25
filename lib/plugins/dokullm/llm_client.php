@@ -38,11 +38,14 @@ class llm_client_plugin_dokullm
     /** @var int The request timeout in seconds */
     private $timeout;
     
+    /** @var float The temperature setting for response randomness */
+    private $temperature;
+    
     /**
      * Initialize the LLM client with configuration settings
      * 
      * Retrieves configuration values from DokuWiki's configuration system
-     * for API URL, key, model, and timeout settings.
+     * for API URL, key, model, timeout, and temperature settings.
      * 
      * Configuration values:
      * - api_url: The LLM API endpoint URL
@@ -50,6 +53,7 @@ class llm_client_plugin_dokullm
      * - model: The model identifier to use for requests
      * - timeout: Request timeout in seconds
      * - language: Language code for prompt templates
+     * - temperature: Temperature setting for response randomness (0.0-1.0)
      */
     public function __construct()
     {
@@ -58,6 +62,7 @@ class llm_client_plugin_dokullm
         $this->api_key = $conf['plugin']['dokullm']['api_key'];
         $this->model = $conf['plugin']['dokullm']['model'];
         $this->timeout = $conf['plugin']['dokullm']['timeout'];
+        $this->temperature = $conf['plugin']['dokullm']['temperature'];
     }
     
     /**
@@ -236,7 +241,7 @@ class llm_client_plugin_dokullm
                 ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $prompt]
             ],
-            'temperature' => 0.3,
+            'temperature' => $this->temperature,
             'max_tokens' => 4000
         ];
         

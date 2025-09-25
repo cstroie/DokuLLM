@@ -52,3 +52,13 @@ $meta['timeout'] = array('numeric', '_min' => 5);
  * @var array
  */
 $meta['language'] = array('multichoice', '_choices' => array('default', 'ro'));
+
+/**
+ * Metadata for the temperature configuration option
+ * 
+ * Defines the temperature as a numeric field with a range from 0.0 to 1.0,
+ * with a default of 0.3. This controls the randomness of the LLM responses.
+ * 
+ * @var array
+ */
+$meta['temperature'] = array('numeric', '_min' => 0.0, '_max' => 1.0, '_pattern' => '/^\d+(\.\d+)?$/');

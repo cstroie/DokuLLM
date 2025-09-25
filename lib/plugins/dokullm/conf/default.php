@@ -55,3 +55,14 @@ $conf['timeout'] = 30;
  * @var string
  */
 $conf['language'] = 'default';
+
+/**
+ * The temperature setting for the LLM
+ * 
+ * Controls the randomness of the LLM output. Lower values (0.0-0.5) make the output
+ * more deterministic and focused, while higher values (0.5-1.0) make it more random
+ * and creative. Default is 0.3 for consistent, high-quality responses.
+ * 
+ * @var float
+ */
+$conf['temperature'] = 0.3;
