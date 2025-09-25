@@ -134,7 +134,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      * 
      * @param string $action The action to perform (complete, rewrite, grammar, etc.)
      * @param string $text The text to process
-     * @param string $prompt Additional prompt information (used for translation target language or custom prompts)
+     * @param string $prompt Additional prompt information (used for custom prompts)
      * @param array $metadata Metadata array containing template and examples information
      * @param string $template Template identifier for get_template action
      * @return string|array The processed text result or array for template content

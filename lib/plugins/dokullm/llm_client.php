@@ -171,6 +171,7 @@ class llm_client_plugin_dokullm
      * 
      * @param string $text The text to process
      * @param string $customPrompt The custom prompt to use
+     * @param array $metadata Optional metadata containing template and examples
      * @return string The processed text
      */
     public function processCustomPrompt($text, $customPrompt, $metadata = [])
