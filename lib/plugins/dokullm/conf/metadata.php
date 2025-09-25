@@ -62,3 +62,33 @@ $meta['language'] = array('multichoice', '_choices' => array('default', 'ro'));
  * @var array
  */
 $meta['temperature'] = array('numeric', '_min' => 0.0, '_max' => 1.0, '_pattern' => '/^\d+(\.\d+)?$/');
+
+/**
+ * Metadata for the top-p configuration option
+ * 
+ * Defines the top-p (nucleus sampling) as a numeric field with a range from 0.0 to 1.0,
+ * with a default of 0.8. This controls the cumulative probability of token selection.
+ * 
+ * @var array
+ */
+$meta['top_p'] = array('numeric', '_min' => 0.0, '_max' => 1.0, '_pattern' => '/^\d+(\.\d+)?$/');
+
+/**
+ * Metadata for the top-k configuration option
+ * 
+ * Defines the top-k as a numeric field with a minimum value of 1,
+ * with a default of 20. This controls the number of highest probability tokens considered.
+ * 
+ * @var array
+ */
+$meta['top_k'] = array('numeric', '_min' => 1);
+
+/**
+ * Metadata for the min-p configuration option
+ * 
+ * Defines the min-p as a numeric field with a range from 0.0 to 1.0,
+ * with a default of 0.0. This controls the minimum probability threshold for token selection.
+ * 
+ * @var array
+ */
+$meta['min_p'] = array('numeric', '_min' => 0.0, '_max' => 1.0, '_pattern' => '/^\d+(\.\d+)?$/');

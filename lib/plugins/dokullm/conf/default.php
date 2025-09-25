@@ -66,3 +66,35 @@ $conf['language'] = 'default';
  * @var float
  */
 $conf['temperature'] = 0.3;
+
+/**
+ * The top-p (nucleus sampling) setting for the LLM
+ * 
+ * Controls the cumulative probability of token selection. Lower values (0.1-0.5) make
+ * the output more focused, while higher values (0.5-1.0) allow for more diverse outputs.
+ * Default is 0.8 for a good balance between creativity and coherence.
+ * 
+ * @var float
+ */
+$conf['top_p'] = 0.8;
+
+/**
+ * The top-k setting for the LLM
+ * 
+ * Limits the number of highest probability tokens considered for each step.
+ * Lower values (1-10) make the output more focused, while higher values (10-50)
+ * allow for more diverse outputs. Default is 20 for balanced diversity.
+ * 
+ * @var int
+ */
+$conf['top_k'] = 20;
+
+/**
+ * The min-p setting for the LLM
+ * 
+ * Sets a minimum probability threshold for token selection. Tokens with probabilities
+ * below this threshold are filtered out. Default is 0.0 (no filtering).
+ * 
+ * @var float
+ */
+$conf['min_p'] = 0.0;

@@ -41,11 +41,20 @@ class llm_client_plugin_dokullm
     /** @var float The temperature setting for response randomness */
     private $temperature;
     
+    /** @var float The top-p setting for nucleus sampling */
+    private $top_p;
+    
+    /** @var int The top-k setting for token selection */
+    private $top_k;
+    
+    /** @var float The min-p setting for minimum probability threshold */
+    private $min_p;
+    
     /**
      * Initialize the LLM client with configuration settings
      * 
      * Retrieves configuration values from DokuWiki's configuration system
-     * for API URL, key, model, timeout, and temperature settings.
+     * for API URL, key, model, timeout, and LLM sampling parameters.
      * 
      * Configuration values:
      * - api_url: The LLM API endpoint URL
@@ -54,6 +63,9 @@ class llm_client_plugin_dokullm
      * - timeout: Request timeout in seconds
      * - language: Language code for prompt templates
      * - temperature: Temperature setting for response randomness (0.0-1.0)
+     * - top_p: Top-p (nucleus sampling) setting (0.0-1.0)
+     * - top_k: Top-k setting (integer >= 1)
+     * - min_p: Minimum probability threshold (0.0-1.0)
      */
     public function __construct()
     {
@@ -63,6 +75,9 @@ class llm_client_plugin_dokullm
         $this->model = $conf['plugin']['dokullm']['model'];
         $this->timeout = $conf['plugin']['dokullm']['timeout'];
         $this->temperature = $conf['plugin']['dokullm']['temperature'];
+        $this->top_p = $conf['plugin']['dokullm']['top_p'];
+        $this->top_k = $conf['plugin']['dokullm']['top_k'];
+        $this->min_p = $conf['plugin']['dokullm']['min_p'];
     }
     
     /**
@@ -242,6 +257,9 @@ class llm_client_plugin_dokullm
                 ['role' => 'user', 'content' => $prompt]
             ],
             'temperature' => $this->temperature,
+            'top_p' => $this->top_p,
+            'top_k' => $this->top_k,
+            'min_p' => $this->min_p,
             'max_tokens' => 4000
         ];
         
