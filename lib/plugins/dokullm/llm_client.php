@@ -235,8 +235,8 @@ class llm_client_plugin_dokullm
                 ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $prompt]
             ],
-            'temperature' => 0.7,
-            'max_tokens' => 1000
+            'temperature' => 0.3,
+            'max_tokens' => 4000
         ];
         
         $headers = [
