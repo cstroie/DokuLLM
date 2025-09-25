@@ -121,21 +121,6 @@ class llm_client_plugin_dokullm
         return $this->callAPI($prompt);
     }
     
-    /**
-     * Translate text to the specified target language
-     * 
-     * Sends a prompt to the LLM asking it to translate the text to
-     * the specified target language.
-     * 
-     * @param string $text The text to translate
-     * @param string $targetLanguage The target language for translation
-     * @return string The translated text
-     */
-    public function translateText($text, $targetLanguage)
-    {
-        $prompt = $this->loadPrompt('translate', ['text' => $text, 'language' => $targetLanguage]);
-        return $this->callAPI($prompt);
-    }
     
     /**
      * Call the LLM API with the specified prompt
