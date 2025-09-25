@@ -96,6 +96,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $text = $INPUT->str('text');
         $prompt = $INPUT->str('prompt', '');
         $metadata = $INPUT->str('metadata', '{}');
+        $template = $INPUT->str('template', '');
         
         // Parse metadata
         $metadataArray = json_decode($metadata, true);
@@ -103,8 +104,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $metadataArray = [];
         }
         
-        // Validate input
-        if (empty($text)) {
+        // Validate input (except for get_template action which doesn't need text)
+        if ($action !== 'get_template' && empty($text)) {
             http_status(400);
             echo json_encode(['error' => 'No text provided']);
             return;
@@ -112,7 +113,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         
         // Process based on action
         try {
-            $result = $this->processText($action, $text, $prompt, $metadataArray);
+            $result = $this->processText($action, $text, $prompt, $metadataArray, $template);
             echo json_encode(['result' => $result]);
         } catch (Exception $e) {
             http_status(500);
@@ -132,7 +133,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      * @return string The processed text result
      * @throws Exception If an unknown action is provided
      */
-    private function processText($action, $text, $prompt = '', $metadata = [])
+    private function processText($action, $text, $prompt = '', $metadata = [], $template = '')
     {
         require_once 'llm_client.php';
         
@@ -140,12 +141,12 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         
         switch ($action) {
             case 'get_template':
-                $templateId = $prompt; // Using prompt parameter for template ID
+                $templateId = $template; // Using template parameter for template ID
                 $templateContent = $client->getPageContent($templateId);
                 if ($templateContent === false) {
                     throw new Exception('Template not found: ' . $templateId);
                 }
-                return $templateContent;
+                return ['content' => $templateContent];
             case 'complete':
                 return $client->completeText($text, $metadata);
             case 'rewrite':
