@@ -170,8 +170,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 return $client->continueText($text, $metadata);
             case 'custom':
                 return $client->processCustomPrompt($text, $prompt, $metadata);
-            case 'translate':
-                return $client->translateText($text, $prompt, $metadata); // prompt as target language
             default:
                 throw new Exception('Unknown action: ' . $action);
         }
