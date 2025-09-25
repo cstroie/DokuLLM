@@ -150,9 +150,13 @@ class llm_client_plugin_dokullm
      */
     private function callAPI($prompt)
     {
+        // Load system prompt
+        $systemPrompt = $this->loadPrompt('system', []);
+        
         $data = [
             'model' => $this->model,
             'messages' => [
+                ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $prompt]
             ],
             'temperature' => 0.7,
