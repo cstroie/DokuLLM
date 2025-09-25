@@ -212,6 +212,25 @@ class llm_client_plugin_dokullm
      */
     private function loadPrompt($promptName, $variables = [])
     {
+        global $conf;
+        $language = $conf['plugin']['dokullm']['language'];
+        
+        // Try to load language-specific prompt first
+        if ($language !== 'default') {
+            $promptFile = DOKU_PLUGIN . 'dokullm/prompts/' . $language . '/' . $promptName . '.txt';
+            if (file_exists($promptFile)) {
+                $prompt = file_get_contents($promptFile);
+                if ($prompt !== false) {
+                    // Replace placeholders with actual values
+                    foreach ($variables as $placeholder => $value) {
+                        $prompt = str_replace('{' . $placeholder . '}', $value, $prompt);
+                    }
+                    return $prompt;
+                }
+            }
+        }
+        
+        // Fall back to default language
         $promptFile = DOKU_PLUGIN . 'dokullm/prompts/' . $promptName . '.txt';
         
         if (!file_exists($promptFile)) {

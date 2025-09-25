@@ -43,3 +43,12 @@ $meta['model'] = array('string');
  * @var array
  */
 $meta['timeout'] = array('numeric', '_min' => 5);
+
+/**
+ * Metadata for the language configuration option
+ * 
+ * Defines the language as a multichoice field with 'default' and 'ro' options.
+ * 
+ * @var array
+ */
+$meta['language'] = array('multichoice', '_choices' => array('default', 'ro'));

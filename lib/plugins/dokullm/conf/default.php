@@ -45,3 +45,13 @@ $conf['model'] = 'gpt-3.5-turbo';
  * @var int
  */
 $conf['timeout'] = 30;
+
+/**
+ * The language for prompts
+ * 
+ * Specifies which language to use for the prompts.
+ * 'default' uses English prompts, 'ro' uses Romanian prompts.
+ * 
+ * @var string
+ */
+$conf['language'] = 'default';
