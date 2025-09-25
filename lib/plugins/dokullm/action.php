@@ -53,8 +53,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         if ($INFO['act'] == 'edit' || $INFO['act'] == 'preview') {
             $event->data['script'][] = array(
                 'type' => 'text/javascript',
-                'src' => DOKU_BASE . 'lib/plugins/doku_llm/script.js',
-                '_data' => 'doku_llm'
+                'src' => DOKU_BASE . 'lib/plugins/dokullm/script.js',
+                '_data' => 'dokullm'
             );
         }
     }
