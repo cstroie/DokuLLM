@@ -151,6 +151,22 @@ class llm_client_plugin_dokullm
         return $this->callAPI($prompt, $metadata);
     }
     
+    /**
+     * Process text with a custom user prompt
+     * 
+     * Sends a custom prompt to the LLM along with the provided text.
+     * 
+     * @param string $text The text to process
+     * @param string $customPrompt The custom prompt to use
+     * @return string The processed text
+     */
+    public function processCustomPrompt($text, $customPrompt, $metadata = [])
+    {
+        // Format the prompt with the text and custom prompt
+        $prompt = $customPrompt . "\n\nText to process:\n" . $text;
+        return $this->callAPI($prompt, $metadata);
+    }
+    
     
     /**
      * Call the LLM API with the specified prompt
