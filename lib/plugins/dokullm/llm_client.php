@@ -121,6 +121,36 @@ class llm_client_plugin_dokullm
         return $this->callAPI($prompt);
     }
     
+    /**
+     * Analyze the provided text in detail
+     * 
+     * Sends a prompt to the LLM asking it to perform a detailed analysis
+     * of the given text, identifying key themes, patterns, and insights.
+     * 
+     * @param string $text The text to analyze
+     * @return string The analysis results
+     */
+    public function analyzeText($text)
+    {
+        $prompt = $this->loadPrompt('analyze', ['text' => $text]);
+        return $this->callAPI($prompt);
+    }
+    
+    /**
+     * Continue writing from the provided text
+     * 
+     * Sends a prompt to the LLM asking it to continue writing from
+     * the given text, maintaining the same style and tone.
+     * 
+     * @param string $text The text to continue from
+     * @return string The continued text
+     */
+    public function continueText($text)
+    {
+        $prompt = $this->loadPrompt('continue', ['text' => $text]);
+        return $this->callAPI($prompt);
+    }
+    
     
     /**
      * Call the LLM API with the specified prompt
