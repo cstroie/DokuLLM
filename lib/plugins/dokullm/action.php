@@ -142,6 +142,10 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 return $client->summarizeText($text);
             case 'conclusion':
                 return $client->createConclusion($text);
+            case 'analyze':
+                return $client->analyzeText($text);
+            case 'continue':
+                return $client->continueText($text);
             case 'translate':
                 return $client->translateText($text, $prompt); // prompt as target language
             default:
