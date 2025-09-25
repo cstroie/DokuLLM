@@ -55,10 +55,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to complete
      * @return string The completed text
      */
-    public function completeText($text)
+    public function completeText($text, $metadata = [])
     {
         $prompt = $this->loadPrompt('complete', ['text' => $text]);
-        return $this->callAPI($prompt);
+        return $this->callAPI($prompt, $metadata);
     }
     
     /**
@@ -70,10 +70,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to rewrite
      * @return string The rewritten text
      */
-    public function rewriteText($text)
+    public function rewriteText($text, $metadata = [])
     {
         $prompt = $this->loadPrompt('rewrite', ['text' => $text]);
-        return $this->callAPI($prompt);
+        return $this->callAPI($prompt, $metadata);
     }
     
     /**
@@ -85,10 +85,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to correct
      * @return string The corrected text
      */
-    public function correctGrammar($text)
+    public function correctGrammar($text, $metadata = [])
     {
         $prompt = $this->loadPrompt('grammar', ['text' => $text]);
-        return $this->callAPI($prompt);
+        return $this->callAPI($prompt, $metadata);
     }
     
     /**
@@ -100,10 +100,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to summarize
      * @return string The summarized text
      */
-    public function summarizeText($text)
+    public function summarizeText($text, $metadata = [])
     {
         $prompt = $this->loadPrompt('summarize', ['text' => $text]);
-        return $this->callAPI($prompt);
+        return $this->callAPI($prompt, $metadata);
     }
     
     /**
@@ -115,10 +115,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to create a conclusion for
      * @return string The generated conclusion
      */
-    public function createConclusion($text)
+    public function createConclusion($text, $metadata = [])
     {
         $prompt = $this->loadPrompt('conclusion', ['text' => $text]);
-        return $this->callAPI($prompt);
+        return $this->callAPI($prompt, $metadata);
     }
     
     /**
@@ -130,10 +130,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to analyze
      * @return string The analysis results
      */
-    public function analyzeText($text)
+    public function analyzeText($text, $metadata = [])
     {
         $prompt = $this->loadPrompt('analyze', ['text' => $text]);
-        return $this->callAPI($prompt);
+        return $this->callAPI($prompt, $metadata);
     }
     
     /**
@@ -145,10 +145,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to continue from
      * @return string The continued text
      */
-    public function continueText($text)
+    public function continueText($text, $metadata = [])
     {
         $prompt = $this->loadPrompt('continue', ['text' => $text]);
-        return $this->callAPI($prompt);
+        return $this->callAPI($prompt, $metadata);
     }
     
     
@@ -163,10 +163,25 @@ class llm_client_plugin_dokullm
      * @return string The response content from the LLM
      * @throws Exception If the API request fails or returns unexpected format
      */
-    private function callAPI($prompt)
+    private function callAPI($prompt, $metadata = [])
     {
         // Load system prompt
         $systemPrompt = $this->loadPrompt('system', []);
+        
+        // Add metadata context to system prompt if available
+        if (!empty($metadata)) {
+            $contextInfo = "Context information for this request:\n";
+            if (!empty($metadata['template'])) {
+                $contextInfo .= "- Template page: " . $metadata['template'] . "\n";
+            }
+            if (!empty($metadata['examples'])) {
+                $contextInfo .= "- Example pages: " . implode(', ', $metadata['examples']) . "\n";
+            }
+            $systemPrompt .= "\n\n" . $contextInfo;
+        }
+        
+        // Add DokuWiki syntax information to the system prompt
+        $systemPrompt .= "\n\nThe text uses DokuWiki syntax. Please maintain proper DokuWiki formatting in your response.";
         
         $data = [
             'model' => $this->model,

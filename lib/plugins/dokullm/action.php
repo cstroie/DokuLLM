@@ -95,6 +95,13 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $action = $INPUT->str('action');
         $text = $INPUT->str('text');
         $prompt = $INPUT->str('prompt', '');
+        $metadata = $INPUT->str('metadata', '{}');
+        
+        // Parse metadata
+        $metadataArray = json_decode($metadata, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $metadataArray = [];
+        }
         
         // Validate input
         if (empty($text)) {
@@ -105,7 +112,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         
         // Process based on action
         try {
-            $result = $this->processText($action, $text, $prompt);
+            $result = $this->processText($action, $text, $prompt, $metadataArray);
             echo json_encode(['result' => $result]);
         } catch (Exception $e) {
             http_status(500);
@@ -125,7 +132,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      * @return string The processed text result
      * @throws Exception If an unknown action is provided
      */
-    private function processText($action, $text, $prompt = '')
+    private function processText($action, $text, $prompt = '', $metadata = [])
     {
         require_once 'llm_client.php';
         
@@ -133,21 +140,21 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         
         switch ($action) {
             case 'complete':
-                return $client->completeText($text);
+                return $client->completeText($text, $metadata);
             case 'rewrite':
-                return $client->rewriteText($text);
+                return $client->rewriteText($text, $metadata);
             case 'grammar':
-                return $client->correctGrammar($text);
+                return $client->correctGrammar($text, $metadata);
             case 'summarize':
-                return $client->summarizeText($text);
+                return $client->summarizeText($text, $metadata);
             case 'conclusion':
-                return $client->createConclusion($text);
+                return $client->createConclusion($text, $metadata);
             case 'analyze':
-                return $client->analyzeText($text);
+                return $client->analyzeText($text, $metadata);
             case 'continue':
-                return $client->continueText($text);
+                return $client->continueText($text, $metadata);
             case 'translate':
-                return $client->translateText($text, $prompt); // prompt as target language
+                return $client->translateText($text, $prompt, $metadata); // prompt as target language
             default:
                 throw new Exception('Unknown action: ' . $action);
         }
