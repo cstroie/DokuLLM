@@ -1,0 +1,3 @@
+Based on the following text, create a well-structured conclusion:
+
+{text}

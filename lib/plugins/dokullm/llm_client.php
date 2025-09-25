@@ -57,7 +57,7 @@ class llm_client_plugin_dokullm
      */
     public function completeText($text)
     {
-        $prompt = "Complete the following text:\n\n" . $text;
+        $prompt = $this->loadPrompt('complete', ['text' => $text]);
         return $this->callAPI($prompt);
     }
     
@@ -72,7 +72,7 @@ class llm_client_plugin_dokullm
      */
     public function rewriteText($text)
     {
-        $prompt = "Rewrite the following text to improve clarity and flow:\n\n" . $text;
+        $prompt = $this->loadPrompt('rewrite', ['text' => $text]);
         return $this->callAPI($prompt);
     }
     
@@ -87,7 +87,7 @@ class llm_client_plugin_dokullm
      */
     public function correctGrammar($text)
     {
-        $prompt = "Correct the grammar and spelling in the following text:\n\n" . $text;
+        $prompt = $this->loadPrompt('grammar', ['text' => $text]);
         return $this->callAPI($prompt);
     }
     
@@ -102,7 +102,7 @@ class llm_client_plugin_dokullm
      */
     public function summarizeText($text)
     {
-        $prompt = "Summarize the following text in a concise manner:\n\n" . $text;
+        $prompt = $this->loadPrompt('summarize', ['text' => $text]);
         return $this->callAPI($prompt);
     }
     
@@ -117,7 +117,7 @@ class llm_client_plugin_dokullm
      */
     public function createConclusion($text)
     {
-        $prompt = "Based on the following text, create a well-structured conclusion:\n\n" . $text;
+        $prompt = $this->loadPrompt('conclusion', ['text' => $text]);
         return $this->callAPI($prompt);
     }
     
@@ -133,7 +133,7 @@ class llm_client_plugin_dokullm
      */
     public function translateText($text, $targetLanguage)
     {
-        $prompt = "Translate the following text to " . $targetLanguage . ":\n\n" . $text;
+        $prompt = $this->loadPrompt('translate', ['text' => $text, 'language' => $targetLanguage]);
         return $this->callAPI($prompt);
     }
     
@@ -196,5 +196,35 @@ class llm_client_plugin_dokullm
         }
         
         throw new Exception('Unexpected API response format');
+    }
+    
+    /**
+     * Load a prompt template from file and replace placeholders
+     * 
+     * @param string $promptName The name of the prompt file (without extension)
+     * @param array $variables Associative array of placeholder => value pairs
+     * @return string The processed prompt
+     * @throws Exception If the prompt file cannot be loaded
+     */
+    private function loadPrompt($promptName, $variables = [])
+    {
+        $promptFile = DOKU_PLUGIN . 'dokullm/prompts/' . $promptName . '.txt';
+        
+        if (!file_exists($promptFile)) {
+            throw new Exception('Prompt file not found: ' . $promptFile);
+        }
+        
+        $prompt = file_get_contents($promptFile);
+        
+        if ($prompt === false) {
+            throw new Exception('Failed to read prompt file: ' . $promptFile);
+        }
+        
+        // Replace placeholders with actual values
+        foreach ($variables as $placeholder => $value) {
+            $prompt = str_replace('{' . $placeholder . '}', $value, $prompt);
+        }
+        
+        return $prompt;
     }
 }
