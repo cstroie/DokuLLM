@@ -1,7 +1,0 @@
-base    doku_llm
-author  Costin Stroie
-email   costinstroie@eridu.eu.org
-date    2024-01-01
-name    DokuLLM - LLM Integration Plugin
-desc    Integrates OpenAI-compatible LLMs for text completion, rewriting, grammar correction, summarization, and translation
-url     https://github.com/cstroie/DokuLLM
