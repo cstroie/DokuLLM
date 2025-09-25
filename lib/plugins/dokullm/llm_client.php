@@ -180,9 +180,6 @@ class llm_client_plugin_dokullm
             $systemPrompt .= "\n\n" . $contextInfo;
         }
         
-        // Add DokuWiki syntax information to the system prompt
-        $systemPrompt .= "\n\nThe text uses DokuWiki syntax. Please maintain proper DokuWiki formatting in your response.";
-        
         $data = [
             'model' => $this->model,
             'messages' => [
