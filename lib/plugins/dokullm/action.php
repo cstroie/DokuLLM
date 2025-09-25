@@ -142,7 +142,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      */
     private function processText($action, $text, $prompt = '', $metadata = [], $template = '')
     {
-        require_once 'llm_client.php';
+        require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
         
         $client = new llm_client_plugin_dokullm();
         
