@@ -1,3 +1,3 @@
-Completează următorul text:
+Dezvoltă această descriere radiologică cu:\n1. Detalii anatomice suplimentare relevante\n2. Măsurători și dimensiuni dacă sunt aplicabile\n3. Comparații cu examinări anterioare dacă există\n4. Context clinic relevant\n5. Descrieri ale modificărilor patologice observate\n\nMenține terminologia medicală precisă și structura logică.
 
 {text}

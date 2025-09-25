@@ -1,3 +1,3 @@
-Corectează gramatica și ortografia în următorul text:
+Revizuiește și standardizează terminologia medicală din acest text:\n1. Verifică consistența abrevierilor medicale\n2. Asigură folosirea termenilor anatomici corecți în română\n3. Uniformizează descrierile patologice\n4. Verifică conformitatea cu nomenclatura medicală română\n5. Sugerează termeni mai precisi unde este necesar
 
 {text}
