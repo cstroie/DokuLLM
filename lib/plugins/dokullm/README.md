@@ -6,6 +6,7 @@ A DokuWiki plugin that integrates Large Language Models (LLM) to enhance content
 
 This plugin adds a toolbar to DokuWiki's edit interface with the following LLM-powered functions:
 
+- **Insert Template**: Automatically insert template content when LLM_TEMPLATE metadata is defined
 - **Complete**: Automatically complete partial text
 - **Rewrite**: Improve clarity and flow of existing text
 - **Grammar**: Correct grammar and spelling errors
@@ -60,7 +61,9 @@ To use metadata for better context:
 
 1. Add `~~LLM_TEMPLATE:reports:mri:templates:cerebral-normal~~` at the top of your page to specify a template
 2. Add `~~LLM_EXAMPLES:reports:mri:2025:example-report~~` to specify example pages
-3. The LLM will use these references when processing your content
+3. When a template is defined, an "Insert Template" button will appear in the toolbar
+4. Click the "Insert Template" button to insert the full template content into your page
+5. The LLM will use these references when processing your content
 
 ## How It Works
 
