@@ -95,17 +95,38 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $action = $INPUT->str('action');
         $text = $INPUT->str('text');
         $prompt = $INPUT->str('prompt', '');
+        $model = $INPUT->str('model', '');
         
-        // Validate input
+        // Handle model listing request
+        if ($action === 'get_models') {
+            try {
+                require_once 'llm_client.php';
+                $client = new llm_client_plugin_dokullm();
+                $models = $client->getAvailableModels();
+                echo json_encode(['models' => $models]);
+            } catch (Exception $e) {
+                http_status(500);
+                echo json_encode(['error' => $e->getMessage()]);
+            }
+            return;
+        }
+        
+        // Validate input for text processing actions
         if (empty($text)) {
             http_status(400);
             echo json_encode(['error' => 'No text provided']);
             return;
         }
         
+        if (empty($model)) {
+            http_status(400);
+            echo json_encode(['error' => 'No model selected']);
+            return;
+        }
+        
         // Process based on action
         try {
-            $result = $this->processText($action, $text, $prompt);
+            $result = $this->processText($action, $text, $prompt, $model);
             echo json_encode(['result' => $result]);
         } catch (Exception $e) {
             http_status(500);
@@ -122,14 +143,20 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      * @param string $action The action to perform (complete, rewrite, grammar, etc.)
      * @param string $text The text to process
      * @param string $prompt Additional prompt information (used for translation target language)
+     * @param string $model The model to use for processing
      * @return string The processed text result
      * @throws Exception If an unknown action is provided
      */
-    private function processText($action, $text, $prompt = '')
+    private function processText($action, $text, $prompt = '', $model = '')
     {
         require_once 'llm_client.php';
         
         $client = new llm_client_plugin_dokullm();
+        
+        // Temporarily override the model if specified
+        if (!empty($model)) {
+            $client->setModel($model);
+        }
         
         switch ($action) {
             case 'complete':

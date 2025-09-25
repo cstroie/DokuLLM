@@ -33,6 +33,16 @@ class llm_client_plugin_dokullm
     private $timeout;
     
     /**
+     * Set the model to use
+     * 
+     * @param string $model The model identifier
+     */
+    public function setModel($model)
+    {
+        $this->model = $model;
+    }
+    
+    /**
      * Initialize the LLM client with configuration settings
      * 
      * Retrieves configuration values from DokuWiki's configuration system
@@ -45,6 +55,68 @@ class llm_client_plugin_dokullm
         $this->api_key = $conf['plugin']['dokullm']['api_key'];
         $this->model = $conf['plugin']['dokullm']['model'];
         $this->timeout = $conf['plugin']['dokullm']['timeout'];
+    }
+    
+    /**
+     * Get available models from the LLM server
+     * 
+     * Makes an HTTP request to the API to retrieve a list of available models.
+     * 
+     * @return array List of available models
+     * @throws Exception If the API request fails
+     */
+    public function getAvailableModels()
+    {
+        // Extract base URL and remove any path after /v1
+        $parsedUrl = parse_url($this->api_url);
+        $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
+        if (isset($parsedUrl['port'])) {
+            $baseUrl .= ':' . $parsedUrl['port'];
+        }
+        $baseUrl .= '/v1/models';
+        
+        $headers = [
+            'Content-Type: application/json'
+        ];
+        
+        if (!empty($this->api_key)) {
+            $headers[] = 'Authorization: Bearer ' . $this->api_key;
+        }
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $baseUrl);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        
+        if ($error) {
+            throw new Exception('Failed to fetch models: ' . $error);
+        }
+        
+        if ($httpCode !== 200) {
+            throw new Exception('Failed to fetch models with HTTP code: ' . $httpCode);
+        }
+        
+        $result = json_decode($response, true);
+        
+        if (!isset($result['data']) || !is_array($result['data'])) {
+            throw new Exception('Unexpected API response format for models');
+        }
+        
+        $models = [];
+        foreach ($result['data'] as $model) {
+            if (isset($model['id'])) {
+                $models[] = $model['id'];
+            }
+        }
+        
+        return $models;
     }
     
     /**
