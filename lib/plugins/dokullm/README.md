@@ -11,7 +11,18 @@ This plugin adds a toolbar to DokuWiki's edit interface with the following LLM-p
 - **Grammar**: Correct grammar and spelling errors
 - **Summarize**: Create concise summaries of longer texts
 - **Conclusion**: Generate well-structured conclusions based on content
+- **Analyze**: Perform detailed analysis of text content
+- **Continue**: Continue writing from the current text
 - **Translate**: Translate text to different languages
+
+## Metadata Support
+
+The plugin supports metadata tags that can be added to pages to provide context for LLM processing:
+
+- `~~LLM_TEMPLATE:page:id~~` - Specify a template page to use as reference
+- `~~LLM_EXAMPLES:page1:id,page2:id~~` - Specify example pages for reference
+
+These metadata tags help the LLM understand the context and style of the content being processed.
 
 ## Requirements
 
@@ -42,6 +53,14 @@ After installation, configure the plugin through DokuWiki's Configuration Manage
    - Select specific text and click an action button to process only that text
    - Click an action button without selecting text to process the entire content
 4. For translation, you'll be prompted to enter the target language
+
+### Using Metadata
+
+To use metadata for better context:
+
+1. Add `~~LLM_TEMPLATE:reports:mri:templates:cerebral-normal~~` at the top of your page to specify a template
+2. Add `~~LLM_EXAMPLES:reports:mri:2025:g309-mantea-nicoleta-alina~~` to specify example pages
+3. The LLM will use these references when processing your content
 
 ## How It Works
 
