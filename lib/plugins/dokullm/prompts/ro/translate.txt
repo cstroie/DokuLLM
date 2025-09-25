@@ -1,3 +1,0 @@
-Tradu următorul text în {language}:
-
-{text}

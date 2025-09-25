@@ -1,3 +1,0 @@
-Translate the following text to {language}:
-
-{text}

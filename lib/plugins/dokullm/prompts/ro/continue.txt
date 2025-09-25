@@ -1,3 +1,11 @@
-Continuă redactarea acestei secțiuni din raportul radiologic menținând:\n1. Terminologia medicală precisă în română\n2. Tonul profesional medical\n3. Consistența cu rapoartele mele anterioare\n4. Fluxul logic și structura standard\n5. Nivelul adecvat de detaliu clinic\n\nAsigură-te că conținutul se integrează natural cu ce este deja scris.
+Continuă redactarea acestei secțiuni din raportul radiologic menținând:
+1. Terminologia medicală precisă în română
+2. Tonul profesional medical, formal
+3. Consistența cu rapoartele mele anterioare
+4. Fluxul logic și structura standard
+5. Nivelul adecvat de detaliu clinic
+
+Asigură-te că conținutul se integrează natural cu ce este deja scris.
+Limitează-te la o secțiune, nu continua cu tot raportul.
 
 {text}

@@ -1,3 +1,8 @@
-Redactează concluzia pentru acest raport radiologic care:\n1. Rezumă constatările principale în 2-4 puncte\n2. Oferă diagnosticul radiologic clar\n3. Menționează recomandări pentru investigații suplimentare dacă este cazul\n4. Folosește terminologia medicală precisă\n5. Respectă structura: Constatări → Diagnostic → Recomandări
+Redactează concluziile pentru acest raport radiologic care:
+1. Rezumă constatările principale în 2-4 puncte, în mod concis
+2. Oferă diagnosticul radiologic clar
+3. Menționează recomandări pentru investigații suplimentare dacă este cazul
+4. Folosește terminologia medicală precisă
+5. Respectă structura: Constatări → Diagnostic → Recomandări
 
 {text}
