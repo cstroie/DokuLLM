@@ -1,6 +1,10 @@
 <?php
 /**
  * LLM Client for the doku_llm plugin
+ * 
+ * This class provides methods to interact with an LLM API for various
+ * text processing tasks such as completion, rewriting, grammar correction,
+ * summarization, conclusion creation, and translation.
  */
 
 // must be run within Dokuwiki
@@ -8,13 +12,32 @@ if (!defined('DOKU_INC')) {
     die();
 }
 
+/**
+ * LLM Client class for handling API communications
+ * 
+ * Manages configuration settings and provides methods for various
+ * text processing operations through an LLM API.
+ */
 class llm_client_plugin_doku_llm
 {
+    /** @var string The API endpoint URL */
     private $api_url;
+    
+    /** @var string The API authentication key */
     private $api_key;
+    
+    /** @var string The model identifier to use */
     private $model;
+    
+    /** @var int The request timeout in seconds */
     private $timeout;
     
+    /**
+     * Initialize the LLM client with configuration settings
+     * 
+     * Retrieves configuration values from DokuWiki's configuration system
+     * for API URL, key, model, and timeout settings.
+     */
     public function __construct()
     {
         global $conf;
@@ -25,7 +48,12 @@ class llm_client_plugin_doku_llm
     }
     
     /**
-     * Complete text
+     * Complete the provided text using the LLM
+     * 
+     * Sends a prompt to the LLM asking it to complete the given text.
+     * 
+     * @param string $text The text to complete
+     * @return string The completed text
      */
     public function completeText($text)
     {
@@ -34,7 +62,13 @@ class llm_client_plugin_doku_llm
     }
     
     /**
-     * Rewrite text
+     * Rewrite text to improve clarity and flow
+     * 
+     * Sends a prompt to the LLM asking it to rewrite the text for better
+     * clarity, structure, and readability.
+     * 
+     * @param string $text The text to rewrite
+     * @return string The rewritten text
      */
     public function rewriteText($text)
     {
@@ -43,7 +77,13 @@ class llm_client_plugin_doku_llm
     }
     
     /**
-     * Correct grammar
+     * Correct grammar and spelling in the provided text
+     * 
+     * Sends a prompt to the LLM asking it to correct grammatical errors
+     * and spelling mistakes in the text.
+     * 
+     * @param string $text The text to correct
+     * @return string The corrected text
      */
     public function correctGrammar($text)
     {
@@ -52,7 +92,13 @@ class llm_client_plugin_doku_llm
     }
     
     /**
-     * Summarize text
+     * Summarize the provided text concisely
+     * 
+     * Sends a prompt to the LLM asking it to create a concise summary
+     * of the given text.
+     * 
+     * @param string $text The text to summarize
+     * @return string The summarized text
      */
     public function summarizeText($text)
     {
@@ -61,7 +107,13 @@ class llm_client_plugin_doku_llm
     }
     
     /**
-     * Create conclusion
+     * Create a conclusion based on the provided text
+     * 
+     * Sends a prompt to the LLM asking it to create a well-structured
+     * conclusion based on the given text.
+     * 
+     * @param string $text The text to create a conclusion for
+     * @return string The generated conclusion
      */
     public function createConclusion($text)
     {
@@ -70,7 +122,14 @@ class llm_client_plugin_doku_llm
     }
     
     /**
-     * Translate text
+     * Translate text to the specified target language
+     * 
+     * Sends a prompt to the LLM asking it to translate the text to
+     * the specified target language.
+     * 
+     * @param string $text The text to translate
+     * @param string $targetLanguage The target language for translation
+     * @return string The translated text
      */
     public function translateText($text, $targetLanguage)
     {
@@ -79,7 +138,15 @@ class llm_client_plugin_doku_llm
     }
     
     /**
-     * Call the LLM API
+     * Call the LLM API with the specified prompt
+     * 
+     * Makes an HTTP POST request to the configured API endpoint with
+     * the prompt and other parameters. Handles authentication if an
+     * API key is configured.
+     * 
+     * @param string $prompt The prompt to send to the LLM
+     * @return string The response content from the LLM
+     * @throws Exception If the API request fails or returns unexpected format
      */
     private function callAPI($prompt)
     {

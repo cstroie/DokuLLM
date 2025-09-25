@@ -11,10 +11,24 @@ if (!defined('DOKU_INC')) {
     die();
 }
 
+/**
+ * Main action component for the doku_llm plugin
+ * 
+ * This class handles:
+ * - Registering event handlers for page rendering and AJAX calls
+ * - Adding JavaScript to edit pages
+ * - Processing AJAX requests from the frontend
+ */
 class action_plugin_doku_llm extends DokuWiki_Action_Plugin
 {
     /**
-     * Register the event handlers
+     * Register the event handlers for this plugin
+     * 
+     * Hooks into:
+     * - TPL_METAHEADER_OUTPUT: To add JavaScript to edit pages
+     * - AJAX_CALL_UNKNOWN: To handle plugin-specific AJAX requests
+     * 
+     * @param Doku_Event_Handler $controller The event handler controller
      */
     public function register(Doku_Event_Handler $controller)
     {
@@ -23,7 +37,13 @@ class action_plugin_doku_llm extends DokuWiki_Action_Plugin
     }
 
     /**
-     * Add JavaScript to the page
+     * Add JavaScript to the page header for edit pages
+     * 
+     * This method checks if we're on an edit or preview page and adds
+     * the plugin's JavaScript file to the page header.
+     * 
+     * @param Doku_Event $event The event object
+     * @param mixed $param Additional parameters
      */
     public function handleMetaHeaders(Doku_Event $event, $param)
     {
@@ -40,7 +60,13 @@ class action_plugin_doku_llm extends DokuWiki_Action_Plugin
     }
 
     /**
-     * Handle AJAX requests
+     * Handle AJAX requests for the plugin
+     * 
+     * Processes AJAX calls with the identifier 'plugin_doku_llm' and
+     * routes them to the appropriate text processing method.
+     * 
+     * @param Doku_Event $event The event object
+     * @param mixed $param Additional parameters
      */
     public function handleAjax(Doku_Event $event, $param)
     {
@@ -56,7 +82,11 @@ class action_plugin_doku_llm extends DokuWiki_Action_Plugin
     }
 
     /**
-     * Process the AJAX request
+     * Process the AJAX request and return JSON response
+     * 
+     * Extracts action, text, and prompt parameters from the request,
+     * validates the input, and calls the appropriate processing method.
+     * Returns JSON encoded result or error.
      */
     private function processRequest()
     {
@@ -84,7 +114,16 @@ class action_plugin_doku_llm extends DokuWiki_Action_Plugin
     }
 
     /**
-     * Process text based on action
+     * Process text based on the specified action
+     * 
+     * Routes the text processing request to the appropriate method in
+     * the LLM client based on the action parameter.
+     * 
+     * @param string $action The action to perform (complete, rewrite, grammar, etc.)
+     * @param string $text The text to process
+     * @param string $prompt Additional prompt information (used for translation target language)
+     * @return string The processed text result
+     * @throws Exception If an unknown action is provided
      */
     private function processText($action, $text, $prompt = '')
     {
