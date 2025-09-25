@@ -316,7 +316,7 @@ class llm_client_plugin_dokullm
      * @param string $pageId The page ID to retrieve
      * @return string|false The page content or false if not found
      */
-    private function getPageContent($pageId)
+    public function getPageContent($pageId)
     {
         // Convert page ID to file path
         $pageFile = wikiFN($pageId);
