@@ -105,17 +105,30 @@ class llm_client_plugin_dokullm
         
         $result = json_decode($response, true);
         
-        if (!isset($result['data']) || !is_array($result['data'])) {
-            throw new Exception('Unexpected API response format for models');
-        }
-        
+        // Handle different API response formats
         $models = [];
-        foreach ($result['data'] as $model) {
-            if (isset($model['id'])) {
-                $models[] = $model['id'];
+        
+        // Format 1: OpenAI-like format with 'data' array
+        if (isset($result['data']) && is_array($result['data'])) {
+            foreach ($result['data'] as $model) {
+                if (isset($model['id'])) {
+                    $models[] = $model['id'];
+                }
+            }
+        }
+        // Format 2: Simple array of model names
+        elseif (is_array($result)) {
+            foreach ($result as $key => $value) {
+                if (is_string($value)) {
+                    $models[] = $value;
+                } elseif (is_array($value) && isset($value['id'])) {
+                    $models[] = $value['id'];
+                }
             }
         }
         
+        // If no models found, return empty array instead of throwing exception
+        // This allows the UI to show "No models available" message
         return $models;
     }
     
