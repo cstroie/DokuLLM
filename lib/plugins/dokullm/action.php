@@ -139,6 +139,13 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $client = new llm_client_plugin_dokullm();
         
         switch ($action) {
+            case 'get_template':
+                $templateId = $prompt; // Using prompt parameter for template ID
+                $templateContent = $client->getPageContent($templateId);
+                if ($templateContent === false) {
+                    throw new Exception('Template not found: ' . $templateId);
+                }
+                return $templateContent;
             case 'complete':
                 return $client->completeText($text, $metadata);
             case 'rewrite':
