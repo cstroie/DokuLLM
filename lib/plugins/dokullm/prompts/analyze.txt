@@ -1,0 +1,3 @@
+Analyze the writing style, structure, terminology, and formatting patterns in this report. Identify:\n1. Sentence structure and tone\n2. Section organization\n3. Key phrases and terminology\n4. Data presentation style\n5. Transition patterns between sections\n\nProvide specific guidelines I can follow for consistency in future reports.
+
+{text}
