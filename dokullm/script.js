@@ -20,8 +20,15 @@
     /**
      * Initialize the plugin when the DOM is ready
      * 
-     * Checks if we're on an edit page and adds the LLM tools if so.
+     * This is the main initialization function that runs when the DOM is fully loaded.
+     * It checks if we're on an edit page and adds the LLM tools if so.
      * Only runs on pages with the wiki text editor.
+     * Also sets up the copy page button event listener.
+     * 
+     * Complex logic includes:
+     * 1. Checking for the presence of the wiki text editor element
+     * 2. Conditionally adding LLM tools based on page context
+     * 3. Setting up event listeners for the copy page functionality
      */
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DokuLLM: DOM loaded, initializing plugin');
@@ -50,6 +57,14 @@
      * below the editor.
      * 
      * Dynamically adds a template button when template metadata is present.
+     * 
+     * Complex logic includes:
+     * 1. Creating and positioning the main toolbar container
+     * 2. Dynamically adding a template button based on metadata presence
+     * 3. Creating standard LLM operation buttons with event handlers
+     * 4. Adding a custom prompt input field with Enter key handling
+     * 5. Inserting all UI elements at appropriate positions in the DOM
+     * 6. Applying CSS styles for consistent appearance
      */
     function addLLMTools() {
         const editor = document.getElementById('wiki__text');
@@ -171,6 +186,14 @@
      * Preserves page metadata when doing full page updates.
      * Shows loading indicators during processing.
      * 
+     * Complex logic includes:
+     * 1. Determining text to process (selected vs full content)
+     * 2. Managing UI state during processing (loading indicators, readonly)
+     * 3. Constructing and sending AJAX requests with proper metadata
+     * 4. Handling response processing and error conditions
+     * 5. Updating editor content while preserving metadata
+     * 6. Restoring UI state after processing
+     * 
      * @param {string} action - The action to perform (complete, rewrite, etc.)
      */
     function processText(action) {
@@ -268,6 +291,15 @@
      * 
      * Clears the prompt input after successful processing.
      * Shows loading indicators during processing.
+     * 
+     * Complex logic includes:
+     * 1. Validating custom prompt input
+     * 2. Determining text to process (selected vs full content)
+     * 3. Managing UI state for the custom prompt interface
+     * 4. Constructing and sending AJAX requests with custom prompts
+     * 5. Handling response processing and error conditions
+     * 6. Updating editor content and clearing input fields
+     * 7. Restoring UI state after processing
      * 
      * @param {string} customPrompt - The user's custom prompt
      */
@@ -389,6 +421,13 @@
      * When replacing the entire content, preserves metadata directives
      * at the beginning of the page.
      * 
+     * Complex logic includes:
+     * 1. Determining if text is selected or if it's a full content replacement
+     * 2. Preserving metadata directives when doing full content replacement
+     * 3. Properly replacing only selected text when applicable
+     * 4. Managing cursor position after text replacement
+     * 5. Maintaining focus on the textarea
+     * 
      * @param {HTMLTextAreaElement} textarea - The textarea element
      * @param {string} newText - The new text to insert
      */
@@ -452,6 +491,13 @@
      * - ~~LLM_TEMPLATE:page_id~~ for template page reference
      * - ~~LLM_EXAMPLES:page1,page2~~ for example page references
      * 
+     * Complex logic includes:
+     * 1. Initializing metadata structure with default values
+     * 2. Safely accessing page content from the editor
+     * 3. Using regular expressions to extract metadata directives
+     * 4. Parsing comma-separated example page lists
+     * 5. Trimming whitespace from extracted values
+     * 
      * @returns {Object} Metadata object with template and examples
      */
     function getPageMetadata() {
@@ -485,6 +531,14 @@
      * at the current cursor position.
      * 
      * Shows loading indicators during the fetch operation.
+     * 
+     * Complex logic includes:
+     * 1. Managing UI state during template loading (loading indicator, readonly)
+     * 2. Constructing and sending AJAX requests for template content
+     * 3. Handling response processing and error conditions
+     * 4. Inserting template content at the correct cursor position
+     * 5. Managing cursor position after content insertion
+     * 6. Restoring UI state after template insertion
      * 
      * @param {string} templateId - The template page ID
      */
