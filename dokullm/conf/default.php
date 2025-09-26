@@ -107,7 +107,7 @@ $conf['min_p'] = 0.0;
  * 
  * @var bool
  */
-$conf['showcopybutton'] = true;
+$conf['show_copy_button'] = true;
 
 /**
  * Replace ID in template content

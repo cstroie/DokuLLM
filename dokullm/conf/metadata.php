@@ -94,13 +94,13 @@ $meta['top_k'] = array('numeric', '_min' => 1);
 $meta['min_p'] = array('numeric', '_min' => 0.0, '_max' => 1.0, '_pattern' => '/^\d+(\.\d+)?$/');
 
 /**
- * Metadata for the showcopybutton configuration option
+ * Metadata for the show_copy_button configuration option
  * 
  * Defines whether the copy button should be shown as a boolean field.
  * 
  * @var array
  */
-$meta['showcopybutton'] = array('onoff');
+$meta['show_copy_button'] = array('onoff');
 
 /**
  * Metadata for the replaceid configuration option
