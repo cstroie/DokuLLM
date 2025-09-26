@@ -88,7 +88,7 @@
             console.log('DokuLLM: Adding template button for', metadata.template);
             const templateBtn = document.createElement('button');
             templateBtn.type = 'button';
-            templateBtn.className = 'toolbutton llm-button';
+            templateBtn.className = 'toolbutton';
             templateBtn.textContent = 'Insert Template';
             templateBtn.addEventListener('click', () => insertTemplateContent(metadata.template));
             toolbar.appendChild(templateBtn);
@@ -108,7 +108,7 @@
         buttons.forEach(button => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'toolbutton llm-button';
+            btn.className = 'toolbutton';
             btn.textContent = button.label;
             btn.dataset.action = button.action;
             btn.addEventListener('click', function() {
@@ -141,7 +141,7 @@
         
         const sendButton = document.createElement('button');
         sendButton.type = 'button';
-        sendButton.className = 'toolbutton llm-button';
+        sendButton.className = 'toolbutton';
         sendButton.textContent = 'Send';
         sendButton.addEventListener('click', () => processCustomPrompt(promptInput.value));
         
@@ -614,31 +614,11 @@
         const style = document.createElement('style');
         style.textContent = `
             #llm-toolbar {
-                margin-bottom: 10px;
-            }
-            
-            .llm-button {
-                margin-right: 5px;
-                margin-bottom: 5px;
-                padding: 5px 10px;
-                border: 1px solid #ccc;
-                border-radius: 3px;
-                cursor: pointer;
-                background-color: #f8f8f8;
-                font-size: 12px;
-            }
-            
-            .llm-button:hover {
-                background-color: #e8e8e8;
-            }
-            
-            .llm-button:disabled {
-                cursor: not-allowed;
-                opacity: 0.6;
+                margin-bottom: 0.5em;
             }
             
             .llm-custom-prompt {
-                margin: 10px 0;
+                margin-bottom: 0.5em;
                 display: flex;
                 align-items: center;
             }
