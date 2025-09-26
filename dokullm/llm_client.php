@@ -303,43 +303,41 @@ class llm_client_plugin_dokullm
     }
     
     /**
-     * Load a prompt template from file and replace placeholders
+     * Load a prompt template from a DokuWiki page and replace placeholders
      * 
-     * Loads prompt templates from the plugin's prompts directory, first
-     * attempting to load language-specific versions before falling back
-     * to default templates.
+     * Loads prompt templates from DokuWiki pages with IDs in the format
+     * dokullm:prompts:LANGUAGE:PROMPT_NAME
      * 
-     * @param string $promptName The name of the prompt file (without extension)
+     * @param string $promptName The name of the prompt
      * @param array $variables Associative array of placeholder => value pairs
      * @return string The processed prompt with placeholders replaced
-     * @throws Exception If the prompt file cannot be loaded
+     * @throws Exception If the prompt page cannot be loaded
      */
     private function loadPrompt($promptName, $variables = [])
     {
         global $conf;
         $language = $conf['plugin']['dokullm']['language'];
-        $promptFile = DOKU_PLUGIN . 'dokullm/prompts/';
         
-        // If a specific language is configured, attempt to load the language-specific prompt
-        if ($language !== 'default') {
-            $promptFile = $promptFile . $language . '/' . $promptName . '.txt';
-        }
-        else {
-        // Use the default language
-          $promptFile = $promptFile . $promptName . '.txt';
+        // Default to 'en' if language is 'default' or not set
+        if ($language === 'default' || empty($language)) {
+            $language = 'en';
         }
         
-        // If the default prompt file does not exist, throw an exception
-        if (!file_exists($promptFile)) {
-            throw new Exception('Prompt file not found: ' . $promptFile);
+        // Construct the page ID for the prompt
+        $promptPageId = 'dokullm:prompts:' . $language . ':' . $promptName;
+        
+        // Try to get the content of the prompt page
+        $prompt = $this->getPageContent($promptPageId);
+        
+        // If the language-specific prompt doesn't exist, try English as fallback
+        if ($prompt === false && $language !== 'en') {
+            $promptPageId = 'dokullm:prompts:en:' . $promptName;
+            $prompt = $this->getPageContent($promptPageId);
         }
         
-        // Load the default prompt file
-        $prompt = file_get_contents($promptFile);
-        
-        // If the file could not be read, throw an exception
+        // If still no prompt found, throw an exception
         if ($prompt === false) {
-            throw new Exception('Failed to read prompt file: ' . $promptFile);
+            throw new Exception('Prompt page not found: ' . $promptPageId);
         }
         
         // Replace placeholders with actual values
