@@ -4,7 +4,7 @@ A DokuWiki plugin that integrates Large Language Models (LLM) to enhance content
 
 ## Features
 
-This plugin adds a toolbar to DokuWiki's edit interface with the following LLM-powered functions:
+This plugin adds a comprehensive toolbar to DokuWiki's edit interface with the following LLM-powered functions:
 
 - **Insert Template**: Automatically insert template content when LLM_TEMPLATE metadata is defined
 - **Complete**: Automatically complete partial text
@@ -14,7 +14,7 @@ This plugin adds a toolbar to DokuWiki's edit interface with the following LLM-p
 - **Conclusion**: Generate well-structured conclusions based on content
 - **Analyze**: Perform detailed analysis of text content
 - **Continue**: Continue writing from the current text
-- **Translate**: Translate text to different languages
+- **Custom Prompts**: Process text with your own custom instructions
 
 ## Metadata Support
 
@@ -45,6 +45,11 @@ After installation, configure the plugin through DokuWiki's Configuration Manage
 - **API Key**: Your authentication key for the LLM service
 - **Model**: The specific model to use (e.g., gpt-3.5-turbo, gpt-4)
 - **Timeout**: Maximum time to wait for API responses (in seconds)
+- **Language**: Language for prompt templates (default: en)
+- **Temperature**: Controls randomness in responses (0.0-1.0)
+- **Top-p**: Nucleus sampling parameter (0.0-1.0)
+- **Top-k**: Top-k sampling parameter (integer >= 1)
+- **Min-p**: Minimum probability threshold (0.0-1.0)
 
 ## Usage
 
@@ -53,7 +58,7 @@ After installation, configure the plugin through DokuWiki's Configuration Manage
 3. Either:
    - Select specific text and click an action button to process only that text
    - Click an action button without selecting text to process the entire content
-4. For translation, you'll be prompted to enter the target language
+4. Use the custom prompt input at the bottom to process text with your own instructions
 
 ### Using Metadata
 
@@ -64,6 +69,12 @@ To use metadata for better context:
 3. When a template is defined, an "Insert Template" button will appear in the toolbar
 4. Click the "Insert Template" button to insert the full template content into your page
 5. The LLM will use these references when processing your content
+
+### Copy Page with Template Support
+
+The plugin also includes a "Copy page" button in the page tools that:
+- Preserves LLM_TEMPLATE metadata when copying pages
+- Automatically adds LLM_TEMPLATE metadata when copying from pages with "template" in their ID
 
 ## How It Works
 
