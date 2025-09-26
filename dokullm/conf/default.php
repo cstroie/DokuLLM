@@ -118,5 +118,5 @@ $conf['show_copy_button'] = true;
  * 
  * @var bool
  */
-$conf['replaceid'] = true;
+$conf['replace_id'] = true;
 

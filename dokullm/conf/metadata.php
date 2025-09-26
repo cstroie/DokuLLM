@@ -103,11 +103,11 @@ $meta['min_p'] = array('numeric', '_min' => 0.0, '_max' => 1.0, '_pattern' => '/
 $meta['show_copy_button'] = array('onoff');
 
 /**
- * Metadata for the replaceid configuration option
+ * Metadata for the replace_id configuration option
  * 
  * Defines whether the template ID should be replaced with the new page ID
  * when copying a page with a template.
  * 
  * @var array
  */
-$meta['replaceid'] = array('onoff');
+$meta['replace_id'] = array('onoff');
