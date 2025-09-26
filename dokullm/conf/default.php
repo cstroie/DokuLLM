@@ -99,3 +99,13 @@ $conf['top_k'] = 20;
  */
 $conf['min_p'] = 0.0;
 
+/**
+ * Show copy button in the toolbar
+ * 
+ * Controls whether the copy page button is displayed in the LLM toolbar.
+ * When true, the copy button will be visible; when false, it will be hidden.
+ * 
+ * @var bool
+ */
+$conf['showcopybutton'] = true;
+
