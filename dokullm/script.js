@@ -31,6 +31,15 @@
             console.log('DokuLLM: Adding LLM tools to editor');
             addLLMTools();
         }
+        
+        // Add event listener for copy button
+        const copyButton = document.querySelector('.dokullmplugin__copy');
+        if (copyButton) {
+            copyButton.addEventListener('click', function(event) {
+                event.preventDefault();
+                copyPage();
+            });
+        }
     });
     
     /**
