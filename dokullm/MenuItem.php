@@ -21,13 +21,19 @@ class MenuItem extends AbstractItem
     protected $svg = __DIR__ . '/copy.svg';
 
     /**
-     * Get label from plugin language file
+     * Get the label for the menu item from the plugin language file
      *
-     * @return string
+     * This method loads the dokullm action plugin and retrieves the 
+     * localized label for the copy page button from the language files.
+     * The label is defined in the lang/en/lang.php file as 'copy_page_button'.
+     *
+     * @return string The localized label for the menu item
      */
     public function getLabel()
     {
+        // Load the action plugin to access its language strings
         $hlp = plugin_load('action', 'dokullm');
+        // Return the localized label for the copy page button
         return $hlp->getLang('copy_page_button');
     }
 }
