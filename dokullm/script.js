@@ -146,11 +146,11 @@
         // Original code: https://www.dokuwiki.org/plugin:copypage
         var oldId = JSINFO.id;
         while (true) {
-           var newId = prompt(LANG.plugins.dokullm.enter_page_id, oldId);
+           var newId = prompt('Enter the new page ID:', oldId);
            // Note: When a user canceled, most browsers return the null, but Safari returns the empty string
            if (newId) {
                if (newId === oldId) {
-                   alert(LANG.plugins.dokullm.different_id_required);
+                   alert('The new page ID must be different from the current page ID.');
                    continue;
                }
                var url = DOKU_BASE + 'doku.php?id=' + encodeURIComponent(newId) +
