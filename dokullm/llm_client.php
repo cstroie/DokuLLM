@@ -212,6 +212,13 @@ class llm_client_plugin_dokullm
      * The method constructs a conversation with system and user messages,
      * including context information from metadata when available.
      * 
+     * Complex logic includes:
+     * 1. Loading and enhancing the system prompt with metadata context
+     * 2. Building the API request with model parameters
+     * 3. Handling authentication with API key if configured
+     * 4. Making the HTTP request with proper error handling
+     * 5. Parsing and validating the API response
+     * 
      * @param string $prompt The prompt to send to the LLM as user message
      * @param array $metadata Optional metadata containing template and examples
      * @return string The response content from the LLM
@@ -219,12 +226,15 @@ class llm_client_plugin_dokullm
      */
     private function callAPI($prompt, $metadata = [])
     {
-        // Load system prompt
+        // Load system prompt which provides general instructions to the LLM
         $systemPrompt = $this->loadPrompt('system', []);
         
-        // Add metadata context to system prompt if available
+        // Enhance system prompt with context information from metadata
+        // This provides the LLM with additional context about templates and examples
         if (!empty($metadata)) {
             $contextInfo = "Context information for this request:\n";
+            
+            // Add template content if specified in metadata
             if (!empty($metadata['template'])) {
                 $templateContent = $this->getPageContent($metadata['template']);
                 if ($templateContent !== false) {
@@ -233,6 +243,8 @@ class llm_client_plugin_dokullm
                     $contextInfo .= "- Template page: " . $metadata['template'] . " (content not available)\n";
                 }
             }
+            
+            // Add example pages content if specified in metadata
             if (!empty($metadata['examples'])) {
                 $examplesContent = [];
                 foreach ($metadata['examples'] as $example) {
@@ -247,9 +259,12 @@ class llm_client_plugin_dokullm
                     $contextInfo .= "- Example pages:\n" . implode("\n\n", $examplesContent) . "\n";
                 }
             }
+            
+            // Append context information to system prompt
             $systemPrompt .= "\n\n" . $contextInfo;
         }
         
+        // Prepare API request data with model parameters
         $data = [
             'model' => $this->model,
             'messages' => [
@@ -263,6 +278,7 @@ class llm_client_plugin_dokullm
             'max_tokens' => 4000
         ];
         
+        // Set up HTTP headers, including authentication if API key is configured
         $headers = [
             'Content-Type: application/json'
         ];
@@ -271,6 +287,7 @@ class llm_client_plugin_dokullm
             $headers[] = 'Authorization: Bearer ' . $this->api_key;
         }
         
+        // Initialize and configure cURL for the API request
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->api_url);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -280,25 +297,31 @@ class llm_client_plugin_dokullm
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         
+        // Execute the API request
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         curl_close($ch);
         
+        // Handle cURL errors
         if ($error) {
             throw new Exception('API request failed: ' . $error);
         }
         
+        // Handle HTTP errors
         if ($httpCode !== 200) {
             throw new Exception('API request failed with HTTP code: ' . $httpCode);
         }
         
+        // Parse and validate the JSON response
         $result = json_decode($response, true);
         
+        // Extract the content from the response if available
         if (isset($result['choices'][0]['message']['content'])) {
             return trim($result['choices'][0]['message']['content']);
         }
         
+        // Throw exception for unexpected response format
         throw new Exception('Unexpected API response format');
     }
     
@@ -308,10 +331,18 @@ class llm_client_plugin_dokullm
      * Loads prompt templates from DokuWiki pages with IDs in the format
      * dokullm:prompts:LANGUAGE:PROMPT_NAME
      * 
-     * @param string $promptName The name of the prompt
+     * The method implements a language fallback mechanism:
+     * 1. First tries to load the prompt in the configured language
+     * 2. If not found, falls back to English prompts
+     * 3. Throws an exception if neither is available
+     * 
+     * After loading the prompt, it replaces placeholders with actual values
+     * using a simple string replacement mechanism.
+     * 
+     * @param string $promptName The name of the prompt (e.g., 'complete', 'rewrite')
      * @param array $variables Associative array of placeholder => value pairs
      * @return string The processed prompt with placeholders replaced
-     * @throws Exception If the prompt page cannot be loaded
+     * @throws Exception If the prompt page cannot be loaded in any language
      */
     private function loadPrompt($promptName, $variables = [])
     {
@@ -323,10 +354,10 @@ class llm_client_plugin_dokullm
             $language = 'en';
         }
         
-        // Construct the page ID for the prompt
+        // Construct the page ID for the prompt in the configured language
         $promptPageId = 'dokullm:prompts:' . $language . ':' . $promptName;
         
-        // Try to get the content of the prompt page
+        // Try to get the content of the prompt page in the configured language
         $prompt = $this->getPageContent($promptPageId);
         
         // If the language-specific prompt doesn't exist, try English as fallback
@@ -341,6 +372,7 @@ class llm_client_plugin_dokullm
         }
         
         // Replace placeholders with actual values
+        // Placeholders are in the format {placeholder_name}
         foreach ($variables as $placeholder => $value) {
             $prompt = str_replace('{' . $placeholder . '}', $value, $prompt);
         }
