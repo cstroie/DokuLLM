@@ -271,12 +271,22 @@ class llm_client_plugin_dokullm
                 ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $prompt]
             ],
-            'temperature' => $this->temperature,
-            'top_p' => $this->top_p,
-            'top_k' => $this->top_k,
-            'min_p' => $this->min_p,
             'max_tokens' => 4000
         ];
+        
+        // Only add parameters if they are defined and not null
+        if ($this->temperature !== null) {
+            $data['temperature'] = $this->temperature;
+        }
+        if ($this->top_p !== null) {
+            $data['top_p'] = $this->top_p;
+        }
+        if ($this->top_k !== null) {
+            $data['top_k'] = $this->top_k;
+        }
+        if ($this->min_p !== null) {
+            $data['min_p'] = $this->min_p;
+        }
         
         // Set up HTTP headers, including authentication if API key is configured
         $headers = [
