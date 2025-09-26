@@ -211,7 +211,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     public function addCopyPageButton(Doku_Event $event)
     {
         global $INFO;
-        if ($event->data['view'] != 'page' || !$this->getConf('showcopybutton')) {
+        if ($event->data['view'] != 'page' || !$this->getConf('show_copy_button')) {
             return;
         }
         if (! $INFO['exists']) {
