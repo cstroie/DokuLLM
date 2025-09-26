@@ -31,10 +31,6 @@
             console.log('DokuLLM: Adding LLM tools to editor');
             addLLMTools();
         }
-        
-        // Add page copy button to sidebar
-        addPageCopyButton();
-        console.log('DokuLLM: Plugin initialization complete');
     });
     
     /**
@@ -136,49 +132,28 @@
         console.log('DokuLLM: LLM toolbars added successfully');
     }
     
-    /**
-     * Add a page copy button to the sidebar
-     * 
-     * Creates a button in the lateral menu that allows users to copy the current page
-     * to a new page with a different ID. If the original page contains 'template' or
-     * 'normal' in its ID, adds LLM_TEMPLATE metadata to the new page.
-     */
-    function addPageCopyButton() {
-        // Check if we're on a page view (not edit)
-        const isEditPage = !!document.getElementById('wiki__text');
-        if (isEditPage) {
-            return;
+
+    function copyPage() {
+        // Original code: https://www.dokuwiki.org/plugin:copypage
+        var oldId = JSINFO.id;
+        while (true) {
+           var newId = prompt(LANG.plugins.dokullm.enter_page_id, oldId);
+           // Note: When a user canceled, most browsers return the null, but Safari returns the empty string
+           if (newId) {
+               if (newId === oldId) {
+                   alert(LANG.plugins.dokullm.different_id_required);
+                   continue;
+               }
+               var url = DOKU_BASE + 'doku.php?id=' + encodeURIComponent(newId) +
+                         '&do=edit&copyfrom=' + encodeURIComponent(oldId);
+               location.href = url;
+           }
+           break;
         }
-        
-        // Get current page ID from URL or document
-        const pageId = JSINFO.id;
-        if (!pageId) {
-            return;
-        }
-        
-        // Find the sidebar menu
-        const sidebar = document.getElementById('dokuwiki__aside');
-        if (!sidebar) {
-            return;
-        }
-        
-        // Create copy button
-        const copyButton = document.createElement('button');
-        copyButton.type = 'button';
-        copyButton.className = 'toolbutton llm-button';
-        copyButton.textContent = 'Copy Page';
-        copyButton.style.margin = '5px';
-        copyButton.style.display = 'block';
-        copyButton.style.width = 'calc(100% - 10px)';
-        
-        copyButton.addEventListener('click', function() {
-            copyPage(pageId);
-        });
-        
-        // Add to sidebar
-        sidebar.appendChild(copyButton);
     }
-    
+
+
+
     /**
      * Copy the current page to a new page ID
      * 
@@ -187,7 +162,7 @@
      * 
      * @param {string} originalPageId - The ID of the current page
      */
-    function copyPage(originalPageId) {
+    function copyPage_OLD(originalPageId) {
         // Prompt for new page ID
         const newPageId = prompt('Enter the new page ID:', originalPageId + '_copy');
         if (!newPageId) {
