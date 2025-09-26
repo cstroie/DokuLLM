@@ -98,3 +98,4 @@ $conf['top_k'] = 20;
  * @var float
  */
 $conf['min_p'] = 0.0;
+
