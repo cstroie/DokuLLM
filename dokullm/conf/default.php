@@ -109,3 +109,14 @@ $conf['min_p'] = 0.0;
  */
 $conf['showcopybutton'] = true;
 
+/**
+ * Replace ID in template content
+ * 
+ * Controls whether the template page ID should be replaced with the new page ID
+ * when copying a page with a template. When true, the template ID will be replaced;
+ * when false, it will be left as is.
+ * 
+ * @var bool
+ */
+$conf['replaceid'] = true;
+
