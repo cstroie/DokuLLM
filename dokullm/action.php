@@ -37,6 +37,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     {
         $controller->register_hook('TPL_METAHEADER_OUTPUT', 'BEFORE', $this, 'handleMetaHeaders');
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
+        $controller->register_hook('COMMON_PAGETPL_LOAD', 'BEFORE', $this, 'handleTemplate');
+        $controller->register_hook('MENU_ITEMS_ASSEMBLY', 'AFTER', $this, 'addCopyPageButton', array());
     }
 
     /**
@@ -173,5 +175,48 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             default:
                 throw new Exception('Unknown action: ' . $action);
         }
+    }
+
+
+   /**
+     * Handler to load page template.
+     *
+     * @param Doku_Event $event  event object by reference
+     * @param mixed      $param  [the parameters passed as fifth argument to register_hook() when this
+     *                           handler was registered]
+     * @return void
+     */
+    public function handleTemplate(Doku_Event &$event, $param) {
+        if (strlen($_REQUEST['copyfrom']) > 0) {
+            $template_id = $_REQUEST['copyfrom'];
+            if (auth_quickaclcheck($template_id) >= AUTH_READ) {
+                $tpl = io_readFile(wikiFN($template_id));
+                if ($this->getConf('replaceid')) {
+                    $id = $event->data['id'];
+                    $tpl = str_replace($template_id, $id, $tpl);
+                }
+                $event->data['tpl'] = $tpl;
+                $event->preventDefault();
+            }
+        }
+    }
+
+
+
+   /**
+     * Add 'Copy page' button to page tools, SVG based
+     *
+     * @param Doku_Event $event
+     */
+    public function addCopyPageButton(Doku_Event $event)
+    {
+        global $INFO;
+        if ($event->data['view'] != 'page' || !$this->getConf('showcopybutton')) {
+            return;
+        }
+        if (! $INFO['exists']) {
+            return;
+        }
+        array_splice($event->data['items'], -1, 0, [new \dokuwiki\plugin\dokullm\MenuItem()]);
     }
 }
