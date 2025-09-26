@@ -1,3 +1,0 @@
-Analizează stilul de redactare, structura, terminologia medicală și formatarea din acest raport radiologic. Identifică:\n1. Structura frazelor și tonul profesional\n2. Organizarea secțiunilor (Tehnică, Descriere, Concluzie)\n3. Terminologia medicală specifică și abrevierile folosite\n4. Stilul de prezentare a constatărilor\n5. Modelele de tranziție între secțiuni\n\nFurnizează ghiduri specifice pentru consistență în rapoartele viitoare.
-
-{text}

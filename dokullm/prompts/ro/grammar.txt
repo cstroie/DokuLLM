@@ -1,9 +1,0 @@
-Revizuiește și standardizează terminologia medicală din acest text:
-1. Verifică consistența abrevierilor medicale
-2. Asigură folosirea termenilor anatomici corecți în română
-3. Uniformizează descrierile patologice
-4. Verifică conformitatea cu nomenclatura medicală română
-5. Sugerează termeni mai precisi unde este necesar
-6. Folosește exemplele furnizate pentru a păstra consistența cu rapoartele anterioare
-
-{text}

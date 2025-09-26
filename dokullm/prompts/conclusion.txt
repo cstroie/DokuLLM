@@ -1,3 +1,0 @@
-Write an executive summary for this report that:\n1. Captures the key findings in 3-5 bullet points\n2. States the main recommendation clearly\n3. Uses quantifiable metrics where possible\n4. Maintains a professional, confident tone\n5. Follows the structure: Context → Key Findings → Primary Recommendation → Impact
-
-{text}
