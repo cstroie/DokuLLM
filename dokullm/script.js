@@ -260,7 +260,7 @@
             
             console.log('DokuLLM: Processing successful, result length:', data.result.length);
             // Remove AI thinking parts (between backticks) from the result
-            const cleanedResult = data.result.replace(/`[^`]*`/g, '');
+            const cleanedResult = data.result;
             
             // Replace selected text or append to editor
             if (selectedText) {
@@ -374,7 +374,7 @@
             
             console.log('DokuLLM: Custom prompt processing successful, result length:', data.result.length);
             // Remove AI thinking parts (between backticks) from the result
-            const cleanedResult = data.result.replace(/`[^`]*`/g, '');
+            const cleanedResult = data.result;
             
             // Replace selected text or append to editor
             if (selectedText) {

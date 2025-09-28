@@ -272,7 +272,8 @@ class llm_client_plugin_dokullm
                 ['role' => 'user', 'content' => $prompt]
             ],
             'max_tokens' => 4096,
-            'stream' => false
+            'stream' => false,
+            'think' => true
         ];
         
         // Only add parameters if they are defined and not null
@@ -330,8 +331,6 @@ class llm_client_plugin_dokullm
         // Extract the content from the response if available
         if (isset($result['choices'][0]['message']['content'])) {
             $content = trim($result['choices'][0]['message']['content']);
-            // Remove AI thinking parts (between backticks)
-            $content = preg_replace('/`[^`]*`/', '', $content);
             // Remove content between <think> and </think> tags
             $content = preg_replace('/<think>.*?<\/think>/s', '', $content);
             return $content;
