@@ -271,7 +271,8 @@ class llm_client_plugin_dokullm
                 ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $prompt]
             ],
-            'max_tokens' => 4000
+            'max_tokens' => 4096,
+            'stream' => false
         ];
         
         // Only add parameters if they are defined and not null
