@@ -332,6 +332,8 @@ class llm_client_plugin_dokullm
             $content = trim($result['choices'][0]['message']['content']);
             // Remove AI thinking parts (between backticks)
             $content = preg_replace('/`[^`]*`/', '', $content);
+            // Remove content between <think> and </think> tags
+            $content = preg_replace('/<think>.*?<\/think>/s', '', $content);
             return $content;
         }
         
