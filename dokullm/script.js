@@ -259,15 +259,18 @@
             }
             
             console.log('DokuLLM: Processing successful, result length:', data.result.length);
+            // Remove AI thinking parts (between backticks) from the result
+            const cleanedResult = data.result.replace(/`[^`]*`/g, '');
+            
             // Replace selected text or append to editor
             if (selectedText) {
                 console.log('DokuLLM: Replacing selected text');
-                replaceSelectedText(editor, data.result);
+                replaceSelectedText(editor, cleanedResult);
             } else {
                 console.log('DokuLLM: Replacing full text content');
                 // Preserve metadata when doing full page update
                 const metadata = extractMetadata(editor.value);
-                editor.value = metadata + data.result;
+                editor.value = metadata + cleanedResult;
             }
         })
         .catch(error => {
@@ -370,15 +373,18 @@
             }
             
             console.log('DokuLLM: Custom prompt processing successful, result length:', data.result.length);
+            // Remove AI thinking parts (between backticks) from the result
+            const cleanedResult = data.result.replace(/`[^`]*`/g, '');
+            
             // Replace selected text or append to editor
             if (selectedText) {
                 console.log('DokuLLM: Replacing selected text for custom prompt');
-                replaceSelectedText(editor, data.result);
+                replaceSelectedText(editor, cleanedResult);
             } else {
                 console.log('DokuLLM: Replacing full text content for custom prompt');
                 // Preserve metadata when doing full page update
                 const metadata = extractMetadata(editor.value);
-                editor.value = metadata + data.result;
+                editor.value = metadata + cleanedResult;
             }
             
             // Clear the input field

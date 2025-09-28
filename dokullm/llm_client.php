@@ -329,7 +329,10 @@ class llm_client_plugin_dokullm
         
         // Extract the content from the response if available
         if (isset($result['choices'][0]['message']['content'])) {
-            return trim($result['choices'][0]['message']['content']);
+            $content = trim($result['choices'][0]['message']['content']);
+            // Remove AI thinking parts (between backticks)
+            $content = preg_replace('/`[^`]*`/', '', $content);
+            return $content;
         }
         
         // Throw exception for unexpected response format
