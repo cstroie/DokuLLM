@@ -111,3 +111,12 @@ $meta['show_copy_button'] = array('onoff');
  * @var array
  */
 $meta['replace_id'] = array('onoff');
+
+/**
+ * Metadata for the think configuration option
+ * 
+ * Defines whether the LLM should engage in deeper thinking processes before responding.
+ * 
+ * @var array
+ */
+$meta['think'] = array('onoff');

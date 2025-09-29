@@ -120,3 +120,13 @@ $conf['show_copy_button'] = true;
  */
 $conf['replace_id'] = true;
 
+/**
+ * Enable thinking in LLM responses
+ * 
+ * Controls whether the LLM should engage in deeper thinking processes before responding.
+ * When true, the LLM will use thinking capabilities; when false, it will provide direct responses.
+ * 
+ * @var bool
+ */
+$conf['think'] = true;
+
