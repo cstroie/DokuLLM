@@ -181,7 +181,8 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         $baseMetadata['document_id'] = $id;
         
         // Check if any part of the ID is 'templates' and set template metadata
-        if (in_array('templates', $parts)) {
+        $isTemplate = in_array('templates', $parts);
+        if ($isTemplate) {
             $baseMetadata['template'] = true;
         }
         
@@ -193,7 +194,8 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         // Handle different ID formats based on the third part: word (institution) or numeric (year)
         // Format 1: reports:mri:institution:250620-name-surname (third part is institution name)
         // Format 2: reports:mri:2024:g287-name-surname (third part is year)
-        if (isset($parts[2])) {
+        // For templates, don't set institution, date or year
+        if (isset($parts[2]) && !$isTemplate) {
             // Check if third part is numeric (year) or word (institution)
             if (is_numeric($parts[2])) {
                 // Format: reports:mri:2024:g287-name-surname (year format)
@@ -239,6 +241,24 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
                     $baseMetadata['date'] = $formattedDate;
                     $baseMetadata['name'] = str_replace('-', ' ', $name);
                 }
+            }
+        }
+        
+        // For templates, always extract name from the last part
+        if ($isTemplate && isset($lastPart)) {
+            // Extract name from the last part (everything after the last colon)
+            if (preg_match('/^([a-zA-Z0-9]+[0-9]*)-(.+)$/', $lastPart, $matches)) {
+                // Check if the first part contains at least one digit to be considered a registration
+                if (preg_match('/[0-9]/', $matches[1])) {
+                    $baseMetadata['registration'] = $matches[1];
+                    $baseMetadata['name'] = str_replace('-', ' ', $matches[2]);
+                } else {
+                    // If no registration pattern found, treat entire part as template name
+                    $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
+                }
+            } else {
+                // If no match, treat entire part as template name
+                $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
             }
         }
         
