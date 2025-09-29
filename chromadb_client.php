@@ -97,7 +97,7 @@ class ChromaDBClient {
      * Convenience function to add a DokuWiki document to the Chroma database
      * 
      * @param string $collectionName The name of the collection to add to
-     * @param string $id The DokuWiki document ID (e.g. 'reports:mri:medima:250620-ivan-aisha')
+     * @param string $id The DokuWiki document ID (e.g. 'reports:mri:medima:250620-ivan-aisha' or 'reports:mri:2024:g287-criveanu-cristian-andrei')
      * @param string $content The document content
      * @return array The response from the ChromaDB API
      */
@@ -109,35 +109,54 @@ class ChromaDBClient {
         $lastPart = end($parts);
         $metadata = [];
         
-        // Extract date and name
-        if (preg_match('/^(\d{6})-(.+)$/', $lastPart, $matches)) {
-            $dateStr = $matches[1];
-            $name = $matches[2];
-            
-            // Convert date format (250620 -> 2025-06-20)
-            $day = substr($dateStr, 0, 2);
-            $month = substr($dateStr, 2, 2);
-            $year = substr($dateStr, 4, 2);
-            // Assuming 20xx for years 20-99 and 19xx for years 00-19
-            $fullYear = (int)$year >= 20 ? '20' . $year : '19' . $year;
-            $formattedDate = $fullYear . '-' . $month . '-' . $day;
-            
-            $metadata['date'] = $formattedDate;
-            $metadata['name'] = str_replace('-', ' ', $name);
-        }
+        // Add the document ID as metadata
+        $metadata['document_id'] = $id;
         
         // Extract modality from the second part
         if (isset($parts[1])) {
             $metadata['modality'] = $parts[1];
         }
         
-        // Extract institution from the third part
-        if (isset($parts[2])) {
-            $metadata['institution'] = $parts[2];
+        // Handle different ID formats
+        if (count($parts) == 5) {
+            // Format: reports:mri:medima:250620-ivan-aisha
+            // Extract institution from the third part
+            if (isset($parts[2])) {
+                $metadata['institution'] = $parts[2];
+            }
+            
+            // Extract date and name from the last part
+            if (preg_match('/^(\d{6})-(.+)$/', $lastPart, $matches)) {
+                $dateStr = $matches[1];
+                $name = $matches[2];
+                
+                // Convert date format (250620 -> 2025-06-20)
+                $day = substr($dateStr, 0, 2);
+                $month = substr($dateStr, 2, 2);
+                $year = substr($dateStr, 4, 2);
+                // Assuming 20xx for years 20-99 and 19xx for years 00-19
+                $fullYear = (int)$year >= 20 ? '20' . $year : '19' . $year;
+                $formattedDate = $fullYear . '-' . $month . '-' . $day;
+                
+                $metadata['date'] = $formattedDate;
+                $metadata['name'] = str_replace('-', ' ', $name);
+            }
+        } else if (count($parts) == 4) {
+            // Format: reports:mri:2024:g287-criveanu-cristian-andrei
+            // Extract year from the third part
+            if (isset($parts[2])) {
+                $metadata['year'] = $parts[2];
+            }
+            
+            // Set default institution
+            $metadata['institution'] = 'scuc';
+            
+            // Extract registration and name from the last part
+            if (preg_match('/^([a-zA-Z0-9]+)-(.+)$/', $lastPart, $matches)) {
+                $metadata['registration'] = $matches[1];
+                $metadata['name'] = str_replace('-', ' ', $matches[2]);
+            }
         }
-        
-        // Add the document ID as metadata
-        $metadata['document_id'] = $id;
         
         return $this->addDocuments($collectionName, [$content], [$id], [$metadata]);
     }
