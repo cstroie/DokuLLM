@@ -234,19 +234,24 @@ class ChromaDBClient {
      * @return array The response from the ChromaDB API
      */
     public function addDokuWikiDocument($collectionName, $id, $content) {
-        // Parse the DokuWiki ID to extract metadata
+        // Split document into chunks (paragraphs separated by two newlines)
+        $paragraphs = preg_split('/\n\s*\n/', $content);
+        $chunks = [];
+        $chunkMetadata = [];
+        
+        // Parse the DokuWiki ID to extract base metadata
         $parts = explode(':', $id);
         
         // Extract metadata from the last part of the ID
         $lastPart = end($parts);
-        $metadata = [];
+        $baseMetadata = [];
         
         // Add the document ID as metadata
-        $metadata['document_id'] = $id;
+        $baseMetadata['document_id'] = $id;
         
         // Extract modality from the second part
         if (isset($parts[1])) {
-            $metadata['modality'] = $parts[1];
+            $baseMetadata['modality'] = $parts[1];
         }
         
         // Handle different ID formats
@@ -254,7 +259,7 @@ class ChromaDBClient {
             // Format: reports:mri:medima:250620-ivan-aisha
             // Extract institution from the third part
             if (isset($parts[2])) {
-                $metadata['institution'] = $parts[2];
+                $baseMetadata['institution'] = $parts[2];
             }
             
             // Extract date and name from the last part
@@ -270,37 +275,70 @@ class ChromaDBClient {
                 $fullYear = (int)$year >= 20 ? '20' . $year : '19' . $year;
                 $formattedDate = $fullYear . '-' . $month . '-' . $day;
                 
-                $metadata['date'] = $formattedDate;
-                $metadata['name'] = str_replace('-', ' ', $name);
+                $baseMetadata['date'] = $formattedDate;
+                $baseMetadata['name'] = str_replace('-', ' ', $name);
             }
         } else if (count($parts) == 4) {
             // Format: reports:mri:2024:g287-criveanu-cristian-andrei
             // Extract year from the third part
             if (isset($parts[2])) {
-                $metadata['year'] = $parts[2];
+                $baseMetadata['year'] = $parts[2];
             }
             
             // Set default institution
-            $metadata['institution'] = 'scuc';
+            $baseMetadata['institution'] = 'scuc';
             
             // Extract registration and name from the last part
             // Registration should start with one letter or number and contain numbers before the '-' character
             if (preg_match('/^([a-zA-Z0-9]+[0-9]*)-(.+)$/', $lastPart, $matches)) {
                 // Check if the first part contains at least one digit to be considered a registration
                 if (preg_match('/[0-9]/', $matches[1])) {
-                    $metadata['registration'] = $matches[1];
-                    $metadata['name'] = str_replace('-', ' ', $matches[2]);
+                    $baseMetadata['registration'] = $matches[1];
+                    $baseMetadata['name'] = str_replace('-', ' ', $matches[2]);
                 } else {
                     // If no registration pattern found, treat entire part as patient name
-                    $metadata['name'] = str_replace('-', ' ', $lastPart);
+                    $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
                 }
             } else {
                 // If no match, treat entire part as patient name
-                $metadata['name'] = str_replace('-', ' ', $lastPart);
+                $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
             }
         }
         
-        return $this->addDocuments($collectionName, [$content], [$id], [$metadata]);
+        // Process each paragraph as a chunk
+        $chunkIds = [];
+        $chunkContents = [];
+        $chunkMetadatas = [];
+        $chunkEmbeddings = [];
+        
+        foreach ($paragraphs as $index => $paragraph) {
+            // Skip empty paragraphs
+            $paragraph = trim($paragraph);
+            if (empty($paragraph)) {
+                continue;
+            }
+            
+            // Create chunk ID
+            $chunkId = $id . '@' . ($index + 1);
+            
+            // Generate embeddings for the chunk
+            $embeddings = $this->generateEmbeddings($paragraph);
+            
+            // Add chunk-specific metadata
+            $metadata = $baseMetadata;
+            $metadata['chunk_id'] = $chunkId;
+            $metadata['chunk_number'] = $index + 1;
+            $metadata['total_chunks'] = count($paragraphs);
+            
+            // Store chunk data
+            $chunkIds[] = $chunkId;
+            $chunkContents[] = $paragraph;
+            $chunkMetadatas[] = $metadata;
+            $chunkEmbeddings[] = $embeddings;
+        }
+        
+        // Send all chunks to ChromaDB
+        return $this->addDocuments($collectionName, $chunkContents, $chunkIds, $chunkMetadatas, $chunkEmbeddings);
     }
 
     /**
