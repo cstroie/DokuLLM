@@ -9,7 +9,7 @@ class ChromaDBClient {
     private $ollamaPort;
     private $ollamaModel;
 
-    public function __construct($host = '10.200.8.16', $port = 8087, $tenant = 'default_tenant', $database = 'default_database', $ollamaHost = 'localhost', $ollamaPort = 11434, $ollamaModel = 'nomic-embed-text') {
+    public function __construct($host = '10.200.8.16', $port = 8087, $tenant = 'default_tenant', $database = 'default_database', $ollamaHost = '10.200.8.16', $ollamaPort = 11434, $ollamaModel = 'nomic-embed-text') {
         $this->baseUrl = "http://{$host}:{$port}";
         $this->tenant = $tenant;
         $this->database = $database;
