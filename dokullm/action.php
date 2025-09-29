@@ -23,6 +23,20 @@ if (!defined('DOKU_INC')) {
  * 
  * The plugin provides integration with LLM APIs for text processing
  * operations directly within the DokuWiki editor.
+ * 
+ * Configuration options:
+ * - api_url: The LLM API endpoint URL
+ * - api_key: Authentication key for the API (optional)
+ * - model: The model identifier to use for requests
+ * - timeout: Request timeout in seconds
+ * - language: Language code for prompt templates
+ * - temperature: Temperature setting for response randomness (0.0-1.0)
+ * - top_p: Top-p (nucleus sampling) setting (0.0-1.0)
+ * - top_k: Top-k setting (integer >= 1)
+ * - min_p: Minimum probability threshold (0.0-1.0)
+ * - think: Whether to enable thinking in LLM responses (boolean)
+ * - show_copy_button: Whether to show the copy page button (boolean)
+ * - replace_id: Whether to replace template ID when copying (boolean)
  */
 class action_plugin_dokullm extends DokuWiki_Action_Plugin
 {
@@ -135,6 +149,10 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      * 
      * Routes the text processing request to the appropriate method in
      * the LLM client based on the action parameter.
+     * 
+     * The processing behavior is affected by the 'think' configuration parameter:
+     * - When 'think' is true, the LLM will engage in deeper thinking processes
+     * - When 'think' is false, the LLM will provide direct responses
      * 
      * @param string $action The action to perform (complete, rewrite, grammar, etc.)
      * @param string $text The text to process
