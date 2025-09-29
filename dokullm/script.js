@@ -263,7 +263,10 @@
             const cleanedResult = data.result;
             
             // Replace selected text or append to editor
-            if (selectedText) {
+            if (action === 'analyze') {
+                console.log('DokuLLM: Showing analysis in modal');
+                showAnalysisModal(cleanedResult);
+            } else if (selectedText) {
                 console.log('DokuLLM: Replacing selected text');
                 replaceSelectedText(editor, cleanedResult);
             } else if (action === 'conclusion') {
@@ -289,6 +292,88 @@
                 resetButton(originalButton, originalText);
             }
             editor.readOnly = false;
+        });
+    }
+    
+    /**
+     * Show analysis results in a modal dialog
+     * 
+     * Creates and displays a modal dialog with the analysis results.
+     * Includes a close button and proper styling.
+     * 
+     * @param {string} analysisText - The analysis text to display
+     */
+    function showAnalysisModal(analysisText) {
+        // Create modal container
+        const modal = document.createElement('div');
+        modal.id = 'llm-analysis-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        `;
+        
+        // Create modal content
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow: auto;
+            position: relative;
+        `;
+        
+        // Create close button
+        const closeButton = document.createElement('button');
+        closeButton.textContent = 'Close';
+        closeButton.style.cssText = `
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ccc;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        `;
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        // Create title
+        const title = document.createElement('h3');
+        title.textContent = 'Text Analysis';
+        title.style.marginTop = '0';
+        
+        // Create content area
+        const content = document.createElement('div');
+        content.innerHTML = analysisText.replace(/\n/g, '<br>');
+        content.style.cssText = `
+            margin-top: 20px;
+            white-space: pre-wrap;
+        `;
+        
+        // Assemble modal
+        modalContent.appendChild(closeButton);
+        modalContent.appendChild(title);
+        modalContent.appendChild(content);
+        modal.appendChild(modalContent);
+        
+        // Add to document and set up close event
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
         });
     }
     

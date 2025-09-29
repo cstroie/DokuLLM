@@ -163,12 +163,13 @@ class llm_client_plugin_dokullm
      * of the given text, identifying key themes, patterns, and insights.
      * 
      * @param string $text The text to analyze
+     * @param array $metadata Optional metadata containing template and examples
      * @return string The analysis results
      */
     public function analyzeText($text, $metadata = [])
     {
         $prompt = $this->loadPrompt('analyze', ['text' => $text]);
-        return $this->callAPI($prompt, $metadata);
+        return $this->callAPI($prompt, $metadata, false); // Don't use context for analysis
     }
     
     /**
