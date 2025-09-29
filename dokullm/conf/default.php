@@ -124,7 +124,8 @@ $conf['replace_id'] = true;
  * Enable thinking in LLM responses
  * 
  * Controls whether the LLM should engage in deeper thinking processes before responding.
- * When true, the LLM will use thinking capabilities; when false, it will provide direct responses.
+ * When true, the LLM will use thinking capabilities and may take longer to respond;
+ * when false, it will provide direct responses without extended thinking.
  * 
  * @var bool
  */

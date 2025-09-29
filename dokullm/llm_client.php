@@ -69,6 +69,7 @@ class llm_client_plugin_dokullm
      * - top_p: Top-p (nucleus sampling) setting (0.0-1.0)
      * - top_k: Top-k setting (integer >= 1)
      * - min_p: Minimum probability threshold (0.0-1.0)
+     * - think: Whether to enable thinking in LLM responses (boolean)
      */
     public function __construct()
     {

@@ -116,6 +116,7 @@ $meta['replace_id'] = array('onoff');
  * Metadata for the think configuration option
  * 
  * Defines whether the LLM should engage in deeper thinking processes before responding.
+ * When enabled, the LLM will use thinking capabilities; when disabled, it will provide direct responses.
  * 
  * @var array
  */
