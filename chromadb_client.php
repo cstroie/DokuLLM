@@ -283,9 +283,19 @@ class ChromaDBClient {
             $metadata['institution'] = 'scuc';
             
             // Extract registration and name from the last part
-            if (preg_match('/^([a-zA-Z0-9]+)-(.+)$/', $lastPart, $matches)) {
-                $metadata['registration'] = $matches[1];
-                $metadata['name'] = str_replace('-', ' ', $matches[2]);
+            // Registration should start with one letter or number and contain numbers before the '-' character
+            if (preg_match('/^([a-zA-Z0-9]+[0-9]*)-(.+)$/', $lastPart, $matches)) {
+                // Check if the first part contains at least one digit to be considered a registration
+                if (preg_match('/[0-9]/', $matches[1])) {
+                    $metadata['registration'] = $matches[1];
+                    $metadata['name'] = str_replace('-', ' ', $matches[2]);
+                } else {
+                    // If no registration pattern found, treat entire part as patient name
+                    $metadata['name'] = str_replace('-', ' ', $lastPart);
+                }
+            } else {
+                // If no match, treat entire part as patient name
+                $metadata['name'] = str_replace('-', ' ', $lastPart);
             }
         }
         
