@@ -4,7 +4,7 @@ require_once 'chromadb_client.php';
 function showUsage() {
     echo "Usage: php dokuwiki_chroma_cli.php [action] [options]\n";
     echo "Actions:\n";
-    echo "  send       Send a file to ChromaDB\n";
+    echo "  send       Send a file or directory to ChromaDB\n";
     echo "  query      Query ChromaDB\n";
     echo "  heartbeat  Check if ChromaDB server is alive\n";
     echo "  identity   Get authentication and identity information\n";
@@ -18,6 +18,9 @@ function showUsage() {
     echo "\n";
     echo "Send a file:\n";
     echo "  php dokuwiki_chroma_cli.php send /path/to/file.txt [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
+    echo "\n";
+    echo "Send all files in a directory:\n";
+    echo "  php dokuwiki_chroma_cli.php send /path/to/directory [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
     echo "\n";
     echo "Query ChromaDB:\n";
     echo "  php dokuwiki_chroma_cli.php query \"search terms\" [--limit 10] [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
@@ -52,20 +55,31 @@ function parseFilePath($filePath) {
     return implode(':', $idParts);
 }
 
-function sendFile($filePath, $host, $port, $tenant, $database) {
-    if (!file_exists($filePath)) {
-        echo "Error: File does not exist: $filePath\n";
-        exit(1);
-    }
+function sendFile($path, $host, $port, $tenant, $database) {
+    // Create ChromaDB client
+    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
     
+    if (is_dir($path)) {
+        // Process directory
+        echo "Processing directory: $path\n";
+        processDirectory($path, $chroma, $host, $port, $tenant, $database);
+    } else {
+        // Process single file
+        if (!file_exists($path)) {
+            echo "Error: File does not exist: $path\n";
+            exit(1);
+        }
+        
+        processSingleFile($path, $chroma, $host, $port, $tenant, $database);
+    }
+}
+
+function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database) {
     // Parse file path to extract metadata
     $id = parseFilePath($filePath);
     
     // Read file content
     $content = file_get_contents($filePath);
-    
-    // Create ChromaDB client
-    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
     
     // Extract modality from ID (second part after 'reports')
     $idParts = explode(':', $id);
@@ -77,12 +91,11 @@ function sendFile($filePath, $host, $port, $tenant, $database) {
             echo "Checking if collection '$modality' exists...\n";
             $collection = $chroma->getCollection($modality);
             echo "Collection '$modality' already exists.\n";
-            echo "Collection details: " . json_encode($collection) . "\n";
         } catch (Exception $e) {
             // Collection doesn't exist, create it
             echo "Creating collection '$modality'...\n";
             $created = $chroma->createCollection($modality);
-            echo "Collection created: " . json_encode($created) . "\n";
+            echo "Collection created.\n";
         }
         
         // Generate embeddings for the document
@@ -148,13 +161,6 @@ function sendFile($filePath, $host, $port, $tenant, $database) {
         
         // Send document with embeddings to ChromaDB
         echo "Adding document with ID: $id\n";
-        $data = [
-            'ids' => [$id],
-            'documents' => [$content],
-            'metadatas' => [$metadata],
-            'embeddings' => [$embeddings]
-        ];
-        
         $result = $chroma->addDocuments($modality, [$content], [$id], [$metadata], [$embeddings]);
         echo "Successfully sent file to ChromaDB:\n";
         echo "  ID: $id\n";
@@ -163,11 +169,35 @@ function sendFile($filePath, $host, $port, $tenant, $database) {
         echo "  Host: $host:$port\n";
         echo "  Tenant: $tenant\n";
         echo "  Database: $database\n";
-        echo "  Result: " . json_encode($result) . "\n";
     } catch (Exception $e) {
         echo "Error sending file to ChromaDB: " . $e->getMessage() . "\n";
         exit(1);
     }
+}
+
+function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
+    // Check if directory exists
+    if (!is_dir($dirPath)) {
+        echo "Error: Directory does not exist: $dirPath\n";
+        exit(1);
+    }
+    
+    // Get all .txt files in directory
+    $files = glob($dirPath . '/*.txt');
+    
+    if (empty($files)) {
+        echo "No .txt files found in directory: $dirPath\n";
+        return;
+    }
+    
+    echo "Found " . count($files) . " files to process.\n";
+    
+    foreach ($files as $file) {
+        echo "\nProcessing file: $file\n";
+        processSingleFile($file, $chroma, $host, $port, $tenant, $database);
+    }
+    
+    echo "\nFinished processing directory.\n";
 }
 
 function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database) {
