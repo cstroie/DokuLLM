@@ -266,6 +266,12 @@
             if (selectedText) {
                 console.log('DokuLLM: Replacing selected text');
                 replaceSelectedText(editor, cleanedResult);
+            } else if (action === 'conclusion') {
+                console.log('DokuLLM: Appending conclusion to existing text');
+                // For conclusion, append to the end of existing content (preserving metadata)
+                const metadata = extractMetadata(editor.value);
+                const contentWithoutMetadata = editor.value.substring(metadata.length);
+                editor.value = metadata + contentWithoutMetadata + '\n\n' + cleanedResult;
             } else {
                 console.log('DokuLLM: Replacing full text content');
                 // Preserve metadata when doing full page update
