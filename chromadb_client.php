@@ -81,7 +81,8 @@ class ChromaDBClient {
         
         $data = [
             'model' => $this->ollamaModel,
-            'prompt' => $text
+            'prompt' => $text,
+            'keep_alive' => '30m'
         ];
         
         curl_setopt($ollamaClient, CURLOPT_POSTFIELDS, json_encode($data));
