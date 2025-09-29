@@ -5,11 +5,17 @@ class ChromaDBClient {
     private $client;
     private $tenant;
     private $database;
+    private $ollamaHost;
+    private $ollamaPort;
+    private $ollamaModel;
 
-    public function __construct($host = '10.200.8.16', $port = 8087, $tenant = 'default_tenant', $database = 'default_database') {
+    public function __construct($host = '10.200.8.16', $port = 8087, $tenant = 'default_tenant', $database = 'default_database', $ollamaHost = 'localhost', $ollamaPort = 11434, $ollamaModel = 'nomic-embed-text') {
         $this->baseUrl = "http://{$host}:{$port}";
         $this->tenant = $tenant;
         $this->database = $database;
+        $this->ollamaHost = $ollamaHost;
+        $this->ollamaPort = $ollamaPort;
+        $this->ollamaModel = $ollamaModel;
         $this->client = curl_init();
         curl_setopt($this->client, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->client, CURLOPT_HTTPHEADER, [
@@ -57,6 +63,52 @@ class ChromaDBClient {
         return json_decode($response, true);
     }
 
+    /**
+     * Generate embeddings for text using Ollama
+     * 
+     * @param string $text The text to generate embeddings for
+     * @return array The embeddings vector
+     */
+    public function generateEmbeddings($text) {
+        $ollamaUrl = "http://{$this->ollamaHost}:{$this->ollamaPort}/api/embeddings";
+        $ollamaClient = curl_init();
+        
+        curl_setopt($ollamaClient, CURLOPT_URL, $ollamaUrl);
+        curl_setopt($ollamaClient, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ollamaClient, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+        
+        $data = [
+            'model' => $this->ollamaModel,
+            'prompt' => $text
+        ];
+        
+        curl_setopt($ollamaClient, CURLOPT_POSTFIELDS, json_encode($data));
+        
+        $response = curl_exec($ollamaClient);
+        $httpCode = curl_getinfo($ollamaClient, CURLINFO_HTTP_CODE);
+        
+        if (curl_error($ollamaClient)) {
+            curl_close($ollamaClient);
+            throw new Exception('Ollama Curl error: ' . curl_error($ollamaClient));
+        }
+        
+        curl_close($ollamaClient);
+        
+        if ($httpCode >= 400) {
+            throw new Exception("Ollama HTTP Error: $httpCode, Response: $response");
+        }
+        
+        $result = json_decode($response, true);
+        
+        if (!isset($result['embedding'])) {
+            throw new Exception("Ollama response missing embedding: " . $response);
+        }
+        
+        return $result['embedding'];
+    }
+
     public function listCollections() {
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
         return $this->makeRequest($endpoint);
@@ -82,7 +134,7 @@ class ChromaDBClient {
     }
 
     public function addDocuments($collectionName, $documents, $ids, $metadatas = null, $embeddings = null) {
-        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionName}/add";
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionName}/upsert";
         $data = [
             'ids' => $ids,
             'documents' => $documents
