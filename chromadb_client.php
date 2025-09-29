@@ -58,26 +58,31 @@ class ChromaDBClient {
     }
 
     public function listCollections() {
-        return $this->makeRequest('/collections');
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
+        return $this->makeRequest($endpoint);
     }
 
     public function getCollection($name) {
-        return $this->makeRequest("/collections/{$name}");
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$name}";
+        return $this->makeRequest($endpoint);
     }
 
     public function createCollection($name, $metadata = null) {
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
         $data = ['name' => $name];
         if ($metadata) {
             $data['metadata'] = $metadata;
         }
-        return $this->makeRequest('/collections', 'POST', $data);
+        return $this->makeRequest($endpoint, 'POST', $data);
     }
 
     public function deleteCollection($name) {
-        return $this->makeRequest("/collections/{$name}", 'DELETE');
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$name}";
+        return $this->makeRequest($endpoint, 'DELETE');
     }
 
     public function addDocuments($collectionName, $documents, $ids, $metadatas = null, $embeddings = null) {
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionName}/upsert";
         $data = [
             'ids' => $ids,
             'documents' => $documents
@@ -91,10 +96,11 @@ class ChromaDBClient {
             $data['embeddings'] = $embeddings;
         }
         
-        return $this->makeRequest("/collections/{$collectionName}/upsert", 'POST', $data);
+        return $this->makeRequest($endpoint, 'POST', $data);
     }
 
     public function queryCollection($collectionName, $queryTexts, $nResults = 5, $where = null) {
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionName}/query";
         $data = [
             'query_texts' => $queryTexts,
             'n_results' => $nResults
@@ -104,7 +110,7 @@ class ChromaDBClient {
             $data['where'] = $where;
         }
         
-        return $this->makeRequest("/collections/{$collectionName}/query", 'POST', $data);
+        return $this->makeRequest($endpoint, 'POST', $data);
     }
 
     /**
@@ -113,7 +119,8 @@ class ChromaDBClient {
      * @return array The response from the heartbeat endpoint
      */
     public function heartbeat() {
-        return $this->makeRequest('/heartbeat', 'GET');
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/heartbeat";
+        return $this->makeRequest($endpoint, 'GET');
     }
 
     /**
@@ -122,7 +129,8 @@ class ChromaDBClient {
      * @return array The response from the auth/identity endpoint
      */
     public function getIdentity() {
-        return $this->makeRequest('/auth/identity', 'GET');
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/auth/identity";
+        return $this->makeRequest($endpoint, 'GET');
     }
 
     /**
