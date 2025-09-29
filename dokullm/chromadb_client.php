@@ -260,11 +260,12 @@ class ChromaDBClient {
      * 
      * Queries the specified collection for documents similar to the provided query texts.
      * The function generates embeddings for the query texts and sends them to ChromaDB.
+     * Supports filtering results by metadata using the where parameter.
      * 
      * @param string $collectionName The name of the collection to query
      * @param array $queryTexts The query texts to search for
      * @param int $nResults The number of results to return (default: 5)
-     * @param array|null $where Optional filter conditions
+     * @param array|null $where Optional filter conditions for metadata
      * @return array The query results
      * @throws Exception If the collection ID is not found
      */
@@ -289,7 +290,8 @@ class ChromaDBClient {
             'n_results' => $nResults
         ];
         
-        if ($where) {
+        // Add where clause for metadata filtering if provided
+        if ($where && is_array($where)) {
             $data['where'] = $where;
         }
         
