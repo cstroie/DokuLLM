@@ -4,8 +4,9 @@ require_once 'chromadb_client.php';
 function showUsage() {
     echo "Usage: php dokuwiki_chroma_cli.php [action] [options]\n";
     echo "Actions:\n";
-    echo "  send    Send a file to ChromaDB\n";
-    echo "  query   Query ChromaDB\n";
+    echo "  send      Send a file to ChromaDB\n";
+    echo "  query     Query ChromaDB\n";
+    echo "  heartbeat Check if ChromaDB server is alive\n";
     echo "\n";
     echo "Options:\n";
     echo "  --host HOST        ChromaDB server host (default: 10.200.8.16)\n";
@@ -18,6 +19,9 @@ function showUsage() {
     echo "\n";
     echo "Query ChromaDB:\n";
     echo "  php dokuwiki_chroma_cli.php query \"search terms\" [--limit 10] [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
+    echo "\n";
+    echo "Check server status:\n";
+    echo "  php dokuwiki_chroma_cli.php heartbeat [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
     exit(1);
 }
 
@@ -127,6 +131,27 @@ function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database) {
     }
 }
 
+function checkHeartbeat($host, $port, $tenant, $database) {
+    // Create ChromaDB client
+    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
+    
+    try {
+        echo "Checking ChromaDB server status...\n";
+        echo "Host: $host:$port\n";
+        echo "Tenant: $tenant\n";
+        echo "Database: $database\n";
+        echo "==========================================\n";
+        
+        $result = $chroma->heartbeat();
+        
+        echo "Server is alive!\n";
+        echo "Response: " . json_encode($result) . "\n";
+    } catch (Exception $e) {
+        echo "Error checking ChromaDB server status: " . $e->getMessage() . "\n";
+        exit(1);
+    }
+}
+
 // Parse command line arguments
 function parseArgs($argv) {
     $args = [
@@ -211,6 +236,10 @@ switch ($args['action']) {
             showUsage();
         }
         queryChroma($args['query'], $args['limit'], $args['host'], $args['port'], $args['tenant'], $args['database']);
+        break;
+        
+    case 'heartbeat':
+        checkHeartbeat($args['host'], $args['port'], $args['tenant'], $args['database']);
         break;
         
     default:

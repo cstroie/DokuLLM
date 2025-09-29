@@ -108,6 +108,15 @@ class ChromaDBClient {
     }
 
     /**
+     * Check if the ChromaDB server is alive
+     * 
+     * @return array The response from the heartbeat endpoint
+     */
+    public function heartbeat() {
+        return $this->makeRequest('/heartbeat', 'GET');
+    }
+
+    /**
      * Convenience function to add a DokuWiki document to the Chroma database
      * 
      * @param string $collectionName The name of the collection to add to
