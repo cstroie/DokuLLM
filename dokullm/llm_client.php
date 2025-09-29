@@ -86,17 +86,17 @@ class llm_client_plugin_dokullm
     }
     
     /**
-     * Complete the provided text using the LLM
+     * Create the provided text using the LLM
      * 
-     * Sends a prompt to the LLM asking it to complete the given text.
+     * Sends a prompt to the LLM asking it to create the given text.
      * 
-     * @param string $text The text to complete
-     * @return string The completed text
+     * @param string $text The text to create
+     * @return string The created text
      */
-    public function completeText($text, $metadata = [], $useContext = true)
+    public function createReport($text, $metadata = [], $useContext = true)
     {
         $think = $this->think ? '/think' : '/no_think';
-        $prompt = $this->loadPrompt('complete', ['text' => $text, 'think' => $think]);
+        $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
         return $this->callAPI($prompt, $metadata, $useContext);
     }
     
@@ -371,7 +371,7 @@ class llm_client_plugin_dokullm
      * After loading the prompt, it replaces placeholders with actual values
      * using a simple string replacement mechanism.
      * 
-     * @param string $promptName The name of the prompt (e.g., 'complete', 'rewrite')
+     * @param string $promptName The name of the prompt (e.g., 'create', 'rewrite')
      * @param array $variables Associative array of placeholder => value pairs
      * @return string The processed prompt with placeholders replaced
      * @throws Exception If the prompt page cannot be loaded in any language

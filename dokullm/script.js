@@ -96,12 +96,12 @@
         
         // Add buttons
         const buttons = [
-            {action: 'complete', label: 'Complete'},
+            {action: 'conclusion', label: 'Conclusion'},
+            {action: 'analyze', label: 'Analyze'},
+            {action: 'create', label: 'Create'},
             {action: 'rewrite', label: 'Rewrite'},
             {action: 'grammar', label: 'Grammar'},
             {action: 'summarize', label: 'Summarize'},
-            {action: 'conclusion', label: 'Conclusion'},
-            {action: 'analyze', label: 'Analyze'},
             {action: 'continue', label: 'Continue'}
         ];
         
@@ -194,7 +194,7 @@
      * 5. Updating editor content while preserving metadata
      * 6. Restoring UI state after processing
      * 
-     * @param {string} action - The action to perform (complete, rewrite, etc.)
+     * @param {string} action - The action to perform (create, rewrite, etc.)
      */
     function processText(action) {
         console.log('DokuLLM: Processing text with action:', action);

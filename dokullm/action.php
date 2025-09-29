@@ -154,7 +154,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      * - When 'think' is true, the LLM will engage in deeper thinking processes
      * - When 'think' is false, the LLM will provide direct responses
      * 
-     * @param string $action The action to perform (complete, rewrite, grammar, etc.)
+     * @param string $action The action to perform (create, rewrite, grammar, etc.)
      * @param string $text The text to process
      * @param string $prompt Additional prompt information (used for custom prompts)
      * @param array $metadata Metadata array containing template and examples information
@@ -176,8 +176,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                     throw new Exception('Template not found: ' . $templateId);
                 }
                 return ['content' => $templateContent];
-            case 'complete':
-                return $client->completeText($text, $metadata);
+            case 'create':
+                return $client->createReport($text, $metadata);
             case 'rewrite':
                 return $client->rewriteText($text, $metadata);
             case 'grammar':
