@@ -149,6 +149,14 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
     // Extract modality from ID (second part after 'reports')
     $idParts = explode(':', $id);
     $modality = isset($idParts[1]) ? $idParts[1] : 'other';
+    // Ensure modality name is at least 3 characters long
+    if (strlen($modality) < 3) {
+        $modality = 'reports-' . $modality;
+    }
+    // Ensure modality name is at least 3 characters long
+    if (strlen($modality) < 3) {
+        $modality = 'reports-' . $modality;
+    }
     
     try {
         // Create collection if it doesn't exist (only if not already checked)

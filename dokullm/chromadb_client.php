@@ -162,6 +162,11 @@ class ChromaDBClient {
      * @throws Exception If the collection is not found
      */
     public function getCollection($name) {
+        // Ensure collection name is at least 3 characters long
+        if (strlen($name) < 3) {
+            $name = 'reports-' . $name;
+        }
+        
         // First try to get collection by name
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
         $collections = $this->makeRequest($endpoint);
@@ -187,6 +192,11 @@ class ChromaDBClient {
      * @return array The response from the API
      */
     public function createCollection($name, $metadata = null) {
+        // Ensure collection name is at least 3 characters long
+        if (strlen($name) < 3) {
+            $name = 'reports-' . $name;
+        }
+        
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
         $data = ['name' => $name];
         if ($metadata) {
@@ -205,6 +215,11 @@ class ChromaDBClient {
      * @throws Exception If the collection ID is not found
      */
     public function deleteCollection($name) {
+        // Ensure collection name is at least 3 characters long
+        if (strlen($name) < 3) {
+            $name = 'reports-' . $name;
+        }
+        
         // First get the collection to find its ID
         $collection = $this->getCollection($name);
         if (!isset($collection['id'])) {
@@ -231,6 +246,11 @@ class ChromaDBClient {
      * @throws Exception If the collection ID is not found
      */
     public function addDocuments($collectionName, $documents, $ids, $metadatas = null, $embeddings = null) {
+        // Ensure collection name is at least 3 characters long
+        if (strlen($collectionName) < 3) {
+            $collectionName = 'reports-' . $collectionName;
+        }
+        
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
         if (!isset($collection['id'])) {
@@ -270,6 +290,11 @@ class ChromaDBClient {
      * @throws Exception If the collection ID is not found
      */
     public function queryCollection($collectionName, $queryTexts, $nResults = 5, $where = null) {
+        // Ensure collection name is at least 3 characters long
+        if (strlen($collectionName) < 3) {
+            $collectionName = 'reports-' . $collectionName;
+        }
+        
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
         if (!isset($collection['id'])) {
