@@ -218,11 +218,6 @@ function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database) {
     $chroma = new ChromaDBClient($host, $port, $tenant, $database);
     
     try {
-        // Generate embeddings for the query
-        echo "Generating embeddings for query...\n";
-        $queryEmbeddings = $chroma->generateEmbeddings($searchTerms);
-        echo "Embeddings generated successfully.\n";
-        
         // For now, we'll query the 'mri' collection by default
         // In a more advanced version, we could query multiple collections
         $results = $chroma->queryCollection('mri', [$searchTerms], $limit);
