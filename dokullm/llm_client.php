@@ -112,9 +112,21 @@ class llm_client_plugin_dokullm
         
         // Add ChromaDB results to metadata as examples
         if (!empty($chromaResults)) {
+            // Process ChromaDB results to remove chunk numbers and ensure uniqueness
+            $processedResults = [];
+            foreach ($chromaResults as $result) {
+                // Remove chunk number (e.g., "@2") from the ID
+                $cleanId = preg_replace('/@\\d+$/', '', $result);
+                $processedResults[] = $cleanId;
+            }
+            
+            // Remove duplicates while preserving order
+            $uniqueResults = array_unique($processedResults);
+            
+            // Merge with existing examples
             $metadata['examples'] = array_merge(
                 isset($metadata['examples']) ? $metadata['examples'] : [],
-                $chromaResults
+                $uniqueResults
             );
         }
         
