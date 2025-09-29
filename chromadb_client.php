@@ -117,6 +117,15 @@ class ChromaDBClient {
     }
 
     /**
+     * Get authentication and identity information
+     * 
+     * @return array The response from the auth/identity endpoint
+     */
+    public function getIdentity() {
+        return $this->makeRequest('/auth/identity', 'GET');
+    }
+
+    /**
      * Convenience function to add a DokuWiki document to the Chroma database
      * 
      * @param string $collectionName The name of the collection to add to

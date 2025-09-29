@@ -7,6 +7,7 @@ function showUsage() {
     echo "  send      Send a file to ChromaDB\n";
     echo "  query     Query ChromaDB\n";
     echo "  heartbeat Check if ChromaDB server is alive\n";
+    echo "  identity  Get authentication and identity information\n";
     echo "\n";
     echo "Options:\n";
     echo "  --host HOST        ChromaDB server host (default: 10.200.8.16)\n";
@@ -22,6 +23,9 @@ function showUsage() {
     echo "\n";
     echo "Check server status:\n";
     echo "  php dokuwiki_chroma_cli.php heartbeat [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
+    echo "\n";
+    echo "Check identity:\n";
+    echo "  php dokuwiki_chroma_cli.php identity [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
     exit(1);
 }
 
@@ -152,6 +156,27 @@ function checkHeartbeat($host, $port, $tenant, $database) {
     }
 }
 
+function checkIdentity($host, $port, $tenant, $database) {
+    // Create ChromaDB client
+    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
+    
+    try {
+        echo "Checking ChromaDB identity...\n";
+        echo "Host: $host:$port\n";
+        echo "Tenant: $tenant\n";
+        echo "Database: $database\n";
+        echo "==========================================\n";
+        
+        $result = $chroma->getIdentity();
+        
+        echo "Identity information:\n";
+        echo "Response: " . json_encode($result, JSON_PRETTY_PRINT) . "\n";
+    } catch (Exception $e) {
+        echo "Error checking ChromaDB identity: " . $e->getMessage() . "\n";
+        exit(1);
+    }
+}
+
 // Parse command line arguments
 function parseArgs($argv) {
     $args = [
@@ -240,6 +265,10 @@ switch ($args['action']) {
         
     case 'heartbeat':
         checkHeartbeat($args['host'], $args['port'], $args['tenant'], $args['database']);
+        break;
+        
+    case 'identity':
+        checkIdentity($args['host'], $args['port'], $args['tenant'], $args['database']);
         break;
         
     default:
