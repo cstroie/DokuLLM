@@ -77,7 +77,7 @@ class ChromaDBClient {
             $data['embeddings'] = $embeddings;
         }
         
-        return $this->makeRequest("/api/v1/collections/{$collectionName}/add", 'POST', $data);
+        return $this->makeRequest("/api/v1/collections/{$collectionName}/upsert", 'POST', $data);
     }
 
     public function queryCollection($collectionName, $queryTexts, $nResults = 5, $where = null) {

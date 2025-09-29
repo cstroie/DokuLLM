@@ -60,13 +60,17 @@ function sendFile($filePath, $host, $port) {
     try {
         // Create collection if it doesn't exist
         try {
+            echo "Checking if collection '$modality' exists...\n";
             $chroma->getCollection($modality);
+            echo "Collection '$modality' already exists.\n";
         } catch (Exception $e) {
             // Collection doesn't exist, create it
+            echo "Creating collection '$modality'...\n";
             $chroma->createCollection($modality);
         }
         
         // Send document to ChromaDB
+        echo "Adding document with ID: $id\n";
         $result = $chroma->addDokuWikiDocument($modality, $id, $content);
         echo "Successfully sent file to ChromaDB:\n";
         echo "  ID: $id\n";
