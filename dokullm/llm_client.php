@@ -453,6 +453,7 @@ class llm_client_plugin_dokullm
      * Query ChromaDB for relevant documents
      * 
      * Generates embeddings for the input text and queries ChromaDB for similar documents.
+     * Extracts modality from the current page ID to use as the collection name.
      * 
      * @param string $text The text to find similar documents for
      * @param int $limit Maximum number of documents to retrieve (default: 5)
@@ -469,7 +470,18 @@ class llm_client_plugin_dokullm
             $chromaPort = defined('CHROMA_PORT') ? CHROMA_PORT : 8000;
             $chromaTenant = defined('CHROMA_TENANT') ? CHROMA_TENANT : 'default_tenant';
             $chromaDatabase = defined('CHROMA_DATABASE') ? CHROMA_DATABASE : 'default_database';
-            $chromaCollection = 'documents'; // Default collection name
+            
+            // Extract modality from current page ID for collection name
+            global $ID;
+            $chromaCollection = 'other'; // Default collection name
+            
+            if (!empty($ID)) {
+                // Split the page ID by ':' and take the second part as modality
+                $parts = explode(':', $ID);
+                if (isset($parts[1])) {
+                    $chromaCollection = $parts[1];
+                }
+            }
             
             // Create ChromaDB client
             $chromaClient = new ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);
