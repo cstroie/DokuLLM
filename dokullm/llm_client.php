@@ -461,13 +461,15 @@ class llm_client_plugin_dokullm
     private function queryChromaDB($text, $limit = 5)
     {
         try {
-            // Get ChromaDB configuration from DokuWiki config
-            global $conf;
-            $chromaHost = $conf['plugin']['dokullm']['chroma_host'] ?? 'localhost';
-            $chromaPort = $conf['plugin']['dokullm']['chroma_port'] ?? 8000;
-            $chromaTenant = $conf['plugin']['dokullm']['chroma_tenant'] ?? 'default_tenant';
-            $chromaDatabase = $conf['plugin']['dokullm']['chroma_database'] ?? 'default_database';
-            $chromaCollection = $conf['plugin']['dokullm']['chroma_collection'] ?? 'documents';
+            // Include config.php to get ChromaDB configuration
+            require_once 'config.php';
+            
+            // Get ChromaDB configuration from config.php
+            $chromaHost = defined('CHROMA_HOST') ? CHROMA_HOST : 'localhost';
+            $chromaPort = defined('CHROMA_PORT') ? CHROMA_PORT : 8000;
+            $chromaTenant = defined('CHROMA_TENANT') ? CHROMA_TENANT : 'default_tenant';
+            $chromaDatabase = defined('CHROMA_DATABASE') ? CHROMA_DATABASE : 'default_database';
+            $chromaCollection = 'documents'; // Default collection name
             
             // Create ChromaDB client
             $chromaClient = new ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);
