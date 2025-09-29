@@ -89,12 +89,26 @@ class llm_client_plugin_dokullm
      * Create the provided text using the LLM
      * 
      * Sends a prompt to the LLM asking it to create the given text.
+     * First queries ChromaDB for relevant documents to include as examples.
      * 
      * @param string $text The text to create
+     * @param array $metadata Optional metadata containing template and examples
+     * @param bool $useContext Whether to include template and examples in the context (default: true)
      * @return string The created text
      */
     public function createReport($text, $metadata = [], $useContext = true)
     {
+        // Query ChromaDB for relevant documents
+        $chromaResults = $this->queryChromaDB($text, 5);
+        
+        // Add ChromaDB results to metadata as examples
+        if (!empty($chromaResults)) {
+            $metadata['examples'] = array_merge(
+                isset($metadata['examples']) ? $metadata['examples'] : [],
+                $chromaResults
+            );
+        }
+        
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
         return $this->callAPI($prompt, $metadata, $useContext);
@@ -433,5 +447,50 @@ class llm_client_plugin_dokullm
         }
         
         return false;
+    }
+    
+    /**
+     * Query ChromaDB for relevant documents
+     * 
+     * Generates embeddings for the input text and queries ChromaDB for similar documents.
+     * 
+     * @param string $text The text to find similar documents for
+     * @param int $limit Maximum number of documents to retrieve (default: 5)
+     * @return array List of document IDs
+     */
+    private function queryChromaDB($text, $limit = 5)
+    {
+        try {
+            // Get ChromaDB configuration from DokuWiki config
+            global $conf;
+            $chromaHost = $conf['plugin']['dokullm']['chroma_host'] ?? 'localhost';
+            $chromaPort = $conf['plugin']['dokullm']['chroma_port'] ?? 8000;
+            $chromaTenant = $conf['plugin']['dokullm']['chroma_tenant'] ?? 'default_tenant';
+            $chromaDatabase = $conf['plugin']['dokullm']['chroma_database'] ?? 'default_database';
+            $chromaCollection = $conf['plugin']['dokullm']['chroma_collection'] ?? 'documents';
+            
+            // Create ChromaDB client
+            $chromaClient = new ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);
+            
+            // Query for similar documents
+            $results = $chromaClient->queryCollection($chromaCollection, [$text], $limit);
+            
+            // Extract document IDs from results
+            $documentIds = [];
+            if (isset($results['ids'][0]) && is_array($results['ids'][0])) {
+                foreach ($results['ids'][0] as $id) {
+                    // Convert ChromaDB ID format back to DokuWiki page ID
+                    $pageId = str_replace(':', '/', $id);
+                    $pageId = str_replace('.txt', '', $pageId);
+                    $documentIds[] = $pageId;
+                }
+            }
+            
+            return $documentIds;
+        } catch (Exception $e) {
+            // Log error but don't fail the operation
+            error_log('ChromaDB query failed: ' . $e->getMessage());
+            return [];
+        }
     }
 }
