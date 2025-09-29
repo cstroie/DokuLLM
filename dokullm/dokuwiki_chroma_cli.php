@@ -122,54 +122,53 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
             $baseMetadata['modality'] = $parts[1];
         }
         
-        // Handle different ID formats
-        if (count($parts) == 5) {
-            // Format: reports:mri:institution:250620-name-surname
-            // Extract institution from the third part
-            if (isset($parts[2])) {
-                $baseMetadata['institution'] = $parts[2];
-            }
-            
-            // Extract date and name from the last part
-            if (preg_match('/^(\d{6})-(.+)$/', $lastPart, $matches)) {
-                $dateStr = $matches[1];
-                $name = $matches[2];
-                
-                // Convert date format (250620 -> 2025-06-20)
-                $day = substr($dateStr, 0, 2);
-                $month = substr($dateStr, 2, 2);
-                $year = substr($dateStr, 4, 2);
-                // Assuming 20xx for years 00-69 and 19xx for years 70-99
-                $fullYear = (int)$year <= 70 ? '20' . $year : '19' . $year;
-                $formattedDate = $fullYear . '-' . $month . '-' . $day;
-                
-                $baseMetadata['date'] = $formattedDate;
-                $baseMetadata['name'] = str_replace('-', ' ', $name);
-            }
-        } else if (count($parts) == 4) {
-            // Format: reports:mri:2024:g287-name-surname
-            // Extract year from the third part
-            if (isset($parts[2])) {
+        // Handle different ID formats based on the third part: word (institution) or numeric (year)
+        if (isset($parts[2])) {
+            // Check if third part is numeric (year) or word (institution)
+            if (is_numeric($parts[2])) {
+                // Format: reports:mri:2024:g287-name-surname (year format)
+                // Extract year from the third part
                 $baseMetadata['year'] = $parts[2];
-            }
-            
-            // Set default institution
-            $baseMetadata['institution'] = 'scuc';
-            
-            // Extract registration and name from the last part
-            // Registration should start with one letter or number and contain numbers before the '-' character
-            if (preg_match('/^([a-zA-Z0-9]+[0-9]*)-(.+)$/', $lastPart, $matches)) {
-                // Check if the first part contains at least one digit to be considered a registration
-                if (preg_match('/[0-9]/', $matches[1])) {
-                    $baseMetadata['registration'] = $matches[1];
-                    $baseMetadata['name'] = str_replace('-', ' ', $matches[2]);
+                
+                // Set default institution
+                $baseMetadata['institution'] = 'scuc';
+                
+                // Extract registration and name from the last part
+                // Registration should start with one letter or number and contain numbers before the '-' character
+                if (preg_match('/^([a-zA-Z0-9]+[0-9]*)-(.+)$/', $lastPart, $matches)) {
+                    // Check if the first part contains at least one digit to be considered a registration
+                    if (preg_match('/[0-9]/', $matches[1])) {
+                        $baseMetadata['registration'] = $matches[1];
+                        $baseMetadata['name'] = str_replace('-', ' ', $matches[2]);
+                    } else {
+                        // If no registration pattern found, treat entire part as patient name
+                        $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
+                    }
                 } else {
-                    // If no registration pattern found, treat entire part as patient name
+                    // If no match, treat entire part as patient name
                     $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
                 }
             } else {
-                // If no match, treat entire part as patient name
-                $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
+                // Format: reports:mri:institution:250620-name-surname (institution format)
+                // Extract institution from the third part
+                $baseMetadata['institution'] = $parts[2];
+                
+                // Extract date and name from the last part
+                if (preg_match('/^(\d{6})-(.+)$/', $lastPart, $matches)) {
+                    $dateStr = $matches[1];
+                    $name = $matches[2];
+                    
+                    // Convert date format (250620 -> 2025-06-20)
+                    $day = substr($dateStr, 0, 2);
+                    $month = substr($dateStr, 2, 2);
+                    $year = substr($dateStr, 4, 2);
+                    // Assuming 20xx for years 00-69 and 19xx for years 70-99
+                    $fullYear = (int)$year <= 70 ? '20' . $year : '19' . $year;
+                    $formattedDate = $fullYear . '-' . $month . '-' . $day;
+                    
+                    $baseMetadata['date'] = $formattedDate;
+                    $baseMetadata['name'] = str_replace('-', ' ', $name);
+                }
             }
         }
         
