@@ -1,4 +1,5 @@
 <?php
+require_once 'config.php';
 require_once 'chromadb_client.php';
 
 function showUsage() {
@@ -11,10 +12,10 @@ function showUsage() {
     echo "  list       List all collections\n";
     echo "\n";
     echo "Options:\n";
-    echo "  --host HOST        ChromaDB server host (default: 10.200.8.16)\n";
-    echo "  --port PORT        ChromaDB server port (default: 8087)\n";
-    echo "  --tenant TENANT    ChromaDB tenant (default: default_tenant)\n";
-    echo "  --database DB      ChromaDB database (default: default_database)\n";
+    echo "  --host HOST        ChromaDB server host (default: " . CHROMA_HOST . ")\n";
+    echo "  --port PORT        ChromaDB server port (default: " . CHROMA_PORT . ")\n";
+    echo "  --tenant TENANT    ChromaDB tenant (default: " . CHROMA_TENANT . ")\n";
+    echo "  --database DB      ChromaDB database (default: " . CHROMA_DATABASE . ")\n";
     echo "\n";
     echo "Send a file:\n";
     echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] send /path/to/file.txt\n";
@@ -130,8 +131,8 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
                 // Extract year from the third part
                 $baseMetadata['year'] = $parts[2];
                 
-                // Set default institution
-                $baseMetadata['institution'] = 'scuc';
+                // Set default institution from config
+                $baseMetadata['institution'] = DEFAULT_INSTITUTION;
                 
                 // Extract registration and name from the last part
                 // Registration should start with one letter or number and contain numbers before the '-' character

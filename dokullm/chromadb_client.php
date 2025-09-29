@@ -9,7 +9,7 @@ class ChromaDBClient {
     private $ollamaPort;
     private $ollamaModel;
 
-    public function __construct($host = '10.200.8.16', $port = 8087, $tenant = 'default_tenant', $database = 'default_database', $ollamaHost = '10.200.8.16', $ollamaPort = 11434, $ollamaModel = 'nomic-embed-text') {
+    public function __construct($host = CHROMA_HOST, $port = CHROMA_PORT, $tenant = CHROMA_TENANT, $database = CHROMA_DATABASE, $ollamaHost = OLLAMA_HOST, $ollamaPort = OLLAMA_PORT, $ollamaModel = OLLAMA_EMBEDDINGS_MODEL) {
         $this->baseUrl = "http://{$host}:{$port}";
         $this->tenant = $tenant;
         $this->database = $database;
@@ -288,8 +288,8 @@ class ChromaDBClient {
                 $baseMetadata['year'] = $parts[2];
             }
             
-            // Set default institution
-            $baseMetadata['institution'] = 'scuc';
+            // Set default institution from config
+            $baseMetadata['institution'] = DEFAULT_INSTITUTION;
             
             // Extract registration and name from the last part
             // Registration should start with one letter or number and contain numbers before the '-' character
