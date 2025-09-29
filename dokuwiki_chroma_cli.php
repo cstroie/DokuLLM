@@ -76,7 +76,7 @@ function sendFile($path, $host, $port, $tenant, $database) {
     }
 }
 
-function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database) {
+function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database, $collectionChecked = false) {
     // Parse file path to extract metadata
     $id = parseFilePath($filePath);
     
@@ -88,16 +88,18 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database)
     $modality = isset($idParts[1]) ? $idParts[1] : 'mri'; // Default to 'mri'
     
     try {
-        // Create collection if it doesn't exist
-        try {
-            echo "Checking if collection '$modality' exists...\n";
-            $collection = $chroma->getCollection($modality);
-            echo "Collection '$modality' already exists.\n";
-        } catch (Exception $e) {
-            // Collection doesn't exist, create it
-            echo "Creating collection '$modality'...\n";
-            $created = $chroma->createCollection($modality);
-            echo "Collection created.\n";
+        // Create collection if it doesn't exist (only if not already checked)
+        if (!$collectionChecked) {
+            try {
+                echo "Checking if collection '$modality' exists...\n";
+                $collection = $chroma->getCollection($modality);
+                echo "Collection '$modality' already exists.\n";
+            } catch (Exception $e) {
+                // Collection doesn't exist, create it
+                echo "Creating collection '$modality'...\n";
+                $created = $chroma->createCollection($modality);
+                echo "Collection created.\n";
+            }
         }
         
         // Generate embeddings for the document
@@ -205,9 +207,28 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     
     echo "Found " . count($files) . " files to process.\n";
     
+    // Check if collection exists once for the directory
+    $sampleFile = $files[0];
+    $id = parseFilePath($sampleFile);
+    $idParts = explode(':', $id);
+    $modality = isset($idParts[1]) ? $idParts[1] : 'mri'; // Default to 'mri'
+    
+    try {
+        echo "Checking if collection '$modality' exists...\n";
+        $collection = $chroma->getCollection($modality);
+        echo "Collection '$modality' already exists.\n";
+        $collectionChecked = true;
+    } catch (Exception $e) {
+        // Collection doesn't exist, create it
+        echo "Creating collection '$modality'...\n";
+        $created = $chroma->createCollection($modality);
+        echo "Collection created.\n";
+        $collectionChecked = true;
+    }
+    
     foreach ($files as $file) {
         echo "\nProcessing file: $file\n";
-        processSingleFile($file, $chroma, $host, $port, $tenant, $database);
+        processSingleFile($file, $chroma, $host, $port, $tenant, $database, $collectionChecked);
     }
     
     echo "\nFinished processing directory.\n";
