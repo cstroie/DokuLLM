@@ -23,21 +23,19 @@ class ChromaDBClient {
     }
 
     private function makeRequest($endpoint, $method = 'GET', $data = null) {
-        // Add tenant and database as query parameters
-        $params = [
-            'tenant' => $this->tenant,
-            'database' => $this->database
+        // Add tenant and database as headers instead of query parameters for v2 API
+        $headers = [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'X-Chroma-Tenant: ' . $this->tenant,
+            'X-Chroma-Database: ' . $this->database
         ];
         
-        $url = $this->baseUrl . $endpoint;
-        
-        // Add query parameters to URL
-        if (!empty($params)) {
-            $url .= '?' . http_build_query($params);
-        }
+        $url = $this->baseUrl . '/api/v2' . $endpoint;
         
         curl_setopt($this->client, CURLOPT_URL, $url);
         curl_setopt($this->client, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($this->client, CURLOPT_HTTPHEADER, $headers);
         
         if ($data) {
             curl_setopt($this->client, CURLOPT_POSTFIELDS, json_encode($data));
@@ -60,11 +58,11 @@ class ChromaDBClient {
     }
 
     public function listCollections() {
-        return $this->makeRequest('/api/v1/collections');
+        return $this->makeRequest('/collections');
     }
 
     public function getCollection($name) {
-        return $this->makeRequest("/api/v1/collections/{$name}");
+        return $this->makeRequest("/collections/{$name}");
     }
 
     public function createCollection($name, $metadata = null) {
@@ -72,11 +70,11 @@ class ChromaDBClient {
         if ($metadata) {
             $data['metadata'] = $metadata;
         }
-        return $this->makeRequest('/api/v1/collections', 'POST', $data);
+        return $this->makeRequest('/collections', 'POST', $data);
     }
 
     public function deleteCollection($name) {
-        return $this->makeRequest("/api/v1/collections/{$name}", 'DELETE');
+        return $this->makeRequest("/collections/{$name}", 'DELETE');
     }
 
     public function addDocuments($collectionName, $documents, $ids, $metadatas = null, $embeddings = null) {
@@ -93,7 +91,7 @@ class ChromaDBClient {
             $data['embeddings'] = $embeddings;
         }
         
-        return $this->makeRequest("/api/v1/collections/{$collectionName}/upsert", 'POST', $data);
+        return $this->makeRequest("/collections/{$collectionName}/upsert", 'POST', $data);
     }
 
     public function queryCollection($collectionName, $queryTexts, $nResults = 5, $where = null) {
@@ -106,7 +104,7 @@ class ChromaDBClient {
             $data['where'] = $where;
         }
         
-        return $this->makeRequest("/api/v1/collections/{$collectionName}/query", 'POST', $data);
+        return $this->makeRequest("/collections/{$collectionName}/query", 'POST', $data);
     }
 
     /**
