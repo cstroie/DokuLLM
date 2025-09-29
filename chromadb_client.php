@@ -92,6 +92,55 @@ class ChromaDBClient {
         
         return $this->makeRequest("/api/v1/collections/{$collectionName}/query", 'POST', $data);
     }
+
+    /**
+     * Convenience function to add a DokuWiki document to the Chroma database
+     * 
+     * @param string $collectionName The name of the collection to add to
+     * @param string $id The DokuWiki document ID (e.g. 'reports:mri:medima:250620-ivan-aisha')
+     * @param string $content The document content
+     * @return array The response from the ChromaDB API
+     */
+    public function addDokuWikiDocument($collectionName, $id, $content) {
+        // Parse the DokuWiki ID to extract metadata
+        $parts = explode(':', $id);
+        
+        // Extract metadata from the last part of the ID
+        $lastPart = end($parts);
+        $metadata = [];
+        
+        // Extract date and name
+        if (preg_match('/^(\d{6})-(.+)$/', $lastPart, $matches)) {
+            $dateStr = $matches[1];
+            $name = $matches[2];
+            
+            // Convert date format (250620 -> 2025-06-20)
+            $day = substr($dateStr, 0, 2);
+            $month = substr($dateStr, 2, 2);
+            $year = substr($dateStr, 4, 2);
+            // Assuming 20xx for years 20-99 and 19xx for years 00-19
+            $fullYear = (int)$year >= 20 ? '20' . $year : '19' . $year;
+            $formattedDate = $fullYear . '-' . $month . '-' . $day;
+            
+            $metadata['date'] = $formattedDate;
+            $metadata['name'] = str_replace('-', ' ', $name);
+        }
+        
+        // Extract modality from the second part
+        if (isset($parts[1])) {
+            $metadata['modality'] = $parts[1];
+        }
+        
+        // Extract institution from the third part
+        if (isset($parts[2])) {
+            $metadata['institution'] = $parts[2];
+        }
+        
+        // Add the document ID as metadata
+        $metadata['document_id'] = $id;
+        
+        return $this->addDocuments($collectionName, [$content], [$id], [$metadata]);
+    }
 }
 
 // Example usage:
