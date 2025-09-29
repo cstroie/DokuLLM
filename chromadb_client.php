@@ -185,8 +185,15 @@ class ChromaDBClient {
         
         $collectionId = $collection['id'];
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/query";
+        
+        // Generate embeddings for query texts
+        $queryEmbeddings = [];
+        foreach ($queryTexts as $text) {
+            $queryEmbeddings[] = $this->generateEmbeddings($text);
+        }
+        
         $data = [
-            'query_texts' => $queryTexts,
+            'query_embeddings' => $queryEmbeddings,
             'n_results' => $nResults
         ];
         
