@@ -7,8 +7,20 @@ class ChromaDBClient {
     private $database;
     private $ollamaHost;
     private $ollamaPort;
-    private $ollamaModel;
-
+    /**
+     * Initialize the ChromaDB client
+     * 
+     * Creates a new ChromaDB client instance with the specified connection parameters.
+     * Also ensures that the specified tenant and database exist.
+     * 
+     * @param string $host ChromaDB server host (default: CHROMA_HOST)
+     * @param int $port ChromaDB server port (default: CHROMA_PORT)
+     * @param string $tenant ChromaDB tenant name (default: CHROMA_TENANT)
+     * @param string $database ChromaDB database name (default: CHROMA_DATABASE)
+     * @param string $ollamaHost Ollama server host (default: OLLAMA_HOST)
+     * @param int $ollamaPort Ollama server port (default: OLLAMA_PORT)
+     * @param string $ollamaModel Ollama embeddings model (default: OLLAMA_EMBEDDINGS_MODEL)
+     */
     public function __construct($host = CHROMA_HOST, $port = CHROMA_PORT, $tenant = CHROMA_TENANT, $database = CHROMA_DATABASE, $ollamaHost = OLLAMA_HOST, $ollamaPort = OLLAMA_PORT, $ollamaModel = OLLAMA_EMBEDDINGS_MODEL) {
         $this->baseUrl = "http://{$host}:{$port}";
         $this->tenant = $tenant;
@@ -27,10 +39,27 @@ class ChromaDBClient {
         $this->ensureTenantAndDatabase();
     }
 
+    /**
+     * Clean up the cURL client when the object is destroyed
+     * 
+     * @return void
+     */
     public function __destruct() {
         curl_close($this->client);
     }
 
+    /**
+     * Make an HTTP request to the ChromaDB API
+     * 
+     * This is a helper function that handles making HTTP requests to the ChromaDB API,
+     * including setting the appropriate headers for tenant and database.
+     * 
+     * @param string $endpoint The API endpoint to call
+     * @param string $method The HTTP method to use (default: 'GET')
+     * @param array|null $data The data to send with the request (default: null)
+     * @return array The JSON response decoded as an array
+     * @throws Exception If there's a cURL error or HTTP error
+     */
     private function makeRequest($endpoint, $method = 'GET', $data = null) {
         // Add tenant and database as headers instead of query parameters for v2 API
         $headers = [
@@ -113,11 +142,27 @@ class ChromaDBClient {
         return $result['embedding'];
     }
 
+    /**
+     * List all collections in the database
+     * 
+     * Retrieves a list of all collections in the specified tenant and database.
+     * 
+     * @return array List of collections
+     */
     public function listCollections() {
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
         return $this->makeRequest($endpoint);
     }
 
+    /**
+     * Get a collection by name
+     * 
+     * Retrieves information about a specific collection by its name.
+     * 
+     * @param string $name The name of the collection to retrieve
+     * @return array The collection information
+     * @throws Exception If the collection is not found
+     */
     public function getCollection($name) {
         // First try to get collection by name
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
@@ -134,6 +179,15 @@ class ChromaDBClient {
         throw new Exception("Collection '{$name}' not found");
     }
 
+    /**
+     * Create a new collection
+     * 
+     * Creates a new collection with the specified name and optional metadata.
+     * 
+     * @param string $name The name of the collection to create
+     * @param array|null $metadata Optional metadata for the collection
+     * @return array The response from the API
+     */
     public function createCollection($name, $metadata = null) {
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
         $data = ['name' => $name];
@@ -143,6 +197,15 @@ class ChromaDBClient {
         return $this->makeRequest($endpoint, 'POST', $data);
     }
 
+    /**
+     * Delete a collection by name
+     * 
+     * Deletes a collection with the specified name.
+     * 
+     * @param string $name The name of the collection to delete
+     * @return array The response from the API
+     * @throws Exception If the collection ID is not found
+     */
     public function deleteCollection($name) {
         // First get the collection to find its ID
         $collection = $this->getCollection($name);
@@ -155,6 +218,20 @@ class ChromaDBClient {
         return $this->makeRequest($endpoint, 'DELETE');
     }
 
+    /**
+     * Add documents to a collection
+     * 
+     * Adds documents to the specified collection. Each document must have a corresponding ID.
+     * Optional metadata and pre-computed embeddings can also be provided.
+     * 
+     * @param string $collectionName The name of the collection to add documents to
+     * @param array $documents The document contents
+     * @param array $ids The document IDs
+     * @param array|null $metadatas Optional metadata for each document
+     * @param array|null $embeddings Optional pre-computed embeddings for each document
+     * @return array The response from the API
+     * @throws Exception If the collection ID is not found
+     */
     public function addDocuments($collectionName, $documents, $ids, $metadatas = null, $embeddings = null) {
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
@@ -180,6 +257,19 @@ class ChromaDBClient {
         return $this->makeRequest($endpoint, 'POST', $data);
     }
 
+    /**
+     * Query a collection for similar documents
+     * 
+     * Queries the specified collection for documents similar to the provided query texts.
+     * The function generates embeddings for the query texts and sends them to ChromaDB.
+     * 
+     * @param string $collectionName The name of the collection to query
+     * @param array $queryTexts The query texts to search for
+     * @param int $nResults The number of results to return (default: 5)
+     * @param array|null $where Optional filter conditions
+     * @return array The query results
+     * @throws Exception If the collection ID is not found
+     */
     public function queryCollection($collectionName, $queryTexts, $nResults = 5, $where = null) {
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
@@ -213,6 +303,13 @@ class ChromaDBClient {
      * 
      * @return array The response from the heartbeat endpoint
      */
+    /**
+     * Check if the ChromaDB server is alive
+     * 
+     * Sends a heartbeat request to verify that the ChromaDB server is running.
+     * 
+     * @return array The response from the heartbeat endpoint
+     */
     public function heartbeat() {
         $endpoint = "/heartbeat";
         return $this->makeRequest($endpoint, 'GET');
@@ -220,6 +317,13 @@ class ChromaDBClient {
 
     /**
      * Get authentication and identity information
+     * 
+     * @return array The response from the auth/identity endpoint
+     */
+    /**
+     * Get authentication and identity information
+     * 
+     * Retrieves authentication and identity information from the ChromaDB server.
      * 
      * @return array The response from the auth/identity endpoint
      */
@@ -416,6 +520,15 @@ class ChromaDBClient {
      * @param string $filename The filename without extension
      * @return string The DokuWiki ID
      */
+    /**
+     * Build DokuWiki ID from path parts and filename
+     * 
+     * Constructs a DokuWiki ID from the directory structure and filename.
+     * 
+     * @param array $pathParts The path parts from the directory structure
+     * @param string $filename The filename without extension
+     * @return string The DokuWiki ID
+     */
     private function buildDokuWikiId($pathParts, $filename) {
         // The first part is always 'reports'
         $idParts = ['reports', 'mri'];
@@ -435,6 +548,13 @@ class ChromaDBClient {
     
     /**
      * Ensure that the specified tenant and database exist
+     * 
+     * @return void
+     */
+    /**
+     * Ensure that the specified tenant and database exist
+     * 
+     * Checks if the specified tenant and database exist, and creates them if they don't.
      * 
      * @return void
      */
@@ -462,6 +582,14 @@ class ChromaDBClient {
      * @param string $tenantName The tenant name
      * @return array The tenant information
      */
+    /**
+     * Get tenant information
+     * 
+     * Retrieves information about the specified tenant.
+     * 
+     * @param string $tenantName The tenant name
+     * @return array The tenant information
+     */
     public function getTenant($tenantName) {
         $endpoint = "/tenants/{$tenantName}";
         return $this->makeRequest($endpoint, 'GET');
@@ -469,6 +597,14 @@ class ChromaDBClient {
     
     /**
      * Create a new tenant
+     * 
+     * @param string $tenantName The tenant name
+     * @return array The response from the API
+     */
+    /**
+     * Create a new tenant
+     * 
+     * Creates a new tenant with the specified name.
      * 
      * @param string $tenantName The tenant name
      * @return array The response from the API
@@ -486,6 +622,15 @@ class ChromaDBClient {
      * @param string $tenantName The tenant name
      * @return array The database information
      */
+    /**
+     * Get database information
+     * 
+     * Retrieves information about the specified database within a tenant.
+     * 
+     * @param string $databaseName The database name
+     * @param string $tenantName The tenant name
+     * @return array The database information
+     */
     public function getDatabase($databaseName, $tenantName) {
         $endpoint = "/tenants/{$tenantName}/databases/{$databaseName}";
         return $this->makeRequest($endpoint, 'GET');
@@ -493,6 +638,15 @@ class ChromaDBClient {
     
     /**
      * Create a new database
+     * 
+     * @param string $databaseName The database name
+     * @param string $tenantName The tenant name
+     * @return array The response from the API
+     */
+    /**
+     * Create a new database
+     * 
+     * Creates a new database with the specified name within a tenant.
      * 
      * @param string $databaseName The database name
      * @param string $tenantName The tenant name

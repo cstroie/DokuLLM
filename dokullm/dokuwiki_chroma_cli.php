@@ -2,6 +2,14 @@
 require_once 'config.php';
 require_once 'chromadb_client.php';
 
+/**
+ * Display usage information for the CLI tool
+ * 
+ * Shows all available actions, options, and examples of how to use the tool.
+ * This function is called when no arguments are provided or when invalid arguments are given.
+ * 
+ * @return void
+ */
 function showUsage() {
     echo "Usage: php dokuwiki_chroma_cli.php [options] [action]\n";
     echo "Actions:\n";
@@ -39,6 +47,20 @@ function showUsage() {
     exit(1);
 }
 
+/**
+ * Parse a file path and convert it to a DokuWiki ID
+ * 
+ * Takes a file system path and converts it to the DokuWiki ID format by:
+ * 1. Removing the base path prefix
+ * 2. Removing the .txt extension
+ * 3. Converting directory separators to colons
+ * 
+ * Example: /var/www/html/dokuwiki/data/pages/reports/mri/2024/g287-name-surname.txt
+ * Becomes: reports:mri:2024:g287-name-surname
+ * 
+ * @param string $filePath The full file path to parse
+ * @return string The DokuWiki ID
+ */
 function parseFilePath($filePath) {
     // Remove the base path
     $relativePath = str_replace('/var/www/html/dokuwiki/data/pages/reports/', '', $filePath);
@@ -60,6 +82,19 @@ function parseFilePath($filePath) {
     return implode(':', $idParts);
 }
 
+/**
+ * Send a file or directory of files to ChromaDB
+ * 
+ * This function determines if the provided path is a file or directory and processes
+ * it accordingly. For directories, it processes all .txt files recursively.
+ * 
+ * @param string $path The file or directory path to process
+ * @param string $host ChromaDB server host
+ * @param int $port ChromaDB server port
+ * @param string $tenant ChromaDB tenant name
+ * @param string $database ChromaDB database name
+ * @return void
+ */
 function sendFile($path, $host, $port, $tenant, $database) {
     // Create ChromaDB client
     $chroma = new ChromaDBClient($host, $port, $tenant, $database);
@@ -79,6 +114,31 @@ function sendFile($path, $host, $port, $tenant, $database) {
     }
 }
 
+/**
+ * Process a single DokuWiki file and send it to ChromaDB
+ * 
+ * This function handles the complete processing of a single DokuWiki file:
+ * 1. Parses the file path to extract metadata
+ * 2. Reads the file content
+ * 3. Ensures the appropriate collection exists
+ * 4. Splits the document into chunks (paragraphs)
+ * 5. Extracts metadata from the DokuWiki ID format
+ * 6. Generates embeddings for each chunk
+ * 7. Sends all chunks to ChromaDB
+ * 
+ * Two ID formats are supported:
+ * - Format 1: reports:mri:institution:250620-name-surname (third part is institution name)
+ * - Format 2: reports:mri:2024:g287-name-surname (third part is year)
+ * 
+ * @param string $filePath The path to the file to process
+ * @param ChromaDBClient $chroma The ChromaDB client instance
+ * @param string $host ChromaDB server host
+ * @param int $port ChromaDB server port
+ * @param string $tenant ChromaDB tenant name
+ * @param string $database ChromaDB database name
+ * @param bool $collectionChecked Whether the collection has already been checked/created
+ * @return void
+ */
 function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database, $collectionChecked = false) {
     // Parse file path to extract metadata
     $id = parseFilePath($filePath);
@@ -227,6 +287,21 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
     }
 }
 
+/**
+ * Process all DokuWiki files in a directory and send them to ChromaDB
+ * 
+ * This function recursively processes all .txt files in a directory and its subdirectories.
+ * It first checks if the appropriate collection exists and creates it if needed.
+ * Then it processes each file individually.
+ * 
+ * @param string $dirPath The directory path to process
+ * @param ChromaDBClient $chroma The ChromaDB client instance
+ * @param string $host ChromaDB server host
+ * @param int $port ChromaDB server port
+ * @param string $tenant ChromaDB tenant name
+ * @param string $database ChromaDB database name
+ * @return void
+ */
 function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     // Check if directory exists
     if (!is_dir($dirPath)) {
@@ -282,6 +357,22 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     echo "\nFinished processing directory.\n";
 }
 
+/**
+ * Query ChromaDB for similar documents
+ * 
+ * This function queries the specified collection in ChromaDB for documents
+ * similar to the provided search terms. It displays the results including
+ * document IDs, distances, and metadata.
+ * 
+ * @param string $searchTerms The search terms to query for
+ * @param int $limit The maximum number of results to return
+ * @param string $host ChromaDB server host
+ * @param int $port ChromaDB server port
+ * @param string $tenant ChromaDB tenant name
+ * @param string $database ChromaDB database name
+ * @param string $modality The modality/collection to query (default: 'other')
+ * @return void
+ */
 function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $modality = 'other') {
     // Create ChromaDB client
     $chroma = new ChromaDBClient($host, $port, $tenant, $database);
@@ -319,6 +410,18 @@ function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $mo
     }
 }
 
+/**
+ * Check if the ChromaDB server is alive
+ * 
+ * This function sends a heartbeat request to the ChromaDB server to verify
+ * that it's running and accessible.
+ * 
+ * @param string $host ChromaDB server host
+ * @param int $port ChromaDB server port
+ * @param string $tenant ChromaDB tenant name
+ * @param string $database ChromaDB database name
+ * @return void
+ */
 function checkHeartbeat($host, $port, $tenant, $database) {
     // Create ChromaDB client
     $chroma = new ChromaDBClient($host, $port, $tenant, $database);
@@ -340,6 +443,18 @@ function checkHeartbeat($host, $port, $tenant, $database) {
     }
 }
 
+/**
+ * Get authentication and identity information from ChromaDB
+ * 
+ * This function retrieves authentication and identity information from the
+ * ChromaDB server, which can be useful for debugging connection issues.
+ * 
+ * @param string $host ChromaDB server host
+ * @param int $port ChromaDB server port
+ * @param string $tenant ChromaDB tenant name
+ * @param string $database ChromaDB database name
+ * @return void
+ */
 function checkIdentity($host, $port, $tenant, $database) {
     // Create ChromaDB client
     $chroma = new ChromaDBClient($host, $port, $tenant, $database);
@@ -361,6 +476,18 @@ function checkIdentity($host, $port, $tenant, $database) {
     }
 }
 
+/**
+ * List all collections in the ChromaDB database
+ * 
+ * This function retrieves and displays a list of all collections in the
+ * specified ChromaDB database.
+ * 
+ * @param string $host ChromaDB server host
+ * @param int $port ChromaDB server port
+ * @param string $tenant ChromaDB tenant name
+ * @param string $database ChromaDB database name
+ * @return void
+ */
 function listCollections($host, $port, $tenant, $database) {
     // Create ChromaDB client
     $chroma = new ChromaDBClient($host, $port, $tenant, $database);
@@ -389,7 +516,16 @@ function listCollections($host, $port, $tenant, $database) {
     }
 }
 
-// Parse command line arguments
+/**
+ * Parse command line arguments
+ * 
+ * This function parses the command line arguments provided to the script,
+ * extracting options and action parameters. It handles both global options
+ * (like host, port, tenant, database) and action-specific arguments.
+ * 
+ * @param array $argv The command line arguments array
+ * @return array The parsed arguments
+ */
 function parseArgs($argv) {
     $args = [
         'action' => null,
