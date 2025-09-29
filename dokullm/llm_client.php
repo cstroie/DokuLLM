@@ -50,6 +50,9 @@ class llm_client_plugin_dokullm
     /** @var float The min-p setting for minimum probability threshold */
     private $min_p;
     
+    /** @var bool Whether to enable thinking in the LLM responses */
+    private $think;
+    
     /**
      * Initialize the LLM client with configuration settings
      * 
@@ -78,6 +81,7 @@ class llm_client_plugin_dokullm
         $this->top_p = $conf['plugin']['dokullm']['top_p'];
         $this->top_k = $conf['plugin']['dokullm']['top_k'];
         $this->min_p = $conf['plugin']['dokullm']['min_p'];
+        $this->think = $conf['plugin']['dokullm']['think'];
     }
     
     /**
@@ -90,7 +94,8 @@ class llm_client_plugin_dokullm
      */
     public function completeText($text, $metadata = [], $useContext = true)
     {
-        $prompt = $this->loadPrompt('complete', ['text' => $text]);
+        $think = $this->think ? '/think' : '/no_think';
+        $prompt = $this->loadPrompt('complete', ['text' => $text, 'think' => $think]);
         return $this->callAPI($prompt, $metadata, $useContext);
     }
     
@@ -105,7 +110,8 @@ class llm_client_plugin_dokullm
      */
     public function rewriteText($text, $metadata = [], $useContext = true)
     {
-        $prompt = $this->loadPrompt('rewrite', ['text' => $text]);
+        $think = $this->think ? '/think' : '/no_think';
+        $prompt = $this->loadPrompt('rewrite', ['text' => $text, 'think' => $think]);
         return $this->callAPI($prompt, $metadata, $useContext);
     }
     
@@ -120,7 +126,8 @@ class llm_client_plugin_dokullm
      */
     public function correctGrammar($text, $metadata = [], $useContext = true)
     {
-        $prompt = $this->loadPrompt('grammar', ['text' => $text]);
+        $think = $this->think ? '/think' : '/no_think';
+        $prompt = $this->loadPrompt('grammar', ['text' => $text, 'think' => $think]);
         return $this->callAPI($prompt, $metadata, $useContext);
     }
     
@@ -135,7 +142,8 @@ class llm_client_plugin_dokullm
      */
     public function summarizeText($text, $metadata = [], $useContext = true)
     {
-        $prompt = $this->loadPrompt('summarize', ['text' => $text]);
+        $think = $this->think ? '/think' : '/no_think';
+        $prompt = $this->loadPrompt('summarize', ['text' => $text, 'think' => $think]);
         return $this->callAPI($prompt, $metadata, $useContext);
     }
     
@@ -152,7 +160,8 @@ class llm_client_plugin_dokullm
      */
     public function createConclusion($text, $metadata = [], $useContext = false)
     {
-        $prompt = $this->loadPrompt('conclusion', ['text' => $text, 'think' => '/no_think']);
+        $think = $this->think ? '/think' : '/no_think';
+        $prompt = $this->loadPrompt('conclusion', ['text' => $text, 'think' => $think]);
         return $this->callAPI($prompt, $metadata, $useContext);
     }
     
@@ -168,7 +177,8 @@ class llm_client_plugin_dokullm
      */
     public function analyzeText($text, $metadata = [], $useContext = false)
     {
-        $prompt = $this->loadPrompt('analyze', ['text' => $text]);
+        $think = $this->think ? '/think' : '/no_think';
+        $prompt = $this->loadPrompt('analyze', ['text' => $text, 'think' => $think]);
         return $this->callAPI($prompt, $metadata, $useContext);
     }
     
@@ -183,7 +193,8 @@ class llm_client_plugin_dokullm
      */
     public function continueText($text, $metadata = [], $useContext = true)
     {
-        $prompt = $this->loadPrompt('continue', ['text' => $text]);
+        $think = $this->think ? '/think' : '/no_think';
+        $prompt = $this->loadPrompt('continue', ['text' => $text, 'think' => $think]);
         return $this->callAPI($prompt, $metadata, $useContext);
     }
     
