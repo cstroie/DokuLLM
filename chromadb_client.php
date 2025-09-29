@@ -160,6 +160,87 @@ class ChromaDBClient {
         
         return $this->addDocuments($collectionName, [$content], [$id], [$metadata]);
     }
+
+    /**
+     * Process all DokuWiki files in the reports/mri directory and subdirectories
+     * 
+     * @param string $collectionName The name of the collection to add documents to
+     * @param string $basePath The base path to the DokuWiki pages directory
+     * @return array Summary of processed files
+     */
+    public function processDokuWikiReports($collectionName, $basePath = '/var/www/html/dokuwiki/data/pages/reports/mri/') {
+        $summary = [
+            'processed' => 0,
+            'errors' => 0,
+            'error_details' => []
+        ];
+
+        // Check if base path exists
+        if (!is_dir($basePath)) {
+            throw new Exception("Base path does not exist: $basePath");
+        }
+
+        // Iterate through directories
+        $directories = new RecursiveDirectoryIterator($basePath, RecursiveDirectoryIterator::SKIP_DOTS);
+        $iterator = new RecursiveIteratorIterator($directories);
+
+        foreach ($iterator as $file) {
+            // Process only .txt files
+            if ($file->isFile() && $file->getExtension() === 'txt') {
+                try {
+                    // Get relative path from base path
+                    $relativePath = str_replace($basePath, '', $file->getPathname());
+                    $pathParts = explode('/', trim($relativePath, '/'));
+                    
+                    // Extract filename without extension
+                    $filename = basename($file->getFilename(), '.txt');
+                    
+                    // Determine the ID format based on path structure
+                    $id = $this->buildDokuWikiId($pathParts, $filename);
+                    
+                    // Read file content
+                    $content = file_get_contents($file->getPathname());
+                    
+                    // Add document to ChromaDB
+                    $this->addDokuWikiDocument($collectionName, $id, $content);
+                    
+                    $summary['processed']++;
+                } catch (Exception $e) {
+                    $summary['errors']++;
+                    $summary['error_details'][] = [
+                        'file' => $file->getPathname(),
+                        'error' => $e->getMessage()
+                    ];
+                }
+            }
+        }
+        
+        return $summary;
+    }
+
+    /**
+     * Build DokuWiki ID from path parts and filename
+     * 
+     * @param array $pathParts The path parts from the directory structure
+     * @param string $filename The filename without extension
+     * @return string The DokuWiki ID
+     */
+    private function buildDokuWikiId($pathParts, $filename) {
+        // The first part is always 'reports'
+        $idParts = ['reports', 'mri'];
+        
+        // Add intermediate parts (year or institution)
+        for ($i = 0; $i < count($pathParts) - 1; $i++) {
+            if (!empty($pathParts[$i])) {
+                $idParts[] = $pathParts[$i];
+            }
+        }
+        
+        // Add the filename
+        $idParts[] = $filename;
+        
+        return implode(':', $idParts);
+    }
 }
 
 // Example usage:
