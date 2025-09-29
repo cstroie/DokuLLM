@@ -90,6 +90,7 @@ class llm_client_plugin_dokullm
      * 
      * Sends a prompt to the LLM asking it to create the given text.
      * First queries ChromaDB for relevant documents to include as examples.
+     * If no template is defined, queries ChromaDB for a template.
      * 
      * @param string $text The text to create
      * @param array $metadata Optional metadata containing template and examples
@@ -98,7 +99,15 @@ class llm_client_plugin_dokullm
      */
     public function createReport($text, $metadata = [], $useContext = true)
     {
-        // Query ChromaDB for relevant documents
+        // If no template is defined, try to find one using ChromaDB
+        if (empty($metadata['template'])) {
+            $templateResult = $this->queryChromaDBForTemplate($text);
+            if (!empty($templateResult)) {
+                $metadata['template'] = $templateResult[0]; // Use the first result as template
+            }
+        }
+        
+        // Query ChromaDB for relevant documents to use as examples
         $chromaResults = $this->queryChromaDB($text, 5);
         
         // Add ChromaDB results to metadata as examples
@@ -457,9 +466,10 @@ class llm_client_plugin_dokullm
      * 
      * @param string $text The text to find similar documents for
      * @param int $limit Maximum number of documents to retrieve (default: 5)
+     * @param array|null $where Optional filter conditions for metadata
      * @return array List of document IDs
      */
-    private function queryChromaDB($text, $limit = 5)
+    private function queryChromaDB($text, $limit = 5, $where = null)
     {
         try {
             // Include config.php to get ChromaDB configuration
@@ -487,7 +497,7 @@ class llm_client_plugin_dokullm
             $chromaClient = new ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);
             
             // Query for similar documents
-            $results = $chromaClient->queryCollection($chromaCollection, [$text], $limit);
+            $results = $chromaClient->queryCollection($chromaCollection, [$text], $limit, $where);
             
             // Extract document IDs from results
             $documentIds = [];
@@ -504,6 +514,64 @@ class llm_client_plugin_dokullm
         } catch (Exception $e) {
             // Log error but don't fail the operation
             error_log('ChromaDB query failed: ' . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Query ChromaDB for a template document
+     * 
+     * Generates embeddings for the input text and queries ChromaDB for a template document
+     * by filtering with metadata 'template=true'.
+     * 
+     * @param string $text The text to find a template for
+     * @return array List of template document IDs (maximum 1)
+     */
+    private function queryChromaDBForTemplate($text)
+    {
+        try {
+            // Include config.php to get ChromaDB configuration
+            require_once 'config.php';
+            
+            // Get ChromaDB configuration from config.php
+            $chromaHost = defined('CHROMA_HOST') ? CHROMA_HOST : 'localhost';
+            $chromaPort = defined('CHROMA_PORT') ? CHROMA_PORT : 8000;
+            $chromaTenant = defined('CHROMA_TENANT') ? CHROMA_TENANT : 'default_tenant';
+            $chromaDatabase = defined('CHROMA_DATABASE') ? CHROMA_DATABASE : 'default_database';
+            
+            // Extract modality from current page ID for collection name
+            global $ID;
+            $chromaCollection = 'other'; // Default collection name
+            
+            if (!empty($ID)) {
+                // Split the page ID by ':' and take the second part as modality
+                $parts = explode(':', $ID);
+                if (isset($parts[1])) {
+                    $chromaCollection = $parts[1];
+                }
+            }
+            
+            // Create ChromaDB client
+            $chromaClient = new ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);
+            
+            // Query for template documents with metadata filter
+            $results = $chromaClient->queryCollection($chromaCollection, [$text], 1, ['template' => 'true']);
+            
+            // Extract document IDs from results
+            $documentIds = [];
+            if (isset($results['ids'][0]) && is_array($results['ids'][0])) {
+                foreach ($results['ids'][0] as $id) {
+                    // Convert ChromaDB ID format back to DokuWiki page ID
+                    $pageId = str_replace(':', '/', $id);
+                    $pageId = str_replace('.txt', '', $pageId);
+                    $documentIds[] = $pageId;
+                }
+            }
+            
+            return $documentIds;
+        } catch (Exception $e) {
+            // Log error but don't fail the operation
+            error_log('ChromaDB template query failed: ' . $e->getMessage());
             return [];
         }
     }
