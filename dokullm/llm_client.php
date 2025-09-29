@@ -18,6 +18,9 @@ if (!defined('DOKU_INC')) {
     die();
 }
 
+// Include ChromaDB client
+require_once DOKU_PLUGIN . 'dokullm/chromadb_client.php';
+
 /**
  * LLM Client class for handling API communications
  * 
