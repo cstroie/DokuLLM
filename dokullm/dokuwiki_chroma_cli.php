@@ -16,6 +16,8 @@ function showUsage() {
     echo "  --port PORT        ChromaDB server port (default: " . CHROMA_PORT . ")\n";
     echo "  --tenant TENANT    ChromaDB tenant (default: " . CHROMA_TENANT . ")\n";
     echo "  --database DB      ChromaDB database (default: " . CHROMA_DATABASE . ")\n";
+    echo "  --modality MOD     Modality/collection to query (default: other)\n";
+    echo "  --limit NUM        Number of results to return (default: 5)\n";
     echo "\n";
     echo "Send a file:\n";
     echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] send /path/to/file.txt\n";
@@ -24,7 +26,7 @@ function showUsage() {
     echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] send /path/to/directory\n";
     echo "\n";
     echo "Query ChromaDB:\n";
-    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] [--limit 10] query \"search terms\"\n";
+    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] [--modality MOD] [--limit 10] query \"search terms\"\n";
     echo "\n";
     echo "Check server status:\n";
     echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] heartbeat\n";
@@ -280,16 +282,16 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     echo "\nFinished processing directory.\n";
 }
 
-function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database) {
+function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $modality = 'other') {
     // Create ChromaDB client
     $chroma = new ChromaDBClient($host, $port, $tenant, $database);
     
     try {
-        // For now, we'll query the 'mri' collection by default
-        // In a more advanced version, we could query multiple collections
-        $results = $chroma->queryCollection('mri', [$searchTerms], $limit);
+        // Query the specified collection by modality
+        $results = $chroma->queryCollection($modality, [$searchTerms], $limit);
         
         echo "Query results for: \"$searchTerms\"\n";
+        echo "Modality: $modality\n";
         echo "Host: $host:$port\n";
         echo "Tenant: $tenant\n";
         echo "Database: $database\n";
@@ -394,6 +396,7 @@ function parseArgs($argv) {
         'filepath' => null,
         'query' => null,
         'limit' => 5,
+        'modality' => 'other',
         'host' => CHROMA_HOST,
         'port' => CHROMA_PORT,
         'tenant' => CHROMA_TENANT,
@@ -411,6 +414,14 @@ function parseArgs($argv) {
             case '--limit':
                 if (isset($argv[$i + 1])) {
                     $args['limit'] = (int)$argv[$i + 1];
+                    $i += 2;
+                } else {
+                    $i++;
+                }
+                break;
+            case '--modality':
+                if (isset($argv[$i + 1])) {
+                    $args['modality'] = $argv[$i + 1];
                     $i += 2;
                 } else {
                     $i++;
@@ -486,7 +497,7 @@ switch ($args['action']) {
             echo "Error: Missing search terms for query action\n";
             showUsage();
         }
-        queryChroma($args['query'], $args['limit'], $args['host'], $args['port'], $args['tenant'], $args['database']);
+        queryChroma($args['query'], $args['limit'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['modality']);
         break;
         
     case 'heartbeat':
