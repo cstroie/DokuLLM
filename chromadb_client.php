@@ -82,7 +82,7 @@ class ChromaDBClient {
     }
 
     public function addDocuments($collectionName, $documents, $ids, $metadatas = null, $embeddings = null) {
-        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionName}/upsert";
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionName}/add";
         $data = [
             'ids' => $ids,
             'documents' => $documents
@@ -119,7 +119,7 @@ class ChromaDBClient {
      * @return array The response from the heartbeat endpoint
      */
     public function heartbeat() {
-        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/heartbeat";
+        $endpoint = "/heartbeat";
         return $this->makeRequest($endpoint, 'GET');
     }
 
@@ -129,7 +129,7 @@ class ChromaDBClient {
      * @return array The response from the auth/identity endpoint
      */
     public function getIdentity() {
-        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/auth/identity";
+        $endpoint = "/identity";
         return $this->makeRequest($endpoint, 'GET');
     }
 
@@ -282,34 +282,3 @@ class ChromaDBClient {
     }
 }
 
-// Example usage:
-try {
-    $chroma = new ChromaDBClient('10.200.8.16', 8087);
-    
-    // Create a collection
-    $collectionName = 'documents';
-    $chroma->createCollection($collectionName);
-    
-    // Add documents
-    $documents = [
-        'This is document about artificial intelligence',
-        'This document covers machine learning techniques',
-        'Natural language processing is a subset of AI'
-    ];
-    
-    $ids = ['doc1', 'doc2', 'doc3'];
-    $metadatas = [
-        ['topic' => 'AI'],
-        ['topic' => 'ML'],
-        ['topic' => 'NLP']
-    ];
-    
-    $chroma->addDocuments($collectionName, $documents, $ids, $metadatas);
-    
-    // Query documents
-    $results = $chroma->queryCollection($collectionName, ['AI and machine learning'], 2);
-    print_r($results);
-    
-} catch (Exception $e) {
-    echo 'Error: ' . $e->getMessage();
-}
