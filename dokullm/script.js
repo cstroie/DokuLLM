@@ -229,16 +229,13 @@
         // Make textarea readonly during processing
         editor.readOnly = true;
         
-        // Get additional prompt if needed (e.g., for translation)
-        let targetLanguage = '';
-        
         // Send AJAX request
         console.log('DokuLLM: Sending AJAX request to backend');
         const formData = new FormData();
         formData.append('call', 'plugin_dokullm');
         formData.append('action', action);
         formData.append('text', textToProcess);
-        formData.append('prompt', targetLanguage);
+        formData.append('prompt', '');
         formData.append('metadata', JSON.stringify(metadata));
         
         fetch(DOKU_BASE + 'lib/exe/ajax.php', {

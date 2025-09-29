@@ -88,10 +88,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to complete
      * @return string The completed text
      */
-    public function completeText($text, $metadata = [])
+    public function completeText($text, $metadata = [], $useContext = true)
     {
         $prompt = $this->loadPrompt('complete', ['text' => $text]);
-        return $this->callAPI($prompt, $metadata);
+        return $this->callAPI($prompt, $metadata, $useContext);
     }
     
     /**
@@ -103,10 +103,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to rewrite
      * @return string The rewritten text
      */
-    public function rewriteText($text, $metadata = [])
+    public function rewriteText($text, $metadata = [], $useContext = true)
     {
         $prompt = $this->loadPrompt('rewrite', ['text' => $text]);
-        return $this->callAPI($prompt, $metadata);
+        return $this->callAPI($prompt, $metadata, $useContext);
     }
     
     /**
@@ -118,10 +118,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to correct
      * @return string The corrected text
      */
-    public function correctGrammar($text, $metadata = [])
+    public function correctGrammar($text, $metadata = [], $useContext = true)
     {
         $prompt = $this->loadPrompt('grammar', ['text' => $text]);
-        return $this->callAPI($prompt, $metadata);
+        return $this->callAPI($prompt, $metadata, $useContext);
     }
     
     /**
@@ -133,10 +133,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to summarize
      * @return string The summarized text
      */
-    public function summarizeText($text, $metadata = [])
+    public function summarizeText($text, $metadata = [], $useContext = true)
     {
         $prompt = $this->loadPrompt('summarize', ['text' => $text]);
-        return $this->callAPI($prompt, $metadata);
+        return $this->callAPI($prompt, $metadata, $useContext);
     }
     
     /**
@@ -147,12 +147,12 @@ class llm_client_plugin_dokullm
      * 
      * @param string $text The text to create a conclusion for
      * @param array $metadata Optional metadata containing template and examples
-     * @param bool $useContext Whether to include template and examples in the context (default: true)
+     * @param bool $useContext Whether to include template and examples in the context (default: false)
      * @return string The generated conclusion
      */
-    public function createConclusion($text, $metadata = [], $useContext = true)
+    public function createConclusion($text, $metadata = [], $useContext = false)
     {
-        $prompt = $this->loadPrompt('conclusion', ['text' => $text]);
+        $prompt = $this->loadPrompt('conclusion', ['text' => $text, 'think' => '/no_think']);
         return $this->callAPI($prompt, $metadata, $useContext);
     }
     
@@ -166,10 +166,10 @@ class llm_client_plugin_dokullm
      * @param array $metadata Optional metadata containing template and examples
      * @return string The analysis results
      */
-    public function analyzeText($text, $metadata = [])
+    public function analyzeText($text, $metadata = [], $useContext = false)
     {
         $prompt = $this->loadPrompt('analyze', ['text' => $text]);
-        return $this->callAPI($prompt, $metadata, false); // Don't use context for analysis
+        return $this->callAPI($prompt, $metadata, $useContext);
     }
     
     /**
@@ -181,10 +181,10 @@ class llm_client_plugin_dokullm
      * @param string $text The text to continue from
      * @return string The continued text
      */
-    public function continueText($text, $metadata = [])
+    public function continueText($text, $metadata = [], $useContext = true)
     {
         $prompt = $this->loadPrompt('continue', ['text' => $text]);
-        return $this->callAPI($prompt, $metadata);
+        return $this->callAPI($prompt, $metadata, $useContext);
     }
     
     /**

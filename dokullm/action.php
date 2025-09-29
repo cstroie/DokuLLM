@@ -165,9 +165,9 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             case 'summarize':
                 return $client->summarizeText($text, $metadata);
             case 'conclusion':
-                return $client->createConclusion($text, $metadata);
+                return $client->createConclusion($text, $metadata, false);
             case 'analyze':
-                return $client->analyzeText($text, $metadata);
+                return $client->analyzeText($text, $metadata, false);
             case 'continue':
                 return $client->continueText($text, $metadata);
             case 'custom':
