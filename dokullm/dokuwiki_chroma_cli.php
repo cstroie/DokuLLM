@@ -2,7 +2,7 @@
 require_once 'chromadb_client.php';
 
 function showUsage() {
-    echo "Usage: php dokuwiki_chroma_cli.php [action] [options]\n";
+    echo "Usage: php dokuwiki_chroma_cli.php [options] [action]\n";
     echo "Actions:\n";
     echo "  send       Send a file or directory to ChromaDB\n";
     echo "  query      Query ChromaDB\n";
@@ -17,22 +17,22 @@ function showUsage() {
     echo "  --database DB      ChromaDB database (default: default_database)\n";
     echo "\n";
     echo "Send a file:\n";
-    echo "  php dokuwiki_chroma_cli.php send /path/to/file.txt [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
+    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] send /path/to/file.txt\n";
     echo "\n";
     echo "Send all files in a directory:\n";
-    echo "  php dokuwiki_chroma_cli.php send /path/to/directory [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
+    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] send /path/to/directory\n";
     echo "\n";
     echo "Query ChromaDB:\n";
-    echo "  php dokuwiki_chroma_cli.php query \"search terms\" [--limit 10] [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
+    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] [--limit 10] query \"search terms\"\n";
     echo "\n";
     echo "Check server status:\n";
-    echo "  php dokuwiki_chroma_cli.php heartbeat [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
+    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] heartbeat\n";
     echo "\n";
     echo "Check identity:\n";
-    echo "  php dokuwiki_chroma_cli.php identity [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
+    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] identity\n";
     echo "\n";
     echo "List collections:\n";
-    echo "  php dokuwiki_chroma_cli.php list [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
+    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] list\n";
     exit(1);
 }
 
@@ -402,49 +402,65 @@ function parseArgs($argv) {
         showUsage();
     }
     
-    $args['action'] = $argv[1];
-    
-    // Parse options
-    for ($i = 2; $i < count($argv); $i++) {
+    // Parse options first (before action)
+    $i = 1;
+    while ($i < count($argv)) {
         switch ($argv[$i]) {
             case '--limit':
                 if (isset($argv[$i + 1])) {
                     $args['limit'] = (int)$argv[$i + 1];
-                    $i++; // Skip next argument
+                    $i += 2;
+                } else {
+                    $i++;
                 }
                 break;
             case '--host':
                 if (isset($argv[$i + 1])) {
                     $args['host'] = $argv[$i + 1];
-                    $i++; // Skip next argument
+                    $i += 2;
+                } else {
+                    $i++;
                 }
                 break;
             case '--port':
                 if (isset($argv[$i + 1])) {
                     $args['port'] = (int)$argv[$i + 1];
-                    $i++; // Skip next argument
+                    $i += 2;
+                } else {
+                    $i++;
                 }
                 break;
             case '--tenant':
                 if (isset($argv[$i + 1])) {
                     $args['tenant'] = $argv[$i + 1];
-                    $i++; // Skip next argument
+                    $i += 2;
+                } else {
+                    $i++;
                 }
                 break;
             case '--database':
                 if (isset($argv[$i + 1])) {
                     $args['database'] = $argv[$i + 1];
-                    $i++; // Skip next argument
+                    $i += 2;
+                } else {
+                    $i++;
                 }
                 break;
             default:
-                // Handle positional arguments based on action
-                if ($args['action'] === 'send' && !$args['filepath']) {
-                    $args['filepath'] = $argv[$i];
-                } else if ($args['action'] === 'query' && !$args['query']) {
-                    $args['query'] = $argv[$i];
-                }
-                break;
+                // If it's not an option, it must be the action
+                $args['action'] = $argv[$i];
+                $i++;
+                break 2; // Break out of the while loop
+        }
+    }
+    
+    // Parse remaining arguments based on action
+    for (; $i < count($argv); $i++) {
+        // Handle positional arguments based on action
+        if ($args['action'] === 'send' && !$args['filepath']) {
+            $args['filepath'] = $argv[$i];
+        } else if ($args['action'] === 'query' && !$args['query']) {
+            $args['query'] = $argv[$i];
         }
     }
     
