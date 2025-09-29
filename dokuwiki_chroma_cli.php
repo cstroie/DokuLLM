@@ -63,12 +63,14 @@ function sendFile($filePath, $host, $port, $tenant, $database) {
         // Create collection if it doesn't exist
         try {
             echo "Checking if collection '$modality' exists...\n";
-            $chroma->getCollection($modality);
+            $collection = $chroma->getCollection($modality);
             echo "Collection '$modality' already exists.\n";
+            echo "Collection details: " . json_encode($collection) . "\n";
         } catch (Exception $e) {
             // Collection doesn't exist, create it
             echo "Creating collection '$modality'...\n";
-            $chroma->createCollection($modality);
+            $created = $chroma->createCollection($modality);
+            echo "Collection created: " . json_encode($created) . "\n";
         }
         
         // Send document to ChromaDB
@@ -81,6 +83,7 @@ function sendFile($filePath, $host, $port, $tenant, $database) {
         echo "  Host: $host:$port\n";
         echo "  Tenant: $tenant\n";
         echo "  Database: $database\n";
+        echo "  Result: " . json_encode($result) . "\n";
     } catch (Exception $e) {
         echo "Error sending file to ChromaDB: " . $e->getMessage() . "\n";
         exit(1);
