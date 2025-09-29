@@ -146,12 +146,14 @@ class llm_client_plugin_dokullm
      * conclusion based on the given text.
      * 
      * @param string $text The text to create a conclusion for
+     * @param array $metadata Optional metadata containing template and examples
+     * @param bool $useContext Whether to include template and examples in the context (default: true)
      * @return string The generated conclusion
      */
-    public function createConclusion($text, $metadata = [])
+    public function createConclusion($text, $metadata = [], $useContext = true)
     {
         $prompt = $this->loadPrompt('conclusion', ['text' => $text]);
-        return $this->callAPI($prompt, $metadata);
+        return $this->callAPI($prompt, $metadata, $useContext);
     }
     
     /**
@@ -192,13 +194,14 @@ class llm_client_plugin_dokullm
      * @param string $text The text to process
      * @param string $customPrompt The custom prompt to use
      * @param array $metadata Optional metadata containing template and examples
+     * @param bool $useContext Whether to include template and examples in the context (default: true)
      * @return string The processed text
      */
-    public function processCustomPrompt($text, $customPrompt, $metadata = [])
+    public function processCustomPrompt($text, $customPrompt, $metadata = [], $useContext = true)
     {
         // Format the prompt with the text and custom prompt
         $prompt = $customPrompt . "\n\nText to process:\n" . $text;
-        return $this->callAPI($prompt, $metadata);
+        return $this->callAPI($prompt, $metadata, $useContext);
     }
     
     
@@ -221,17 +224,18 @@ class llm_client_plugin_dokullm
      * 
      * @param string $prompt The prompt to send to the LLM as user message
      * @param array $metadata Optional metadata containing template and examples
+     * @param bool $useContext Whether to include template and examples in the context (default: true)
      * @return string The response content from the LLM
      * @throws Exception If the API request fails or returns unexpected format
      */
-    private function callAPI($prompt, $metadata = [])
+    private function callAPI($prompt, $metadata = [], $useContext = true)
     {
         // Load system prompt which provides general instructions to the LLM
         $systemPrompt = $this->loadPrompt('system', []);
         
         // Enhance system prompt with context information from metadata
         // This provides the LLM with additional context about templates and examples
-        if (!empty($metadata)) {
+        if ($useContext && !empty($metadata)) {
             $contextInfo = "Context information for this request:\n";
             
             // Add template content if specified in metadata
