@@ -459,6 +459,43 @@ class llm_client_plugin_dokullm
     }
     
     /**
+     * Get ChromaDB client with configuration
+     * 
+     * Creates and returns a ChromaDB client with the appropriate configuration.
+     * Extracts modality from the current page ID to use as the collection name.
+     * 
+     * @return array Array containing the ChromaDB client and collection name
+     */
+    private function getChromaDBClient()
+    {
+        // Include config.php to get ChromaDB configuration
+        require_once 'config.php';
+        
+        // Get ChromaDB configuration from config.php
+        $chromaHost = defined('CHROMA_HOST') ? CHROMA_HOST : 'localhost';
+        $chromaPort = defined('CHROMA_PORT') ? CHROMA_PORT : 8000;
+        $chromaTenant = defined('CHROMA_TENANT') ? CHROMA_TENANT : 'default_tenant';
+        $chromaDatabase = defined('CHROMA_DATABASE') ? CHROMA_DATABASE : 'default_database';
+        
+        // Extract modality from current page ID for collection name
+        global $ID;
+        $chromaCollection = 'other'; // Default collection name
+        
+        if (!empty($ID)) {
+            // Split the page ID by ':' and take the second part as modality
+            $parts = explode(':', $ID);
+            if (isset($parts[1])) {
+                $chromaCollection = $parts[1];
+            }
+        }
+        
+        // Create ChromaDB client
+        $chromaClient = new ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);
+        
+        return [$chromaClient, $chromaCollection];
+    }
+    
+    /**
      * Query ChromaDB for relevant documents
      * 
      * Generates embeddings for the input text and queries ChromaDB for similar documents.
@@ -472,29 +509,8 @@ class llm_client_plugin_dokullm
     private function queryChromaDB($text, $limit = 5, $where = null)
     {
         try {
-            // Include config.php to get ChromaDB configuration
-            require_once 'config.php';
-            
-            // Get ChromaDB configuration from config.php
-            $chromaHost = defined('CHROMA_HOST') ? CHROMA_HOST : 'localhost';
-            $chromaPort = defined('CHROMA_PORT') ? CHROMA_PORT : 8000;
-            $chromaTenant = defined('CHROMA_TENANT') ? CHROMA_TENANT : 'default_tenant';
-            $chromaDatabase = defined('CHROMA_DATABASE') ? CHROMA_DATABASE : 'default_database';
-            
-            // Extract modality from current page ID for collection name
-            global $ID;
-            $chromaCollection = 'other'; // Default collection name
-            
-            if (!empty($ID)) {
-                // Split the page ID by ':' and take the second part as modality
-                $parts = explode(':', $ID);
-                if (isset($parts[1])) {
-                    $chromaCollection = $parts[1];
-                }
-            }
-            
-            // Create ChromaDB client
-            $chromaClient = new ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);
+            // Get ChromaDB client and collection name
+            list($chromaClient, $chromaCollection) = $this->getChromaDBClient();
             
             // Query for similar documents
             $results = $chromaClient->queryCollection($chromaCollection, [$text], $limit, $where);
@@ -530,29 +546,8 @@ class llm_client_plugin_dokullm
     private function queryChromaDBForTemplate($text)
     {
         try {
-            // Include config.php to get ChromaDB configuration
-            require_once 'config.php';
-            
-            // Get ChromaDB configuration from config.php
-            $chromaHost = defined('CHROMA_HOST') ? CHROMA_HOST : 'localhost';
-            $chromaPort = defined('CHROMA_PORT') ? CHROMA_PORT : 8000;
-            $chromaTenant = defined('CHROMA_TENANT') ? CHROMA_TENANT : 'default_tenant';
-            $chromaDatabase = defined('CHROMA_DATABASE') ? CHROMA_DATABASE : 'default_database';
-            
-            // Extract modality from current page ID for collection name
-            global $ID;
-            $chromaCollection = 'other'; // Default collection name
-            
-            if (!empty($ID)) {
-                // Split the page ID by ':' and take the second part as modality
-                $parts = explode(':', $ID);
-                if (isset($parts[1])) {
-                    $chromaCollection = $parts[1];
-                }
-            }
-            
-            // Create ChromaDB client
-            $chromaClient = new ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);
+            // Get ChromaDB client and collection name
+            list($chromaClient, $chromaCollection) = $this->getChromaDBClient();
             
             // Query for template documents with metadata filter
             $results = $chromaClient->queryCollection($chromaCollection, [$text], 1, ['template' => 'true']);
