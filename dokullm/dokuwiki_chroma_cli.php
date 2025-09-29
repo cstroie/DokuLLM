@@ -257,7 +257,7 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     $sampleFile = $files[0];
     $id = parseFilePath($sampleFile);
     $idParts = explode(':', $id);
-    $modality = isset($idParts[1]) ? $idParts[1] : 'mri'; // Default to 'mri'
+    $modality = isset($idParts[1]) ? $idParts[1] : 'other';
     
     try {
         echo "Checking if collection '$modality' exists...\n";
@@ -394,10 +394,10 @@ function parseArgs($argv) {
         'filepath' => null,
         'query' => null,
         'limit' => 5,
-        'host' => '10.200.8.16',
-        'port' => 8087,
-        'tenant' => 'default_tenant',
-        'database' => 'default_database'
+        'host' => CHROMA_HOST,
+        'port' => CHROMA_PORT,
+        'tenant' => CHROMA_TENANT,
+        'database' => CHROMA_DATABASE
     ];
     
     if (count($argv) < 2) {
