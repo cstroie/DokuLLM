@@ -115,8 +115,19 @@ class ChromaDBClient {
     }
 
     public function getCollection($name) {
-        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$name}";
-        return $this->makeRequest($endpoint);
+        // First try to get collection by name
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
+        $collections = $this->makeRequest($endpoint);
+        
+        // Find collection by name
+        foreach ($collections as $collection) {
+            if (isset($collection['name']) && $collection['name'] === $name) {
+                return $collection;
+            }
+        }
+        
+        // If not found, throw exception
+        throw new Exception("Collection '{$name}' not found");
     }
 
     public function createCollection($name, $metadata = null) {
@@ -129,12 +140,26 @@ class ChromaDBClient {
     }
 
     public function deleteCollection($name) {
-        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$name}";
+        // First get the collection to find its ID
+        $collection = $this->getCollection($name);
+        if (!isset($collection['id'])) {
+            throw new Exception("Collection ID not found for '{$name}'");
+        }
+        
+        $collectionId = $collection['id'];
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}";
         return $this->makeRequest($endpoint, 'DELETE');
     }
 
     public function addDocuments($collectionName, $documents, $ids, $metadatas = null, $embeddings = null) {
-        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionName}/upsert";
+        // First get the collection to find its ID
+        $collection = $this->getCollection($collectionName);
+        if (!isset($collection['id'])) {
+            throw new Exception("Collection ID not found for '{$collectionName}'");
+        }
+        
+        $collectionId = $collection['id'];
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/upsert";
         $data = [
             'ids' => $ids,
             'documents' => $documents
@@ -152,7 +177,14 @@ class ChromaDBClient {
     }
 
     public function queryCollection($collectionName, $queryTexts, $nResults = 5, $where = null) {
-        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionName}/query";
+        // First get the collection to find its ID
+        $collection = $this->getCollection($collectionName);
+        if (!isset($collection['id'])) {
+            throw new Exception("Collection ID not found for '{$collectionName}'");
+        }
+        
+        $collectionId = $collection['id'];
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/query";
         $data = [
             'query_texts' => $queryTexts,
             'n_results' => $nResults
