@@ -8,14 +8,16 @@ function showUsage() {
     echo "  query   Query ChromaDB\n";
     echo "\n";
     echo "Options:\n";
-    echo "  --host HOST     ChromaDB server host (default: 10.200.8.16)\n";
-    echo "  --port PORT     ChromaDB server port (default: 8087)\n";
+    echo "  --host HOST        ChromaDB server host (default: 10.200.8.16)\n";
+    echo "  --port PORT        ChromaDB server port (default: 8087)\n";
+    echo "  --tenant TENANT    ChromaDB tenant (default: default_tenant)\n";
+    echo "  --database DB      ChromaDB database (default: default_database)\n";
     echo "\n";
     echo "Send a file:\n";
-    echo "  php dokuwiki_chroma_cli.php send /path/to/file.txt [--host HOST] [--port PORT]\n";
+    echo "  php dokuwiki_chroma_cli.php send /path/to/file.txt [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
     echo "\n";
     echo "Query ChromaDB:\n";
-    echo "  php dokuwiki_chroma_cli.php query \"search terms\" [--limit 10] [--host HOST] [--port PORT]\n";
+    echo "  php dokuwiki_chroma_cli.php query \"search terms\" [--limit 10] [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
     exit(1);
 }
 
@@ -38,7 +40,7 @@ function parseFilePath($filePath) {
     return implode(':', $idParts);
 }
 
-function sendFile($filePath, $host, $port) {
+function sendFile($filePath, $host, $port, $tenant, $database) {
     if (!file_exists($filePath)) {
         echo "Error: File does not exist: $filePath\n";
         exit(1);
@@ -51,7 +53,7 @@ function sendFile($filePath, $host, $port) {
     $content = file_get_contents($filePath);
     
     // Create ChromaDB client
-    $chroma = new ChromaDBClient($host, $port);
+    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
     
     // Extract modality from ID (second part after 'reports')
     $idParts = explode(':', $id);
@@ -77,15 +79,17 @@ function sendFile($filePath, $host, $port) {
         echo "  Modality: $modality\n";
         echo "  File: $filePath\n";
         echo "  Host: $host:$port\n";
+        echo "  Tenant: $tenant\n";
+        echo "  Database: $database\n";
     } catch (Exception $e) {
         echo "Error sending file to ChromaDB: " . $e->getMessage() . "\n";
         exit(1);
     }
 }
 
-function queryChroma($searchTerms, $limit, $host, $port) {
+function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database) {
     // Create ChromaDB client
-    $chroma = new ChromaDBClient($host, $port);
+    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
     
     try {
         // For now, we'll query the 'mri' collection by default
@@ -94,6 +98,8 @@ function queryChroma($searchTerms, $limit, $host, $port) {
         
         echo "Query results for: \"$searchTerms\"\n";
         echo "Host: $host:$port\n";
+        echo "Tenant: $tenant\n";
+        echo "Database: $database\n";
         echo "==========================================\n";
         
         if (empty($results['ids'][0])) {
@@ -126,7 +132,9 @@ function parseArgs($argv) {
         'query' => null,
         'limit' => 5,
         'host' => '10.200.8.16',
-        'port' => 8087
+        'port' => 8087,
+        'tenant' => 'default_tenant',
+        'database' => 'default_database'
     ];
     
     if (count($argv) < 2) {
@@ -156,6 +164,18 @@ function parseArgs($argv) {
                     $i++; // Skip next argument
                 }
                 break;
+            case '--tenant':
+                if (isset($argv[$i + 1])) {
+                    $args['tenant'] = $argv[$i + 1];
+                    $i++; // Skip next argument
+                }
+                break;
+            case '--database':
+                if (isset($argv[$i + 1])) {
+                    $args['database'] = $argv[$i + 1];
+                    $i++; // Skip next argument
+                }
+                break;
             default:
                 // Handle positional arguments based on action
                 if ($args['action'] === 'send' && !$args['filepath']) {
@@ -179,7 +199,7 @@ switch ($args['action']) {
             echo "Error: Missing file path for send action\n";
             showUsage();
         }
-        sendFile($args['filepath'], $args['host'], $args['port']);
+        sendFile($args['filepath'], $args['host'], $args['port'], $args['tenant'], $args['database']);
         break;
         
     case 'query':
@@ -187,7 +207,7 @@ switch ($args['action']) {
             echo "Error: Missing search terms for query action\n";
             showUsage();
         }
-        queryChroma($args['query'], $args['limit'], $args['host'], $args['port']);
+        queryChroma($args['query'], $args['limit'], $args['host'], $args['port'], $args['tenant'], $args['database']);
         break;
         
     default:

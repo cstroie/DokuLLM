@@ -3,9 +3,13 @@
 class ChromaDBClient {
     private $baseUrl;
     private $client;
+    private $tenant;
+    private $database;
 
-    public function __construct($host = '10.200.8.16', $port = 8087) {
+    public function __construct($host = '10.200.8.16', $port = 8087, $tenant = 'default_tenant', $database = 'default_database') {
         $this->baseUrl = "http://{$host}:{$port}";
+        $this->tenant = $tenant;
+        $this->database = $database;
         $this->client = curl_init();
         curl_setopt($this->client, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->client, CURLOPT_HTTPHEADER, [
@@ -19,7 +23,19 @@ class ChromaDBClient {
     }
 
     private function makeRequest($endpoint, $method = 'GET', $data = null) {
+        // Add tenant and database as query parameters
+        $params = [
+            'tenant' => $this->tenant,
+            'database' => $this->database
+        ];
+        
         $url = $this->baseUrl . $endpoint;
+        
+        // Add query parameters to URL
+        if (!empty($params)) {
+            $url .= '?' . http_build_query($params);
+        }
+        
         curl_setopt($this->client, CURLOPT_URL, $url);
         curl_setopt($this->client, CURLOPT_CUSTOMREQUEST, $method);
         
