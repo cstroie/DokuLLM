@@ -4,10 +4,11 @@ require_once 'chromadb_client.php';
 function showUsage() {
     echo "Usage: php dokuwiki_chroma_cli.php [action] [options]\n";
     echo "Actions:\n";
-    echo "  send      Send a file to ChromaDB\n";
-    echo "  query     Query ChromaDB\n";
-    echo "  heartbeat Check if ChromaDB server is alive\n";
-    echo "  identity  Get authentication and identity information\n";
+    echo "  send       Send a file to ChromaDB\n";
+    echo "  query      Query ChromaDB\n";
+    echo "  heartbeat  Check if ChromaDB server is alive\n";
+    echo "  identity   Get authentication and identity information\n";
+    echo "  list       List all collections\n";
     echo "\n";
     echo "Options:\n";
     echo "  --host HOST        ChromaDB server host (default: 10.200.8.16)\n";
@@ -26,6 +27,9 @@ function showUsage() {
     echo "\n";
     echo "Check identity:\n";
     echo "  php dokuwiki_chroma_cli.php identity [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
+    echo "\n";
+    echo "List collections:\n";
+    echo "  php dokuwiki_chroma_cli.php list [--host HOST] [--port PORT] [--tenant TENANT] [--database DB]\n";
     exit(1);
 }
 
@@ -177,6 +181,34 @@ function checkIdentity($host, $port, $tenant, $database) {
     }
 }
 
+function listCollections($host, $port, $tenant, $database) {
+    // Create ChromaDB client
+    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
+    
+    try {
+        echo "Listing ChromaDB collections...\n";
+        echo "Host: $host:$port\n";
+        echo "Tenant: $tenant\n";
+        echo "Database: $database\n";
+        echo "==========================================\n";
+        
+        $result = $chroma->listCollections();
+        
+        if (empty($result)) {
+            echo "No collections found.\n";
+            return;
+        }
+        
+        echo "Collections:\n";
+        foreach ($result as $collection) {
+            echo "  - " . (isset($collection['name']) ? $collection['name'] : json_encode($collection)) . "\n";
+        }
+    } catch (Exception $e) {
+        echo "Error listing ChromaDB collections: " . $e->getMessage() . "\n";
+        exit(1);
+    }
+}
+
 // Parse command line arguments
 function parseArgs($argv) {
     $args = [
@@ -269,6 +301,10 @@ switch ($args['action']) {
         
     case 'identity':
         checkIdentity($args['host'], $args['port'], $args['tenant'], $args['database']);
+        break;
+        
+    case 'list':
+        listCollections($args['host'], $args['port'], $args['tenant'], $args['database']);
         break;
         
     default:
