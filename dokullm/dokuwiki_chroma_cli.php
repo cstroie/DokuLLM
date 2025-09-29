@@ -180,6 +180,11 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         // Add the document ID as metadata
         $baseMetadata['document_id'] = $id;
         
+        // Check if any part of the ID is 'templates' and set template metadata
+        if (in_array('templates', $parts)) {
+            $baseMetadata['template'] = true;
+        }
+        
         // Extract modality from the second part
         if (isset($parts[1])) {
             $baseMetadata['modality'] = $parts[1];
