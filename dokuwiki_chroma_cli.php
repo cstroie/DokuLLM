@@ -184,8 +184,19 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
         exit(1);
     }
     
-    // Get all .txt files in directory
-    $files = glob($dirPath . '/*.txt');
+    // Create RecursiveIteratorIterator to process directories recursively
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($dirPath, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::LEAVES_ONLY
+    );
+    
+    $files = [];
+    foreach ($iterator as $file) {
+        // Process only .txt files
+        if ($file->isFile() && $file->getExtension() === 'txt') {
+            $files[] = $file->getPathname();
+        }
+    }
     
     if (empty($files)) {
         echo "No .txt files found in directory: $dirPath\n";
