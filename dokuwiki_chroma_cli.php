@@ -43,13 +43,15 @@ function parseFilePath($filePath) {
     // Remove .txt extension
     $relativePath = preg_replace('/\.txt$/', '', $relativePath);
     
-    // Split path into parts
-    $parts = explode('/', $relativePath);
+    // Split path into parts and filter out empty parts
+    $parts = array_filter(explode('/', $relativePath));
     
     // Build DokuWiki ID (reports:modality:...)
     $idParts = ['reports'];
     foreach ($parts as $part) {
-        $idParts[] = $part;
+        if (!empty($part)) {
+            $idParts[] = $part;
+        }
     }
     
     return implode(':', $idParts);
