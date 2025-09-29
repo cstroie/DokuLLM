@@ -164,11 +164,10 @@ class ChromaDBClient {
     /**
      * Process all DokuWiki files in the reports/mri directory and subdirectories
      * 
-     * @param string $collectionName The name of the collection to add documents to
      * @param string $basePath The base path to the DokuWiki pages directory
      * @return array Summary of processed files
      */
-    public function processDokuWikiReports($collectionName, $basePath = '/var/www/html/dokuwiki/data/pages/reports/mri/') {
+    public function processDokuWikiReports($basePath = '/var/www/html/dokuwiki/data/pages/reports/mri/') {
         $summary = [
             'processed' => 0,
             'errors' => 0,
@@ -201,8 +200,8 @@ class ChromaDBClient {
                     // Read file content
                     $content = file_get_contents($file->getPathname());
                     
-                    // Add document to ChromaDB
-                    $this->addDokuWikiDocument($collectionName, $id, $content);
+                    // Add document to ChromaDB using "mri" as collection name
+                    $this->addDokuWikiDocument('mri', $id, $content);
                     
                     $summary['processed']++;
                 } catch (Exception $e) {
