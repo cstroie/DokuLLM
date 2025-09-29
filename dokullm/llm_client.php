@@ -5,6 +5,12 @@
  * This class provides methods to interact with an LLM API for various
  * text processing tasks such as completion, rewriting, grammar correction,
  * summarization, conclusion creation, text analysis, and custom prompts.
+ *
+ * The client handles:
+ * - API configuration and authentication
+ * - Prompt template loading and processing
+ * - Context-aware requests with metadata
+ * - DokuWiki page content retrieval
  */
 
 // must be run within Dokuwiki
@@ -17,12 +23,6 @@ if (!defined('DOKU_INC')) {
  * 
  * Manages configuration settings and provides methods for various
  * text processing operations through an LLM API.
- * 
- * The client handles:
- * - API configuration and authentication
- * - Prompt template loading and processing
- * - Context-aware requests with metadata
- * - DokuWiki page content retrieval
  */
 class llm_client_plugin_dokullm
 {

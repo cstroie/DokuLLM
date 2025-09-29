@@ -11,7 +11,7 @@
  * - Custom prompt input
  * - Selected text processing
  * - Full page content processing
- * - Page duplication with template metadata support
+ * - Text analysis in modal dialog
  */
 
 (function() {

@@ -18,6 +18,8 @@ if (!defined('DOKU_INC')) {
  * - Registering event handlers for page rendering and AJAX calls
  * - Adding JavaScript to edit pages
  * - Processing AJAX requests from the frontend
+ * - Handling page template loading with metadata support
+ * - Adding copy page button to page tools
  * 
  * The plugin provides integration with LLM APIs for text processing
  * operations directly within the DokuWiki editor.
