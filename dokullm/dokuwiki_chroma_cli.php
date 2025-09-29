@@ -124,6 +124,8 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         }
         
         // Handle different ID formats based on the third part: word (institution) or numeric (year)
+        // Format 1: reports:mri:institution:250620-name-surname (third part is institution name)
+        // Format 2: reports:mri:2024:g287-name-surname (third part is year)
         if (isset($parts[2])) {
             // Check if third part is numeric (year) or word (institution)
             if (is_numeric($parts[2])) {

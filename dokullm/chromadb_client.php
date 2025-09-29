@@ -231,6 +231,14 @@ class ChromaDBClient {
     /**
      * Convenience function to add a DokuWiki document to the Chroma database
      * 
+     * This function processes DokuWiki documents with two possible ID formats:
+     * Format 1: reports:mri:institution:250620-ivan-aisha (5 parts)
+     * Format 2: reports:mri:2024:g287-criveanu-cristian-andrei (4 parts)
+     * 
+     * The differentiation is based on the third part of the ID:
+     * - If it's a word (institution name), it's format 1
+     * - If it's numeric (year), it's format 2
+     * 
      * @param string $collectionName The name of the collection to add to
      * @param string $id The DokuWiki document ID (e.g. 'reports:mri:medima:250620-ivan-aisha' or 'reports:mri:2024:g287-criveanu-cristian-andrei')
      * @param string $content The document content
@@ -257,54 +265,55 @@ class ChromaDBClient {
             $baseMetadata['modality'] = $parts[1];
         }
         
-        // Handle different ID formats
-        if (count($parts) == 5) {
-            // Format: reports:mri:medima:250620-ivan-aisha
-            // Extract institution from the third part
-            if (isset($parts[2])) {
-                $baseMetadata['institution'] = $parts[2];
-            }
-            
-            // Extract date and name from the last part
-            if (preg_match('/^(\d{6})-(.+)$/', $lastPart, $matches)) {
-                $dateStr = $matches[1];
-                $name = $matches[2];
-                
-                // Convert date format (250620 -> 2025-06-20)
-                $day = substr($dateStr, 0, 2);
-                $month = substr($dateStr, 2, 2);
-                $year = substr($dateStr, 4, 2);
-                // Assuming 20xx for years 20-99 and 19xx for years 00-19
-                $fullYear = (int)$year >= 20 ? '20' . $year : '19' . $year;
-                $formattedDate = $fullYear . '-' . $month . '-' . $day;
-                
-                $baseMetadata['date'] = $formattedDate;
-                $baseMetadata['name'] = str_replace('-', ' ', $name);
-            }
-        } else if (count($parts) == 4) {
-            // Format: reports:mri:2024:g287-criveanu-cristian-andrei
-            // Extract year from the third part
-            if (isset($parts[2])) {
+        // Handle different ID formats based on the third part: word (institution) or numeric (year)
+        // Format 1: reports:mri:institution:250620-ivan-aisha (third part is institution name)
+        // Format 2: reports:mri:2024:g287-criveanu-cristian-andrei (third part is year)
+        if (isset($parts[2])) {
+            // Check if third part is numeric (year) or word (institution)
+            if (is_numeric($parts[2])) {
+                // Format: reports:mri:2024:g287-criveanu-cristian-andrei (year format)
+                // Extract year from the third part
                 $baseMetadata['year'] = $parts[2];
-            }
-            
-            // Set default institution from config
-            $baseMetadata['institution'] = DEFAULT_INSTITUTION;
-            
-            // Extract registration and name from the last part
-            // Registration should start with one letter or number and contain numbers before the '-' character
-            if (preg_match('/^([a-zA-Z0-9]+[0-9]*)-(.+)$/', $lastPart, $matches)) {
-                // Check if the first part contains at least one digit to be considered a registration
-                if (preg_match('/[0-9]/', $matches[1])) {
-                    $baseMetadata['registration'] = $matches[1];
-                    $baseMetadata['name'] = str_replace('-', ' ', $matches[2]);
+                
+                // Set default institution from config
+                $baseMetadata['institution'] = DEFAULT_INSTITUTION;
+                
+                // Extract registration and name from the last part
+                // Registration should start with one letter or number and contain numbers before the '-' character
+                if (preg_match('/^([a-zA-Z0-9]+[0-9]*)-(.+)$/', $lastPart, $matches)) {
+                    // Check if the first part contains at least one digit to be considered a registration
+                    if (preg_match('/[0-9]/', $matches[1])) {
+                        $baseMetadata['registration'] = $matches[1];
+                        $baseMetadata['name'] = str_replace('-', ' ', $matches[2]);
+                    } else {
+                        // If no registration pattern found, treat entire part as patient name
+                        $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
+                    }
                 } else {
-                    // If no registration pattern found, treat entire part as patient name
+                    // If no match, treat entire part as patient name
                     $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
                 }
             } else {
-                // If no match, treat entire part as patient name
-                $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
+                // Format: reports:mri:institution:250620-ivan-aisha (institution format)
+                // Extract institution from the third part
+                $baseMetadata['institution'] = $parts[2];
+                
+                // Extract date and name from the last part
+                if (preg_match('/^(\d{6})-(.+)$/', $lastPart, $matches)) {
+                    $dateStr = $matches[1];
+                    $name = $matches[2];
+                    
+                    // Convert date format (250620 -> 2025-06-20)
+                    $day = substr($dateStr, 0, 2);
+                    $month = substr($dateStr, 2, 2);
+                    $year = substr($dateStr, 4, 2);
+                    // Assuming 20xx for years 20-99 and 19xx for years 00-19
+                    $fullYear = (int)$year >= 20 ? '20' . $year : '19' . $year;
+                    $formattedDate = $fullYear . '-' . $month . '-' . $day;
+                    
+                    $baseMetadata['date'] = $formattedDate;
+                    $baseMetadata['name'] = str_replace('-', ' ', $name);
+                }
             }
         }
         
