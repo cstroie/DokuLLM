@@ -7,12 +7,15 @@ function showUsage() {
     echo "  send    Send a file to ChromaDB\n";
     echo "  query   Query ChromaDB\n";
     echo "\n";
+    echo "Options:\n";
+    echo "  --host HOST     ChromaDB server host (default: 10.200.8.16)\n";
+    echo "  --port PORT     ChromaDB server port (default: 8087)\n";
+    echo "\n";
     echo "Send a file:\n";
-    echo "  php dokuwiki_chroma_cli.php send /path/to/file.txt\n";
+    echo "  php dokuwiki_chroma_cli.php send /path/to/file.txt [--host HOST] [--port PORT]\n";
     echo "\n";
     echo "Query ChromaDB:\n";
-    echo "  php dokuwiki_chroma_cli.php query \"search terms\"\n";
-    echo "  php dokuwiki_chroma_cli.php query \"search terms\" --limit 10\n";
+    echo "  php dokuwiki_chroma_cli.php query \"search terms\" [--limit 10] [--host HOST] [--port PORT]\n";
     exit(1);
 }
 
@@ -35,7 +38,7 @@ function parseFilePath($filePath) {
     return implode(':', $idParts);
 }
 
-function sendFile($filePath) {
+function sendFile($filePath, $host, $port) {
     if (!file_exists($filePath)) {
         echo "Error: File does not exist: $filePath\n";
         exit(1);
@@ -48,7 +51,7 @@ function sendFile($filePath) {
     $content = file_get_contents($filePath);
     
     // Create ChromaDB client
-    $chroma = new ChromaDBClient();
+    $chroma = new ChromaDBClient($host, $port);
     
     // Extract modality from ID (second part after 'reports')
     $idParts = explode(':', $id);
@@ -69,15 +72,16 @@ function sendFile($filePath) {
         echo "  ID: $id\n";
         echo "  Modality: $modality\n";
         echo "  File: $filePath\n";
+        echo "  Host: $host:$port\n";
     } catch (Exception $e) {
         echo "Error sending file to ChromaDB: " . $e->getMessage() . "\n";
         exit(1);
     }
 }
 
-function queryChroma($searchTerms, $limit = 5) {
+function queryChroma($searchTerms, $limit, $host, $port) {
     // Create ChromaDB client
-    $chroma = new ChromaDBClient();
+    $chroma = new ChromaDBClient($host, $port);
     
     try {
         // For now, we'll query the 'mri' collection by default
@@ -85,6 +89,7 @@ function queryChroma($searchTerms, $limit = 5) {
         $results = $chroma->queryCollection('mri', [$searchTerms], $limit);
         
         echo "Query results for: \"$searchTerms\"\n";
+        echo "Host: $host:$port\n";
         echo "==========================================\n";
         
         if (empty($results['ids'][0])) {
@@ -109,43 +114,79 @@ function queryChroma($searchTerms, $limit = 5) {
     }
 }
 
-// Main script logic
-if ($argc < 2) {
-    showUsage();
+// Parse command line arguments
+function parseArgs($argv) {
+    $args = [
+        'action' => null,
+        'filepath' => null,
+        'query' => null,
+        'limit' => 5,
+        'host' => '10.200.8.16',
+        'port' => 8087
+    ];
+    
+    if (count($argv) < 2) {
+        showUsage();
+    }
+    
+    $args['action'] = $argv[1];
+    
+    // Parse options
+    for ($i = 2; $i < count($argv); $i++) {
+        switch ($argv[$i]) {
+            case '--limit':
+                if (isset($argv[$i + 1])) {
+                    $args['limit'] = (int)$argv[$i + 1];
+                    $i++; // Skip next argument
+                }
+                break;
+            case '--host':
+                if (isset($argv[$i + 1])) {
+                    $args['host'] = $argv[$i + 1];
+                    $i++; // Skip next argument
+                }
+                break;
+            case '--port':
+                if (isset($argv[$i + 1])) {
+                    $args['port'] = (int)$argv[$i + 1];
+                    $i++; // Skip next argument
+                }
+                break;
+            default:
+                // Handle positional arguments based on action
+                if ($args['action'] === 'send' && !$args['filepath']) {
+                    $args['filepath'] = $argv[$i];
+                } else if ($args['action'] === 'query' && !$args['query']) {
+                    $args['query'] = $argv[$i];
+                }
+                break;
+        }
+    }
+    
+    return $args;
 }
 
-$action = $argv[1];
+// Main script logic
+$args = parseArgs($argv);
 
-switch ($action) {
+switch ($args['action']) {
     case 'send':
-        if ($argc < 3) {
+        if (!$args['filepath']) {
             echo "Error: Missing file path for send action\n";
             showUsage();
         }
-        $filePath = $argv[2];
-        sendFile($filePath);
+        sendFile($args['filepath'], $args['host'], $args['port']);
         break;
         
     case 'query':
-        if ($argc < 3) {
+        if (!$args['query']) {
             echo "Error: Missing search terms for query action\n";
             showUsage();
         }
-        $searchTerms = $argv[2];
-        $limit = 5; // Default limit
-        
-        // Check for limit option
-        for ($i = 3; $i < $argc; $i++) {
-            if ($argv[$i] === '--limit' && isset($argv[$i + 1])) {
-                $limit = (int)$argv[$i + 1];
-                break;
-            }
-        }
-        
-        queryChroma($searchTerms, $limit);
+        queryChroma($args['query'], $args['limit'], $args['host'], $args['port']);
         break;
         
     default:
-        echo "Error: Unknown action '$action'\n";
+        echo "Error: Unknown action '{$args['action']}'\n";
         showUsage();
 }
