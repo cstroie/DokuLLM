@@ -22,6 +22,9 @@ class ChromaDBClient {
             'Content-Type: application/json',
             'Accept: application/json'
         ]);
+        
+        // Check if tenant and database exist, create them if they don't
+        $this->ensureTenantAndDatabase();
     }
 
     public function __destruct() {
@@ -419,6 +422,77 @@ class ChromaDBClient {
         $idParts[] = $filename;
         
         return implode(':', $idParts);
+    }
+    
+    /**
+     * Ensure that the specified tenant and database exist
+     * 
+     * @return void
+     */
+    private function ensureTenantAndDatabase() {
+        // Check if tenant exists, create if it doesn't
+        try {
+            $this->getTenant($this->tenant);
+        } catch (Exception $e) {
+            // Tenant doesn't exist, create it
+            $this->createTenant($this->tenant);
+        }
+        
+        // Check if database exists, create if it doesn't
+        try {
+            $this->getDatabase($this->database, $this->tenant);
+        } catch (Exception $e) {
+            // Database doesn't exist, create it
+            $this->createDatabase($this->database, $this->tenant);
+        }
+    }
+    
+    /**
+     * Get tenant information
+     * 
+     * @param string $tenantName The tenant name
+     * @return array The tenant information
+     */
+    public function getTenant($tenantName) {
+        $endpoint = "/tenants/{$tenantName}";
+        return $this->makeRequest($endpoint, 'GET');
+    }
+    
+    /**
+     * Create a new tenant
+     * 
+     * @param string $tenantName The tenant name
+     * @return array The response from the API
+     */
+    public function createTenant($tenantName) {
+        $endpoint = "/tenants";
+        $data = ['name' => $tenantName];
+        return $this->makeRequest($endpoint, 'POST', $data);
+    }
+    
+    /**
+     * Get database information
+     * 
+     * @param string $databaseName The database name
+     * @param string $tenantName The tenant name
+     * @return array The database information
+     */
+    public function getDatabase($databaseName, $tenantName) {
+        $endpoint = "/tenants/{$tenantName}/databases/{$databaseName}";
+        return $this->makeRequest($endpoint, 'GET');
+    }
+    
+    /**
+     * Create a new database
+     * 
+     * @param string $databaseName The database name
+     * @param string $tenantName The tenant name
+     * @return array The response from the API
+     */
+    public function createDatabase($databaseName, $tenantName) {
+        $endpoint = "/tenants/{$tenantName}/databases";
+        $data = ['name' => $databaseName];
+        return $this->makeRequest($endpoint, 'POST', $data);
     }
 }
 
