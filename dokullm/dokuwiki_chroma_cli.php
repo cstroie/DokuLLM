@@ -85,7 +85,7 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
     
     // Extract modality from ID (second part after 'reports')
     $idParts = explode(':', $id);
-    $modality = isset($idParts[1]) ? $idParts[1] : 'mri'; // Default to 'mri'
+    $modality = isset($idParts[1]) ? $idParts[1] : 'other';
     
     try {
         // Create collection if it doesn't exist (only if not already checked)
@@ -124,7 +124,7 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         
         // Handle different ID formats
         if (count($parts) == 5) {
-            // Format: reports:mri:medima:250620-ivan-aisha
+            // Format: reports:mri:institution:250620-name-surname
             // Extract institution from the third part
             if (isset($parts[2])) {
                 $baseMetadata['institution'] = $parts[2];
@@ -139,15 +139,15 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
                 $day = substr($dateStr, 0, 2);
                 $month = substr($dateStr, 2, 2);
                 $year = substr($dateStr, 4, 2);
-                // Assuming 20xx for years 20-99 and 19xx for years 00-19
-                $fullYear = (int)$year >= 20 ? '20' . $year : '19' . $year;
+                // Assuming 20xx for years 00-69 and 19xx for years 70-99
+                $fullYear = (int)$year <= 70 ? '20' . $year : '19' . $year;
                 $formattedDate = $fullYear . '-' . $month . '-' . $day;
                 
                 $baseMetadata['date'] = $formattedDate;
                 $baseMetadata['name'] = str_replace('-', ' ', $name);
             }
         } else if (count($parts) == 4) {
-            // Format: reports:mri:2024:g287-criveanu-cristian-andrei
+            // Format: reports:mri:2024:g287-name-surname
             // Extract year from the third part
             if (isset($parts[2])) {
                 $baseMetadata['year'] = $parts[2];
