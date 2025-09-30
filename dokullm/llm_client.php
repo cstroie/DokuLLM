@@ -211,6 +211,23 @@ class llm_client_plugin_dokullm
     }
     
     /**
+     * Compare two texts and highlight differences
+     * 
+     * Sends a prompt to the LLM asking it to compare two texts and
+     * highlight their similarities and differences.
+     * 
+     * @param string $text The text to compare (should contain both texts)
+     * @param array $metadata Optional metadata containing template and examples
+     * @return string The comparison results
+     */
+    public function compareText($text, $metadata = [], $useContext = false)
+    {
+        $think = $this->think ? '/think' : '/no_think';
+        $prompt = $this->loadPrompt('compare', ['text' => $text, 'think' => $think]);
+        return $this->callAPI($prompt, $metadata, $useContext);
+    }
+    
+    /**
      * Continue writing from the provided text
      * 
      * Sends a prompt to the LLM asking it to continue writing from

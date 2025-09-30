@@ -98,6 +98,7 @@
         const buttons = [
             {action: 'conclusion', label: 'Conclusion'},
             {action: 'analyze', label: 'Analyze'},
+            {action: 'compare', label: 'Compare'},
             {action: 'create', label: 'Create'},
             {action: 'rewrite', label: 'Rewrite'},
             {action: 'grammar', label: 'Grammar'},
@@ -269,7 +270,7 @@
             const cleanedResult = data.result;
             
             // Replace selected text or append to editor
-            if (action === 'analyze' || action === 'summarize') {
+            if (action === 'analyze' || action === 'summarize' || action === 'compare') {
                 console.log('DokuLLM: Showing ' + action + ' in modal');
                 showAnalysisModal(cleanedResult, action);
             } else if (selectedText) {
@@ -358,7 +359,13 @@
         
         // Create title based on action
         const title = document.createElement('h3');
-        title.textContent = action === 'analyze' ? 'Text Analysis' : 'Text Summary';
+        if (action === 'analyze') {
+            title.textContent = 'Text Analysis';
+        } else if (action === 'summarize') {
+            title.textContent = 'Text Summary';
+        } else if (action === 'compare') {
+            title.textContent = 'Text Comparison';
+        }
         title.style.marginTop = '0';
         
         // Create content area

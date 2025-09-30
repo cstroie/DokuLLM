@@ -190,6 +190,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 return $client->analyzeText($text, $metadata, false);
             case 'continue':
                 return $client->continueText($text, $metadata);
+            case 'compare':
+                return $client->compareText($text, $metadata, false);
             case 'custom':
                 return $client->processCustomPrompt($text, $prompt, $metadata);
             default:
