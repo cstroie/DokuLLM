@@ -113,11 +113,11 @@ class llm_client_plugin_dokullm
         // Query ChromaDB for relevant documents to use as examples
         $chromaResults = $this->queryChromaDBWithSnippets($text, 5);
         
-        // Add ChromaDB results to metadata as examples
+        // Add ChromaDB results to metadata as snippets
         if (!empty($chromaResults)) {
-            // Merge with existing examples
-            $metadata['examples'] = array_merge(
-                isset($metadata['examples']) ? $metadata['examples'] : [],
+            // Merge with existing snippets
+            $metadata['snippets'] = array_merge(
+                isset($metadata['snippets']) ? $metadata['snippets'] : [],
                 $chromaResults
             );
         }
@@ -291,23 +291,28 @@ class llm_client_plugin_dokullm
             // Add example pages content if specified in metadata
             if (!empty($metadata['examples'])) {
                 $examplesContent = [];
-                foreach ($metadata['examples'] as $index => $example) {
-                    // Check if example is a text snippet (string) or page ID (array/string)
-                    if (is_string($example) && strpos($example, ':') === false) {
-                        // This is a text snippet from ChromaDB
-                        $examplesContent[] = "- Example snippet " . ($index + 1) . ":\n" . $example;
+                foreach ($metadata['examples'] as $example) {
+                    $content = $this->getPageContent($example);
+                    if ($content !== false) {
+                        $examplesContent[] = "- Example page (" . $example . "):\n" . $content;
                     } else {
-                        // This is a page ID
-                        $content = $this->getPageContent($example);
-                        if ($content !== false) {
-                            $examplesContent[] = "- Example page (" . $example . "):\n" . $content;
-                        } else {
-                            $examplesContent[] = "- Example page: " . $example . " (content not available)";
-                        }
+                        $examplesContent[] = "- Example page: " . $example . " (content not available)";
                     }
                 }
                 if (!empty($examplesContent)) {
-                    $contextInfo .= "- Examples:\n" . implode("\n\n", $examplesContent) . "\n";
+                    $contextInfo .= "- Example pages:\n" . implode("\n\n", $examplesContent) . "\n";
+                }
+            }
+            
+            // Add text snippets if specified in metadata
+            if (!empty($metadata['snippets'])) {
+                $snippetsContent = [];
+                foreach ($metadata['snippets'] as $index => $snippet) {
+                    // These are text snippets from ChromaDB
+                    $snippetsContent[] = "- Example snippet " . ($index + 1) . ":\n" . $snippet;
+                }
+                if (!empty($snippetsContent)) {
+                    $contextInfo .= "- Examples:\n" . implode("\n\n", $snippetsContent) . "\n";
                 }
             }
             
