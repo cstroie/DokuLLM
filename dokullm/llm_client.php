@@ -217,15 +217,15 @@ class llm_client_plugin_dokullm
      * highlight their similarities and differences.
      * 
      * @param string $text The current text to compare
-     * @param array $metadata Optional metadata containing template, examples, and previous text reference
+     * @param array $metadata Optional metadata containing template, examples, and previous report reference
      * @return string The comparison results
      */
     public function compareText($text, $metadata = [], $useContext = false)
     {
-        // Load previous text from metadata if specified
+        // Load previous report from metadata if specified
         $previousText = '';
-        if (!empty($metadata['previous_text_page'])) {
-            $previousText = $this->getPageContent($metadata['previous_text_page']);
+        if (!empty($metadata['previous_report_page'])) {
+            $previousText = $this->getPageContent($metadata['previous_report_page']);
             if ($previousText === false) {
                 $previousText = '';
             }

@@ -625,7 +625,7 @@
         const metadata = {
             template: '',
             examples: [],
-            previous_text_page: ''
+            previous_report_page: ''
         };
         
         // Look for metadata in the page content
@@ -643,10 +643,10 @@
             metadata.examples = exampleMatches[1].split(',').map(example => example.trim());
         }
         
-        // Extract previous text page from metadata
-        const previousTextMatch = pageContent.match(/~~LLM_PREVIOUS_TEXT:([^~]+)~~/);
-        if (previousTextMatch) {
-            metadata.previous_text_page = previousTextMatch[1].trim();
+        // Extract previous report page from metadata
+        const previousReportMatch = pageContent.match(/~~LLM_PREVIOUS_REPORT:([^~]+)~~/);
+        if (previousReportMatch) {
+            metadata.previous_report_page = previousReportMatch[1].trim();
         }
         
         return metadata;
