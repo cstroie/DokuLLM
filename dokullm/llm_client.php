@@ -231,10 +231,18 @@ class llm_client_plugin_dokullm
             }
         }
         
+        // Extract dates for placeholders
+        $currentDate = $this->extractDateFromPageIdOrTimestamp();
+        $previousDate = !empty($metadata['previous_report_page']) ? 
+                        $this->extractDateFromPageIdOrTimestamp($metadata['previous_report_page']) : 
+                        '';
+        
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('compare', [
             'text' => $text, 
             'previous_text' => $previousText,
+            'current_date' => $currentDate,
+            'previous_date' => $previousDate,
             'think' => $think
         ]);
         return $this->callAPI($prompt, $metadata, $useContext);
@@ -505,6 +513,46 @@ class llm_client_plugin_dokullm
         }
         
         return false;
+    }
+    
+    /**
+     * Extract date from page ID or file timestamp
+     * 
+     * Attempts to extract a date in YYmmdd format from the page ID.
+     * If not found, uses the file's last modification timestamp.
+     * 
+     * @param string $pageId Optional page ID to extract date from (defaults to current page)
+     * @return string Formatted date string (YYYY-MM-DD)
+     */
+    private function extractDateFromPageIdOrTimestamp($pageId = null)
+    {
+        global $ID;
+        
+        // Use provided page ID or current page ID
+        $targetPageId = $pageId ?: $ID;
+        
+        // Try to extract date from page ID (looking for YYmmdd pattern)
+        if (preg_match('/(\d{2})(\d{2})(\d{2})/', $targetPageId, $matches)) {
+            // Convert YYmmdd to YYYY-MM-DD
+            $year = $matches[1];
+            $month = $matches[2];
+            $day = $matches[3];
+            
+            // Assume 20xx for years 00-49, 19xx for years 50-99
+            $fullYear = intval($year) <= 49 ? '20' . $year : '19' . $year;
+            
+            return $fullYear . '-' . $month . '-' . $day;
+        }
+        
+        // Fallback to file timestamp
+        $pageFile = wikiFN($targetPageId);
+        if (file_exists($pageFile)) {
+            $timestamp = filemtime($pageFile);
+            return date('Y-m-d', $timestamp);
+        }
+        
+        // Return empty string if no date can be determined
+        return '';
     }
     
     /**
