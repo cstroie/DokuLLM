@@ -24,7 +24,7 @@ function showUsage() {
     echo "  --port PORT        ChromaDB server port (default: " . CHROMA_PORT . ")\n";
     echo "  --tenant TENANT    ChromaDB tenant (default: " . CHROMA_TENANT . ")\n";
     echo "  --database DB      ChromaDB database (default: " . CHROMA_DATABASE . ")\n";
-    echo "  --modality MOD     Modality/collection to query (default: other)\n";
+    echo "  --collection COLL  Collection name to query (default: other)\n";
     echo "  --limit NUM        Number of results to return (default: 5)\n";
     echo "\n";
     echo "Send a file:\n";
@@ -34,7 +34,7 @@ function showUsage() {
     echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] send /path/to/directory\n";
     echo "\n";
     echo "Query ChromaDB:\n";
-    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] [--modality MOD] [--limit 10] query \"search terms\"\n";
+    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] [--collection COLL] [--limit 10] query \"search terms\"\n";
     echo "\n";
     echo "Check server status:\n";
     echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] heartbeat\n";
@@ -148,7 +148,7 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
     
     // Use the first part of the document ID as collection name, fallback to 'reports'
     $idParts = explode(':', $id);
-    $modality = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'reports';
+    $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'reports';
     
     try {
         // Create collection if it doesn't exist (only if not already checked)
@@ -359,17 +359,17 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     $sampleFile = $files[0];
     $id = parseFilePath($sampleFile);
     $idParts = explode(':', $id);
-    $modality = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'reports';
+    $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'reports';
     
     try {
-        echo "Checking if collection '$modality' exists...\n";
-        $collection = $chroma->getCollection($modality);
-        echo "Collection '$modality' already exists.\n";
+        echo "Checking if collection '$collectionName' exists...\n";
+        $collection = $chroma->getCollection($collectionName);
+        echo "Collection '$collectionName' already exists.\n";
         $collectionChecked = true;
     } catch (Exception $e) {
         // Collection doesn't exist, create it
-        echo "Creating collection '$modality'...\n";
-        $created = $chroma->createCollection($modality);
+        echo "Creating collection '$collectionName'...\n";
+        $created = $chroma->createCollection($collectionName);
         echo "Collection created.\n";
         $collectionChecked = true;
     }
@@ -557,7 +557,7 @@ function parseArgs($argv) {
         'filepath' => null,
         'query' => null,
         'limit' => 5,
-        'modality' => 'other',
+        'collection' => 'other',
         'host' => CHROMA_HOST,
         'port' => CHROMA_PORT,
         'tenant' => CHROMA_TENANT,
@@ -580,9 +580,9 @@ function parseArgs($argv) {
                     $i++;
                 }
                 break;
-            case '--modality':
+            case '--collection':
                 if (isset($argv[$i + 1])) {
-                    $args['modality'] = $argv[$i + 1];
+                    $args['collection'] = $argv[$i + 1];
                     $i += 2;
                 } else {
                     $i++;
@@ -658,7 +658,7 @@ switch ($args['action']) {
             echo "Error: Missing search terms for query action\n";
             showUsage();
         }
-        queryChroma($args['query'], $args['limit'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['modality']);
+        queryChroma($args['query'], $args['limit'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['collection']);
         break;
         
     case 'heartbeat':
