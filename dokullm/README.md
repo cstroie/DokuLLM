@@ -25,6 +25,9 @@ The plugin supports metadata tags that can be added to pages to provide context 
 
 These metadata tags help the LLM understand the context and style of the content being processed.
 
+Additionally, the plugin automatically retrieves relevant text snippets from ChromaDB to provide context examples when processing content.
+```
+
 ## Requirements
 
 - DokuWiki installation
@@ -68,7 +71,7 @@ To use metadata for better context:
 2. Add `~~LLM_EXAMPLES:reports:mri:2025:example-report~~` to specify example pages
 3. When a template is defined, an "Insert Template" button will appear in the toolbar
 4. Click the "Insert Template" button to insert the full template content into your page
-5. The LLM will use these references when processing your content
+5. The LLM will use these references along with automatically retrieved text snippets when processing your content
 
 ### Copy Page with Template Support
 
@@ -79,6 +82,12 @@ The plugin also includes a "Copy page" button in the page tools that:
 ## How It Works
 
 The plugin works by sending selected text to your configured LLM API with specific prompts for each function. The processed result is then inserted back into the editor.
+
+When creating content, the plugin automatically:
+1. Queries ChromaDB for relevant text snippets to use as examples
+2. If no template is specified, queries ChromaDB for an appropriate template
+3. Sends all context information (template, examples, and snippets) to the LLM
+4. Returns the processed result to the editor
 
 ## Security Considerations
 
