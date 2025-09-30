@@ -111,25 +111,14 @@ class llm_client_plugin_dokullm
         }
 
         // Query ChromaDB for relevant documents to use as examples
-        $chromaResults = $this->queryChromaDB($text, 5);
+        $chromaResults = $this->queryChromaDBWithSnippets($text, 5);
         
         // Add ChromaDB results to metadata as examples
         if (!empty($chromaResults)) {
-            // Process ChromaDB results to remove chunk numbers and ensure uniqueness
-            $processedResults = [];
-            foreach ($chromaResults as $result) {
-                // Remove chunk number (e.g., "@2") from the ID
-                $cleanId = preg_replace('/@\\d+$/', '', $result);
-                $processedResults[] = $cleanId;
-            }
-            
-            // Remove duplicates while preserving order
-            $uniqueResults = array_unique($processedResults);
-            
             // Merge with existing examples
             $metadata['examples'] = array_merge(
                 isset($metadata['examples']) ? $metadata['examples'] : [],
-                $uniqueResults
+                $chromaResults
             );
         }
         
@@ -302,16 +291,23 @@ class llm_client_plugin_dokullm
             // Add example pages content if specified in metadata
             if (!empty($metadata['examples'])) {
                 $examplesContent = [];
-                foreach ($metadata['examples'] as $example) {
-                    $content = $this->getPageContent($example);
-                    if ($content !== false) {
-                        $examplesContent[] = "- Example page (" . $example . "):\n" . $content;
+                foreach ($metadata['examples'] as $index => $example) {
+                    // Check if example is a text snippet (string) or page ID (array/string)
+                    if (is_string($example) && strpos($example, ':') === false) {
+                        // This is a text snippet from ChromaDB
+                        $examplesContent[] = "- Example snippet " . ($index + 1) . ":\n" . $example;
                     } else {
-                        $examplesContent[] = "- Example page: " . $example . " (content not available)";
+                        // This is a page ID
+                        $content = $this->getPageContent($example);
+                        if ($content !== false) {
+                            $examplesContent[] = "- Example page (" . $example . "):\n" . $content;
+                        } else {
+                            $examplesContent[] = "- Example page: " . $example . " (content not available)";
+                        }
                     }
                 }
                 if (!empty($examplesContent)) {
-                    $contextInfo .= "- Example pages:\n" . implode("\n\n", $examplesContent) . "\n";
+                    $contextInfo .= "- Examples:\n" . implode("\n\n", $examplesContent) . "\n";
                 }
             }
             
@@ -547,6 +543,41 @@ class llm_client_plugin_dokullm
             }
             
             return $documentIds;
+        } catch (Exception $e) {
+            // Log error but don't fail the operation
+            error_log('ChromaDB query failed: ' . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Query ChromaDB for relevant documents and return text snippets
+     * 
+     * Generates embeddings for the input text and queries ChromaDB for similar documents.
+     * Returns the actual text snippets instead of document IDs.
+     * 
+     * @param string $text The text to find similar documents for
+     * @param int $limit Maximum number of documents to retrieve (default: 5)
+     * @param array|null $where Optional filter conditions for metadata
+     * @return array List of text snippets
+     */
+    private function queryChromaDBWithSnippets($text, $limit = 5, $where = null)
+    {
+        try {
+            // Get ChromaDB client and collection name
+            list($chromaClient, $chromaCollection) = $this->getChromaDBClient();
+            // Query for similar documents
+            $results = $chromaClient->queryCollection($chromaCollection, [$text], $limit, $where);
+            
+            // Extract document texts from results
+            $snippets = [];
+            if (isset($results['documents'][0]) && is_array($results['documents'][0])) {
+                foreach ($results['documents'][0] as $document) {
+                    $snippets[] = $document;
+                }
+            }
+            
+            return $snippets;
         } catch (Exception $e) {
             // Log error but don't fail the operation
             error_log('ChromaDB query failed: ' . $e->getMessage());
