@@ -278,7 +278,7 @@ class llm_client_plugin_dokullm
         // Load system prompt which provides general instructions to the LLM
         $systemPrompt = $this->loadPrompt('system', []);
         
-        // Enhance system prompt with context information from metadata
+        // Enhance the prompt with context information from metadata
         // This provides the LLM with additional context about templates and examples
         if ($useContext && !empty($metadata)) {
             $contextInfo = "\n\nThis is the context information for this request:\n";
@@ -318,7 +318,7 @@ class llm_client_plugin_dokullm
             }
             
             // Append context information to system prompt
-            $systemPrompt .= "\n\n" . $contextInfo;
+            $prompt = $contextInfo . "\n\n" . $prompt;
         }
         
         // Prepare API request data with model parameters
