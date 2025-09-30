@@ -559,6 +559,6 @@ class llm_client_plugin_dokullm
      */
     private function queryChromaDBForTemplate($text)
     {
-        return $this->queryChromaDB($text, 1, ['template' => 'true']);
+        return $this->queryChromaDB($text, 1, ['type' => 'template']);
     }
 }

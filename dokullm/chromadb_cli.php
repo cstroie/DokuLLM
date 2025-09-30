@@ -183,7 +183,9 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         // Check if any part of the ID is 'templates' and set template metadata
         $isTemplate = in_array('templates', $parts);
         if ($isTemplate) {
-            $baseMetadata['template'] = true;
+            $baseMetadata['type'] = 'template';
+        } else {
+            $baseMetadata['type'] = 'report';
         }
         
         // Extract modality from the second part
