@@ -601,6 +601,13 @@ class llm_client_plugin_dokullm
      */
     private function queryChromaDBForTemplate($text)
     {
-        return $this->queryChromaDB($text, 1, ['type' => 'template']);
+        $templateIds = $this->queryChromaDB($text, 1, ['type' => 'template']);
+        
+        // Remove chunk number (e.g., "@2") from the ID to get the base document ID
+        if (!empty($templateIds)) {
+            $templateIds[0] = preg_replace('/@\\d+$/', '', $templateIds[0]);
+        }
+        
+        return $templateIds;
     }
 }
