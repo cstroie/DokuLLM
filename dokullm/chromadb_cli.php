@@ -146,17 +146,8 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
     // Read file content
     $content = file_get_contents($filePath);
     
-    // Extract modality from ID (second part after 'reports')
-    $idParts = explode(':', $id);
-    $modality = isset($idParts[1]) ? $idParts[1] : 'other';
-    // Ensure modality name is at least 3 characters long
-    if (strlen($modality) < 3) {
-        $modality = 'reports-' . $modality;
-    }
-    // Ensure modality name is at least 3 characters long
-    if (strlen($modality) < 3) {
-        $modality = 'reports-' . $modality;
-    }
+    // Always use 'reports' as the collection name
+    $modality = 'reports';
     
     try {
         // Create collection if it doesn't exist (only if not already checked)
@@ -363,11 +354,8 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     
     echo "Found " . count($files) . " files to process.\n";
     
-    // Check if collection exists once for the directory
-    $sampleFile = $files[0];
-    $id = parseFilePath($sampleFile);
-    $idParts = explode(':', $id);
-    $modality = isset($idParts[1]) ? $idParts[1] : 'other';
+    // Always use 'reports' as the collection name
+    $modality = 'reports';
     
     try {
         echo "Checking if collection '$modality' exists...\n";
