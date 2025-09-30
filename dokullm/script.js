@@ -196,6 +196,9 @@
      * 
      * @param {string} action - The action to perform (create, rewrite, etc.)
      */
+    // Store selection range for processing
+    let currentSelectionRange = null;
+    
     function processText(action) {
         console.log('DokuLLM: Processing text with action:', action);
         const editor = document.getElementById('wiki__text');
@@ -203,6 +206,12 @@
             console.log('DokuLLM: Editor not found');
             return;
         }
+        
+        // Store the current selection range
+        currentSelectionRange = {
+            start: editor.selectionStart,
+            end: editor.selectionEnd
+        };
         
         // Get metadata from the page
         const metadata = getPageMetadata();
@@ -408,6 +417,12 @@
             return;
         }
         
+        // Store the current selection range
+        currentSelectionRange = {
+            start: editor.selectionStart,
+            end: editor.selectionEnd
+        };
+        
         const selectedText = getSelectedText(editor);
         const fullText = editor.value;
         const textToProcess = selectedText || fullText;
@@ -526,9 +541,13 @@
      * @param {string} newText - The new text to insert
      */
     function replaceSelectedText(textarea, newText) {
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
+        // Use stored selection range if available, otherwise use current selection
+        const start = currentSelectionRange ? currentSelectionRange.start : textarea.selectionStart;
+        const end = currentSelectionRange ? currentSelectionRange.end : textarea.selectionEnd;
         const text = textarea.value;
+        
+        // Reset the stored selection range
+        currentSelectionRange = null;
         
         // If there's no selection (start === end), it's not a replacement of selected text
         if (start === end) {
