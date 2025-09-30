@@ -492,16 +492,23 @@ return $chromaResults;
         $chromaPort = defined('CHROMA_PORT') ? CHROMA_PORT : 8000;
         $chromaTenant = defined('CHROMA_TENANT') ? CHROMA_TENANT : 'dokullm';
         $chromaDatabase = defined('CHROMA_DATABASE') ? CHROMA_DATABASE : 'dokullm';
+        $chromaDefaultCollection = defined('CHROMA_COLLECTION') ? CHROMA_COLLECTION : 'reports';
         
-        // Use the first part of the current page ID as collection name, fallback to 'documents'
+        // Use the first part of the current page ID as collection name, fallback to default
         global $ID;
-        $chromaCollection = 'documents'; // Default collection name
+        $chromaCollection = $chromaDefaultCollection; // Default collection name
         
         if (!empty($ID)) {
             // Split the page ID by ':' and take the first part as collection name
             $parts = explode(':', $ID);
             if (isset($parts[0]) && !empty($parts[0])) {
-                $chromaCollection = $parts[0];
+                // If the first part is 'playground', use the default collection
+                // Otherwise, use the first part as the collection name
+                if ($parts[0] === 'playground') {
+                    $chromaCollection = $chromaDefaultCollection;
+                } else {
+                    $chromaCollection = $parts[0];
+                }
             }
         }
         

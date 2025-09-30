@@ -4,6 +4,7 @@ define('CHROMA_HOST', '10.200.8.16');
 define('CHROMA_PORT', 8087);
 define('CHROMA_TENANT', 'dokullm');
 define('CHROMA_DATABASE', 'dokullm');
+define('CHROMA_COLLECTION', 'reports');
 
 // Default Institution
 define('DEFAULT_INSTITUTION', 'scuc');
