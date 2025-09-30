@@ -269,9 +269,9 @@
             const cleanedResult = data.result;
             
             // Replace selected text or append to editor
-            if (action === 'analyze') {
-                console.log('DokuLLM: Showing analysis in modal');
-                showAnalysisModal(cleanedResult);
+            if (action === 'analyze' || action === 'summarize') {
+                console.log('DokuLLM: Showing ' + action + ' in modal');
+                showAnalysisModal(cleanedResult, action);
             } else if (selectedText) {
                 console.log('DokuLLM: Replacing selected text');
                 replaceSelectedText(editor, cleanedResult);
@@ -302,17 +302,18 @@
     }
     
     /**
-     * Show analysis results in a modal dialog
+     * Show analysis or summarize results in a modal dialog
      * 
-     * Creates and displays a modal dialog with the analysis results.
+     * Creates and displays a modal dialog with the analysis or summarize results.
      * Includes a close button and proper styling.
      * 
-     * @param {string} analysisText - The analysis text to display
+     * @param {string} contentText - The content text to display
+     * @param {string} action - The action type ('analyze' or 'summarize')
      */
-    function showAnalysisModal(analysisText) {
+    function showAnalysisModal(contentText, action = 'analyze') {
         // Create modal container
         const modal = document.createElement('div');
-        modal.id = 'llm-analysis-modal';
+        modal.id = 'llm-' + action + '-modal';
         modal.style.cssText = `
             position: fixed;
             top: 0;
@@ -355,14 +356,14 @@
             document.body.removeChild(modal);
         });
         
-        // Create title
+        // Create title based on action
         const title = document.createElement('h3');
-        title.textContent = 'Text Analysis';
+        title.textContent = action === 'analyze' ? 'Text Analysis' : 'Text Summary';
         title.style.marginTop = '0';
         
         // Create content area
         const content = document.createElement('div');
-        content.innerHTML = analysisText.replace(/\n/g, '<br>');
+        content.innerHTML = contentText.replace(/\n/g, '<br>');
         content.style.cssText = `
             margin-top: 20px;
             white-space: pre-wrap;
