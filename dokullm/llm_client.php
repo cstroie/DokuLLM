@@ -535,10 +535,8 @@ class llm_client_plugin_dokullm
             $documentIds = [];
             if (isset($results['ids'][0]) && is_array($results['ids'][0])) {
                 foreach ($results['ids'][0] as $id) {
-                    // Convert ChromaDB ID format back to DokuWiki page ID
-                    $pageId = str_replace(':', '/', $id);
-                    $pageId = str_replace('.txt', '', $pageId);
-                    $documentIds[] = $pageId;
+                    // Use the ChromaDB ID directly without conversion
+                    $documentIds[] = $id;
                 }
             }
             
@@ -572,10 +570,8 @@ class llm_client_plugin_dokullm
             $documentIds = [];
             if (isset($results['ids'][0]) && is_array($results['ids'][0])) {
                 foreach ($results['ids'][0] as $id) {
-                    // Convert ChromaDB ID format back to DokuWiki page ID
-                    $pageId = str_replace(':', '/', $id);
-                    $pageId = str_replace('.txt', '', $pageId);
-                    $documentIds[] = $pageId;
+                    // Use the ChromaDB ID directly without conversion
+                    $documentIds[] = $id;
                 }
             }
             
