@@ -96,7 +96,7 @@ class llm_client_plugin_dokullm
      * If no template is defined, queries ChromaDB for a template.
      * 
      * @param string $text The text to create
-     * @param array $metadata Optional metadata containing template and examples
+     * @param array $metadata Optional metadata containing template, examples, and snippets
      * @param bool $useContext Whether to include template and examples in the context (default: true)
      * @return string The created text
      */
@@ -262,8 +262,13 @@ class llm_client_plugin_dokullm
      * 4. Making the HTTP request with proper error handling
      * 5. Parsing and validating the API response
      * 
+     * The context information includes:
+     * - Template content: Used as a starting point for the response
+     * - Example pages: Full content of specified example pages
+     * - Text snippets: Relevant text examples from ChromaDB
+     * 
      * @param string $prompt The prompt to send to the LLM as user message
-     * @param array $metadata Optional metadata containing template and examples
+     * @param array $metadata Optional metadata containing template, examples, and snippets
      * @param bool $useContext Whether to include template and examples in the context (default: true)
      * @return string The response content from the LLM
      * @throws Exception If the API request fails or returns unexpected format
@@ -558,11 +563,11 @@ class llm_client_plugin_dokullm
      * Returns the actual text snippets instead of document IDs.
      * 
      * @param string $text The text to find similar documents for
-     * @param int $limit Maximum number of documents to retrieve (default: 5)
+     * @param int $limit Maximum number of documents to retrieve (default: 10)
      * @param array|null $where Optional filter conditions for metadata
      * @return array List of text snippets
      */
-    private function queryChromaDBWithSnippets($text, $limit = 5, $where = null)
+    private function queryChromaDBWithSnippets($text, $limit = 10, $where = null)
     {
         try {
             // Get ChromaDB client and collection name
