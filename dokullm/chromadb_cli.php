@@ -24,7 +24,7 @@ function showUsage() {
     echo "  --port PORT        ChromaDB server port (default: " . CHROMA_PORT . ")\n";
     echo "  --tenant TENANT    ChromaDB tenant (default: " . CHROMA_TENANT . ")\n";
     echo "  --database DB      ChromaDB database (default: " . CHROMA_DATABASE . ")\n";
-    echo "  --collection COLL  Collection name to query (default: other)\n";
+    echo "  --collection COLL  Collection name to query (default: documents)\n";
     echo "  --limit NUM        Number of results to return (default: 5)\n";
     echo "\n";
     echo "Send a file:\n";
@@ -301,11 +301,10 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         echo "Successfully sent file to ChromaDB:\n";
         echo "  Original ID: $id\n";
         echo "  Chunks: " . count($chunkIds) . "\n";
-        echo "  Collection: $collectionName\n";
-        echo "  File: $filePath\n";
         echo "  Host: $host:$port\n";
         echo "  Tenant: $tenant\n";
         echo "  Database: $database\n";
+        echo "  Collection: $collectionName\n";
     } catch (Exception $e) {
         echo "Error sending file to ChromaDB: " . $e->getMessage() . "\n";
         exit(1);
@@ -395,22 +394,22 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
  * @param int $port ChromaDB server port
  * @param string $tenant ChromaDB tenant name
  * @param string $database ChromaDB database name
- * @param string $modality The modality/collection to query (default: 'other')
+ * @param string $collection The collection to query (default: 'documents')
  * @return void
  */
-function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $modality = 'other') {
+function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $collection = 'documents') {
     // Create ChromaDB client
     $chroma = new ChromaDBClient($host, $port, $tenant, $database);
     
     try {
-        // Query the specified collection by modality
-        $results = $chroma->queryCollection($modality, [$searchTerms], $limit);
+        // Query the specified collection by collection
+        $results = $chroma->queryCollection($collection, [$searchTerms], $limit);
         
         echo "Query results for: \"$searchTerms\"\n";
-        echo "Modality: $modality\n";
         echo "Host: $host:$port\n";
         echo "Tenant: $tenant\n";
         echo "Database: $database\n";
+        echo "Collection: $collection\n";
         echo "==========================================\n";
         
         if (empty($results['ids'][0])) {
@@ -422,7 +421,7 @@ function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $mo
             echo "Result " . ($i + 1) . ":\n";
             echo "  ID: " . $results['ids'][0][$i] . "\n";
             echo "  Distance: " . $results['distances'][0][$i] . "\n";
-            echo "  Document: " . substr($results['documents'][0][$i], 0, 100) . "...\n";
+            echo "  Document: " . substr($results['documents'][0][$i], 0, 255) . "...\n";
             
             if (isset($results['metadatas'][0][$i])) {
                 echo "  Metadata: " . json_encode($results['metadatas'][0][$i]) . "\n";
@@ -557,7 +556,7 @@ function parseArgs($argv) {
         'filepath' => null,
         'query' => null,
         'limit' => 5,
-        'collection' => 'other',
+        'collection' => 'documents',
         'host' => CHROMA_HOST,
         'port' => CHROMA_PORT,
         'tenant' => CHROMA_TENANT,

@@ -162,9 +162,9 @@ class ChromaDBClient {
      * @throws Exception If the collection is not found
      */
     public function getCollection($name) {
-        // Use provided name, fallback to 'reports' if empty
+        // Use provided name, fallback to 'documents' if empty
         if (empty($name)) {
-            $name = 'reports';
+            $name = 'documents';
         }
         
         // First try to get collection by name
@@ -192,9 +192,9 @@ class ChromaDBClient {
      * @return array The response from the API
      */
     public function createCollection($name, $metadata = null) {
-        // Use provided name, fallback to 'reports' if empty
+        // Use provided name, fallback to 'documents' if empty
         if (empty($name)) {
-            $name = 'reports';
+            $name = 'documents';
         }
         
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
@@ -215,9 +215,9 @@ class ChromaDBClient {
      * @throws Exception If the collection ID is not found
      */
     public function deleteCollection($name) {
-        // Use provided name, fallback to 'reports' if empty
+        // Use provided name, fallback to 'documents' if empty
         if (empty($name)) {
-            $name = 'reports';
+            $name = 'documents';
         }
         
         // First get the collection to find its ID
@@ -246,9 +246,9 @@ class ChromaDBClient {
      * @throws Exception If the collection ID is not found
      */
     public function addDocuments($collectionName, $documents, $ids, $metadatas = null, $embeddings = null) {
-        // Use provided name, fallback to 'reports' if empty
+        // Use provided name, fallback to 'documents' if empty
         if (empty($collectionName)) {
-            $collectionName = 'reports';
+            $collectionName = 'documents';
         }
         
         // First get the collection to find its ID
@@ -290,9 +290,9 @@ class ChromaDBClient {
      * @throws Exception If the collection ID is not found
      */
     public function queryCollection($collectionName, $queryTexts, $nResults = 5, $where = null) {
-        // Use provided name, fallback to 'reports' if empty
+        // Use provided name, fallback to 'documents' if empty
         if (empty($collectionName)) {
-            $collectionName = 'reports';
+            $collectionName = 'documents';
         }
         
         // First get the collection to find its ID

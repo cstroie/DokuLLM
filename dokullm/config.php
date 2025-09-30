@@ -2,8 +2,8 @@
 // ChromaDB Configuration
 define('CHROMA_HOST', '10.200.8.16');
 define('CHROMA_PORT', 8087);
-define('CHROMA_TENANT', 'default_tenant');
-define('CHROMA_DATABASE', 'default_database');
+define('CHROMA_TENANT', 'dokullm');
+define('CHROMA_DATABASE', 'dokullm');
 
 // Default Institution
 define('DEFAULT_INSTITUTION', 'scuc');

@@ -109,7 +109,7 @@ class llm_client_plugin_dokullm
                 $metadata['template'] = $templateResult[0]; // Use the first result as template
             }
         }
-        
+
         // Query ChromaDB for relevant documents to use as examples
         $chromaResults = $this->queryChromaDB($text, 5);
         
@@ -492,9 +492,9 @@ class llm_client_plugin_dokullm
         $chromaTenant = defined('CHROMA_TENANT') ? CHROMA_TENANT : 'default_tenant';
         $chromaDatabase = defined('CHROMA_DATABASE') ? CHROMA_DATABASE : 'default_database';
         
-        // Use the first part of the current page ID as collection name, fallback to 'reports'
+        // Use the first part of the current page ID as collection name, fallback to 'documents'
         global $ID;
-        $chromaCollection = 'reports'; // Default collection name
+        $chromaCollection = 'documents'; // Default collection name
         
         if (!empty($ID)) {
             // Split the page ID by ':' and take the first part as collection name
@@ -559,27 +559,6 @@ class llm_client_plugin_dokullm
      */
     private function queryChromaDBForTemplate($text)
     {
-        try {
-            // Get ChromaDB client and collection name
-            list($chromaClient, $chromaCollection) = $this->getChromaDBClient();
-            
-            // Query for template documents with metadata filter
-            $results = $chromaClient->queryCollection($chromaCollection, [$text], 1, ['template' => 'true']);
-            
-            // Extract document IDs from results
-            $documentIds = [];
-            if (isset($results['ids'][0]) && is_array($results['ids'][0])) {
-                foreach ($results['ids'][0] as $id) {
-                    // Use the ChromaDB ID directly without conversion
-                    $documentIds[] = $id;
-                }
-            }
-            
-            return $documentIds;
-        } catch (Exception $e) {
-            // Log error but don't fail the operation
-            error_log('ChromaDB template query failed: ' . $e->getMessage());
-            return [];
-        }
+        return $this->queryChromaDB($text, 1, ['template' => 'true']);
     }
 }
