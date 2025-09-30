@@ -111,7 +111,7 @@ class llm_client_plugin_dokullm
         }
 
         // Query ChromaDB for relevant documents to use as examples
-        $chromaResults = $this->queryChromaDBWithSnippets($text, 5);
+        $chromaResults = $this->queryChromaDBWithSnippets($text, 10);
         
         // Add ChromaDB results to metadata as snippets
         if (!empty($chromaResults)) {
