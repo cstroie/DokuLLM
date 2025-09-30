@@ -624,7 +624,8 @@
     function getPageMetadata() {
         const metadata = {
             template: '',
-            examples: []
+            examples: [],
+            previous_text_page: ''
         };
         
         // Look for metadata in the page content
@@ -640,6 +641,12 @@
         const exampleMatches = pageContent.match(/~~LLM_EXAMPLES:([^~]+)~~/);
         if (exampleMatches) {
             metadata.examples = exampleMatches[1].split(',').map(example => example.trim());
+        }
+        
+        // Extract previous text page from metadata
+        const previousTextMatch = pageContent.match(/~~LLM_PREVIOUS_TEXT:([^~]+)~~/);
+        if (previousTextMatch) {
+            metadata.previous_text_page = previousTextMatch[1].trim();
         }
         
         return metadata;
