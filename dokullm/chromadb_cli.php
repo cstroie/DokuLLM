@@ -154,13 +154,13 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         // Create collection if it doesn't exist (only if not already checked)
         if (!$collectionChecked) {
             try {
-                echo "Checking if collection '$modality' exists...\n";
-                $collection = $chroma->getCollection($modality);
-                echo "Collection '$modality' already exists.\n";
+                echo "Checking if collection '$collectionName' exists...\n";
+                $collection = $chroma->getCollection($collectionName);
+                echo "Collection '$collectionName' already exists.\n";
             } catch (Exception $e) {
                 // Collection doesn't exist, create it
-                echo "Creating collection '$modality'...\n";
-                $created = $chroma->createCollection($modality);
+                echo "Creating collection '$collectionName'...\n";
+                $created = $chroma->createCollection($collectionName);
                 echo "Collection created.\n";
             }
         }
@@ -297,11 +297,11 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         
         // Send all chunks to ChromaDB
         echo "Adding " . count($chunkIds) . " chunks to ChromaDB...\n";
-        $result = $chroma->addDocuments($modality, $chunkContents, $chunkIds, $chunkMetadatas, $chunkEmbeddings);
+        $result = $chroma->addDocuments($collectionName, $chunkContents, $chunkIds, $chunkMetadatas, $chunkEmbeddings);
         echo "Successfully sent file to ChromaDB:\n";
         echo "  Original ID: $id\n";
         echo "  Chunks: " . count($chunkIds) . "\n";
-        echo "  Modality: $modality\n";
+        echo "  Collection: $collectionName\n";
         echo "  File: $filePath\n";
         echo "  Host: $host:$port\n";
         echo "  Tenant: $tenant\n";
