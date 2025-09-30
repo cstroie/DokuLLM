@@ -280,14 +280,14 @@ class llm_client_plugin_dokullm
         
         // Enhance the prompt with context information from metadata
         // This provides the LLM with additional context about templates and examples
-        if ($useContext && !empty($metadata)) {
-            $contextInfo = "\n\nThis is the context information for this request:\n";
+        if ($useContext && !empty($metadata) && (!empty($metadata['template']) || !empty($metadata['examples']) || !empty($metadata['snippets']))) {
+            $contextInfo = "\n\n<context>\n";
             
             // Add template content if specified in metadata
             if (!empty($metadata['template'])) {
                 $templateContent = $this->getPageContent($metadata['template']);
                 if ($templateContent !== false) {
-                    $contextInfo .= "\nStart from this template page (" . $metadata['template'] . "):\n" . $templateContent . "\n";
+                    $contextInfo .= "\n\n<template>\nPornește de la acest template (" . $metadata['template'] . "):\n" . $templateContent . "\n</template>\n";
                 }
             }
             
@@ -297,11 +297,11 @@ class llm_client_plugin_dokullm
                 foreach ($metadata['examples'] as $example) {
                     $content = $this->getPageContent($example);
                     if ($content !== false) {
-                        $examplesContent[] = "- Example page (" . $example . "):\n" . $content;
+                        $examplesContent[] = "\n<example_page source=\"" . $example . "\">\n" . $content . "\n</example_page>\n";
                     }
                 }
                 if (!empty($examplesContent)) {
-                    $contextInfo .= "\n\nHere are some example pages:\n" . implode("\n\n", $examplesContent) . "\n";
+                    $contextInfo .= "\n<style_examples>\nAcestea sunt rapoarte complete anterioare - studiază stilul meu de redactare:\n" . implode("\n", $examplesContent) . "\n</style_examples>\n";
                 }
             }
             
@@ -310,13 +310,15 @@ class llm_client_plugin_dokullm
                 $snippetsContent = [];
                 foreach ($metadata['snippets'] as $index => $snippet) {
                     // These are text snippets from ChromaDB
-                    $snippetsContent[] = "- Example " . ($index + 1) . ":\n" . $snippet;
+                    $snippetsContent[] = "\n<example id=\"" . ($index + 1) . "\">\n" . $snippet . "\n</example>\n";
                 }
                 if (!empty($snippetsContent)) {
-                    $contextInfo .= "\n\nHere are some relevant text examples:\n" . implode("\n\n", $snippetsContent) . "\n";
+                    $contextInfo .= "\n\n<style_examples>\nAcestea sunt exemple din rapoartele mele anterioare - studiază stilul de redactare, terminologia și structura frazelor:\n" . implode("\n", $snippetsContent) . "\n</style_examples>\n";
                 }
             }
             
+            $contextInfo .= "\n</context>\n";
+
             // Append context information to system prompt
             $prompt = $contextInfo . "\n\n" . $prompt;
         }
