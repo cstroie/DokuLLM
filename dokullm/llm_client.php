@@ -276,15 +276,13 @@ class llm_client_plugin_dokullm
         // Enhance system prompt with context information from metadata
         // This provides the LLM with additional context about templates and examples
         if ($useContext && !empty($metadata)) {
-            $contextInfo = "Context information for this request:\n";
+            $contextInfo = "\n\nThis is the context information for this request:\n";
             
             // Add template content if specified in metadata
             if (!empty($metadata['template'])) {
                 $templateContent = $this->getPageContent($metadata['template']);
                 if ($templateContent !== false) {
-                    $contextInfo .= "- Template page (" . $metadata['template'] . "):\n" . $templateContent . "\n";
-                } else {
-                    $contextInfo .= "- Template page: " . $metadata['template'] . " (content not available)\n";
+                    $contextInfo .= "\nStart from this template page (" . $metadata['template'] . "):\n" . $templateContent . "\n";
                 }
             }
             
@@ -295,12 +293,10 @@ class llm_client_plugin_dokullm
                     $content = $this->getPageContent($example);
                     if ($content !== false) {
                         $examplesContent[] = "- Example page (" . $example . "):\n" . $content;
-                    } else {
-                        $examplesContent[] = "- Example page: " . $example . " (content not available)";
                     }
                 }
                 if (!empty($examplesContent)) {
-                    $contextInfo .= "- Example pages:\n" . implode("\n\n", $examplesContent) . "\n";
+                    $contextInfo .= "\n\nHere are some example pages:\n" . implode("\n\n", $examplesContent) . "\n";
                 }
             }
             
@@ -309,10 +305,10 @@ class llm_client_plugin_dokullm
                 $snippetsContent = [];
                 foreach ($metadata['snippets'] as $index => $snippet) {
                     // These are text snippets from ChromaDB
-                    $snippetsContent[] = "- Example snippet " . ($index + 1) . ":\n" . $snippet;
+                    $snippetsContent[] = "- Example " . ($index + 1) . ":\n" . $snippet;
                 }
                 if (!empty($snippetsContent)) {
-                    $contextInfo .= "- Examples:\n" . implode("\n\n", $snippetsContent) . "\n";
+                    $contextInfo .= "\n\nHere are some relevant text examples:\n" . implode("\n\n", $snippetsContent) . "\n";
                 }
             }
             
