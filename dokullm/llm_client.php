@@ -492,8 +492,17 @@ class llm_client_plugin_dokullm
         $chromaTenant = defined('CHROMA_TENANT') ? CHROMA_TENANT : 'default_tenant';
         $chromaDatabase = defined('CHROMA_DATABASE') ? CHROMA_DATABASE : 'default_database';
         
-        // Always use 'reports' as the collection name
-        $chromaCollection = 'reports';
+        // Use the first part of the current page ID as collection name, fallback to 'reports'
+        global $ID;
+        $chromaCollection = 'reports'; // Default collection name
+        
+        if (!empty($ID)) {
+            // Split the page ID by ':' and take the first part as collection name
+            $parts = explode(':', $ID);
+            if (isset($parts[0]) && !empty($parts[0])) {
+                $chromaCollection = $parts[0];
+            }
+        }
         
         // Create ChromaDB client
         $chromaClient = new ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);

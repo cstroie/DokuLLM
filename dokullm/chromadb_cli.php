@@ -146,8 +146,9 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
     // Read file content
     $content = file_get_contents($filePath);
     
-    // Always use 'reports' as the collection name
-    $modality = 'reports';
+    // Use the first part of the document ID as collection name, fallback to 'reports'
+    $idParts = explode(':', $id);
+    $modality = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'reports';
     
     try {
         // Create collection if it doesn't exist (only if not already checked)
@@ -354,8 +355,11 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     
     echo "Found " . count($files) . " files to process.\n";
     
-    // Always use 'reports' as the collection name
-    $modality = 'reports';
+    // Use the first part of the document ID as collection name, fallback to 'reports'
+    $sampleFile = $files[0];
+    $id = parseFilePath($sampleFile);
+    $idParts = explode(':', $id);
+    $modality = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'reports';
     
     try {
         echo "Checking if collection '$modality' exists...\n";

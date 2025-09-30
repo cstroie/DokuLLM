@@ -162,8 +162,10 @@ class ChromaDBClient {
      * @throws Exception If the collection is not found
      */
     public function getCollection($name) {
-        // Always use 'reports' as the collection name
-        $name = 'reports';
+        // Use provided name, fallback to 'reports' if empty
+        if (empty($name)) {
+            $name = 'reports';
+        }
         
         // First try to get collection by name
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
@@ -190,8 +192,10 @@ class ChromaDBClient {
      * @return array The response from the API
      */
     public function createCollection($name, $metadata = null) {
-        // Always use 'reports' as the collection name
-        $name = 'reports';
+        // Use provided name, fallback to 'reports' if empty
+        if (empty($name)) {
+            $name = 'reports';
+        }
         
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
         $data = ['name' => $name];
@@ -211,8 +215,10 @@ class ChromaDBClient {
      * @throws Exception If the collection ID is not found
      */
     public function deleteCollection($name) {
-        // Always use 'reports' as the collection name
-        $name = 'reports';
+        // Use provided name, fallback to 'reports' if empty
+        if (empty($name)) {
+            $name = 'reports';
+        }
         
         // First get the collection to find its ID
         $collection = $this->getCollection($name);
@@ -240,8 +246,10 @@ class ChromaDBClient {
      * @throws Exception If the collection ID is not found
      */
     public function addDocuments($collectionName, $documents, $ids, $metadatas = null, $embeddings = null) {
-        // Always use 'reports' as the collection name
-        $collectionName = 'reports';
+        // Use provided name, fallback to 'reports' if empty
+        if (empty($collectionName)) {
+            $collectionName = 'reports';
+        }
         
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
@@ -282,8 +290,10 @@ class ChromaDBClient {
      * @throws Exception If the collection ID is not found
      */
     public function queryCollection($collectionName, $queryTexts, $nResults = 5, $where = null) {
-        // Always use 'reports' as the collection name
-        $collectionName = 'reports';
+        // Use provided name, fallback to 'reports' if empty
+        if (empty($collectionName)) {
+            $collectionName = 'reports';
+        }
         
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
