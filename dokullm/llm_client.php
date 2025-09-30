@@ -112,7 +112,6 @@ class llm_client_plugin_dokullm
 
         // Query ChromaDB for relevant documents to use as examples
         $chromaResults = $this->queryChromaDB($text, 5);
-return $chromaResults;
         
         // Add ChromaDB results to metadata as examples
         if (!empty($chromaResults)) {
@@ -492,7 +491,7 @@ return $chromaResults;
         $chromaPort = defined('CHROMA_PORT') ? CHROMA_PORT : 8000;
         $chromaTenant = defined('CHROMA_TENANT') ? CHROMA_TENANT : 'dokullm';
         $chromaDatabase = defined('CHROMA_DATABASE') ? CHROMA_DATABASE : 'dokullm';
-        $chromaDefaultCollection = defined('CHROMA_COLLECTION') ? CHROMA_COLLECTION : 'reports';
+        $chromaDefaultCollection = defined('CHROMA_COLLECTION') ? CHROMA_COLLECTION : 'documents';
         
         // Use the first part of the current page ID as collection name, fallback to default
         global $ID;
