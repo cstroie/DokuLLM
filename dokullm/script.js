@@ -270,15 +270,15 @@
             const cleanedResult = data.result;
             
             // Replace selected text or append to editor
-            if (action === 'analyze' || action === 'summarize' || action === 'compare') {
+            if (action === 'analyze' || action === 'summarize') {
                 console.log('DokuLLM: Showing ' + action + ' in modal');
                 showAnalysisModal(cleanedResult, action);
             } else if (selectedText) {
                 console.log('DokuLLM: Replacing selected text');
                 replaceSelectedText(editor, cleanedResult);
-            } else if (action === 'conclusion') {
-                console.log('DokuLLM: Appending conclusion to existing text');
-                // For conclusion, append to the end of existing content (preserving metadata)
+            } else if (action === 'conclusion' || action === 'compare') {
+                console.log('DokuLLM: Appending ' + action + ' to existing text');
+                // For conclusion/compare, append to the end of existing content (preserving metadata)
                 const metadata = extractMetadata(editor.value);
                 const contentWithoutMetadata = editor.value.substring(metadata.length);
                 editor.value = metadata + contentWithoutMetadata + '\n\n' + cleanedResult;
