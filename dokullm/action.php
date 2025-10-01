@@ -236,21 +236,13 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         // Parse the table from the page content
         $actions = [];
         $lines = explode("\n", $content);
-        $inFirstTable = false;
+        $inTable = false;
         
         foreach ($lines as $line) {
-            // Check if we've entered the first table
-            if (!$inFirstTable && preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line)) {
-                $inFirstTable = true;
-            }
-            
-            // If we were in the first table and now encounter a line that's not a table row, stop parsing
-            if ($inFirstTable && !preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line)) {
-                break;
-            }
-            
-            // Look for table rows (lines starting with |) within the first table
-            if ($inFirstTable && preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line, $matches)) {
+            // Check if this is a table row
+            if (preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line, $matches)) {
+                $inTable = true;
+                
                 // Skip header row
                 if (trim($matches[1]) === 'ID' || trim($matches[1]) === 'id') {
                     continue;
@@ -263,6 +255,9 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                     'icon' => trim($matches[4]),
                     'process' => trim($matches[5])
                 ];
+            } else if ($inTable) {
+                // We've exited the table, so stop parsing
+                break;
             }
         }
         
