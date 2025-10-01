@@ -197,7 +197,8 @@
      * Process text using the specified LLM action
      * 
      * Gets the selected text (or full editor content), sends it to the
-     * backend for processing, and replaces the text with the result.
+     * backend for processing, and handles the result based on the button's
+     * dataset.result property ('replace', 'append', 'insert', 'show').
      * 
      * Preserves page metadata when doing full page updates.
      * Shows loading indicators during processing.
@@ -207,7 +208,7 @@
      * 2. Managing UI state during processing (loading indicators, readonly)
      * 3. Constructing and sending AJAX requests with proper metadata
      * 4. Handling response processing and error conditions
-     * 5. Updating editor content while preserving metadata
+     * 5. Updating editor content while preserving metadata based on result handling mode
      * 6. Restoring UI state after processing
      * 
      * @param {string} action - The action to perform (create, rewrite, etc.)
@@ -287,7 +288,7 @@
             // Determine how to handle the result based on button's dataset.result property
             const resultHandling = originalButton.dataset.result || 'replace';
             
-            // Replace selected text or append to editor based on resultHandling
+            // Replace selected text or handle result based on resultHandling
             if (resultHandling === 'show') {
                 console.log('DokuLLM: Showing result in modal');
                 showAnalysisModal(cleanedResult, action);
