@@ -217,6 +217,9 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      * Parses the table containing action definitions with columns:
      * ID, Label, Icon, Action
      * 
+     * Stops parsing after the first table ends to avoid processing
+     * additional tables with disabled or work-in-progress commands.
+     * 
      * @return array Array of action definitions
      */
     private function getActionDefinitions()
@@ -232,10 +235,21 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         // Parse the table from the page content
         $actions = [];
         $lines = explode("\n", $content);
+        $inFirstTable = false;
         
         foreach ($lines as $line) {
-            // Look for table rows (lines starting with |)
-            if (preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line, $matches)) {
+            // Check if we've entered the first table
+            if (!$inFirstTable && preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line)) {
+                $inFirstTable = true;
+            }
+            
+            // If we were in the first table and now encounter a line that's not a table row, stop parsing
+            if ($inFirstTable && !preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line)) {
+                break;
+            }
+            
+            // Look for table rows (lines starting with |) within the first table
+            if ($inFirstTable && preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line, $matches)) {
                 // Skip header row
                 if (trim($matches[1]) === 'ID' || trim($matches[1]) === 'id') {
                     continue;
