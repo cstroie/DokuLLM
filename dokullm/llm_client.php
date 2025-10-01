@@ -232,9 +232,9 @@ class llm_client_plugin_dokullm
         }
         
         // Extract dates for placeholders
-        $currentDate = $this->extractDateFromPageIdOrTimestamp();
+        $currentDate = $this->getPageDate();
         $previousDate = !empty($metadata['previous_report_page']) ? 
-                        $this->extractDateFromPageIdOrTimestamp($metadata['previous_report_page']) : 
+                        $this->getPageDate($metadata['previous_report_page']) : 
                         '';
         
         $think = $this->think ? '/think' : '/no_think';
@@ -533,7 +533,7 @@ class llm_client_plugin_dokullm
      * @param string $pageId Optional page ID to extract date from (defaults to current page)
      * @return string Formatted date string (YYYY-MM-DD)
      */
-    private function extractDateFromPageIdOrTimestamp($pageId = null)
+    private function getPageDate($pageId = null)
     {
         global $ID;
         
