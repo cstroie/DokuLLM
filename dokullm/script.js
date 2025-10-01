@@ -94,30 +94,11 @@
             toolbar.appendChild(templateBtn);
         }
         
-        // Add buttons
-        const buttons = [
-            {action: 'conclusion', label: 'Conclusion'},
-            {action: 'analyze', label: 'Analyze'},
-            {action: 'compare', label: 'Compare'},
-            {action: 'create', label: 'Create'},
-            {action: 'rewrite', label: 'Rewrite'},
-            {action: 'grammar', label: 'Grammar'},
-            {action: 'summarize', label: 'Summarize'},
-            {action: 'continue', label: 'Continue'}
-        ];
-        
-        buttons.forEach(button => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'toolbutton';
-            btn.textContent = button.label;
-            btn.dataset.action = button.action;
-            btn.addEventListener('click', function() {
-                processText(button.action);
-            });
-            toolbar.appendChild(btn);
-        });
-        
+        // Add loading indicator while fetching actions
+        const loadingIndicator = document.createElement('span');
+        loadingIndicator.textContent = 'Loading LLM actions...';
+        loadingIndicator.id = 'llm-loading';
+        toolbar.appendChild(loadingIndicator);
         
         // Insert toolbar before the editor
         editor.parentNode.insertBefore(toolbar, editor);
@@ -154,7 +135,40 @@
         
         // Add CSS styles
         addStyles();
-        console.log('DokuLLM: LLM toolbars added successfully');
+        
+        // Fetch action definitions from the API
+        fetchActionDefinitions()
+            .then(actions => {
+                // Remove loading indicator
+                const loadingElement = document.getElementById('llm-loading');
+                if (loadingElement) {
+                    loadingElement.remove();
+                }
+                
+                // Add buttons based on fetched actions
+                actions.forEach(action => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'toolbutton';
+                    btn.textContent = action.label;
+                    btn.dataset.action = action.id;
+                    btn.dataset.actionType = action.action; // Store action type (replace, append, show)
+                    btn.addEventListener('click', function() {
+                        processText(action.id);
+                    });
+                    toolbar.appendChild(btn);
+                });
+                
+                console.log('DokuLLM: LLM toolbars added successfully');
+            })
+            .catch(error => {
+                console.error('DokuLLM: Error fetching action definitions:', error);
+                // Remove loading indicator and show error
+                const loadingElement = document.getElementById('llm-loading');
+                if (loadingElement) {
+                    loadingElement.textContent = 'Failed to load LLM actions';
+                }
+            });
     }
     
 
