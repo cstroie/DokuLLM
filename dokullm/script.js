@@ -155,7 +155,7 @@
                     btn.dataset.action = action.id;
                     btn.dataset.result = action.result;
                     btn.addEventListener('click', function() {
-                        processText(action.id);
+                        processLLMAction(action.id);
                     });
                     toolbar.appendChild(btn);
                 });
@@ -215,7 +215,7 @@
     // Store selection range for processing
     let currentSelectionRange = null;
     
-    function processText(action) {
+    function processLLMAction(action) {
         console.log('DokuLLM: Processing text with action:', action);
         const editor = document.getElementById('wiki__text');
         if (!editor) {
