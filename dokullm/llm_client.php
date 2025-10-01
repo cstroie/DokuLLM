@@ -715,8 +715,8 @@ class llm_client_plugin_dokullm
         $content = $this->getPageContent('dokullm:prompts');
         
         if ($content === false) {
-            // Fallback to hardcoded definitions if page doesn't exist
-            return $this->getDefaultActionDefinitions();
+            // Return empty list if page doesn't exist
+            return [];
         }
         
         // Parse the table from the page content
@@ -740,76 +740,6 @@ class llm_client_plugin_dokullm
             }
         }
         
-        // If no actions were parsed, fallback to hardcoded definitions
-        if (empty($actions)) {
-            return $this->getDefaultActionDefinitions();
-        }
-        
         return $actions;
-    }
-    
-    /**
-     * Get default hardcoded action definitions
-     * 
-     * @return array Array of default action definitions
-     */
-    private function getDefaultActionDefinitions()
-    {
-        return [
-            [
-                'id' => 'create',
-                'label' => 'Create report',
-                'icon' => 'file-plus',
-                'action' => 'replace'
-            ],
-            [
-                'id' => 'rewrite',
-                'label' => 'Rewrite text',
-                'icon' => 'refresh-cw',
-                'action' => 'replace'
-            ],
-            [
-                'id' => 'grammar',
-                'label' => 'Correct grammar',
-                'icon' => 'check',
-                'action' => 'replace'
-            ],
-            [
-                'id' => 'summarize',
-                'label' => 'Summarize text',
-                'icon' => 'book',
-                'action' => 'replace'
-            ],
-            [
-                'id' => 'conclusion',
-                'label' => 'Create conclusion',
-                'icon' => 'flag',
-                'action' => 'append'
-            ],
-            [
-                'id' => 'analyze',
-                'label' => 'Analyze text',
-                'icon' => 'search',
-                'action' => 'show'
-            ],
-            [
-                'id' => 'compare',
-                'label' => 'Compare reports',
-                'icon' => 'compare',
-                'action' => 'show'
-            ],
-            [
-                'id' => 'continue',
-                'label' => 'Continue writing',
-                'icon' => 'corner-down-right',
-                'action' => 'append'
-            ],
-            [
-                'id' => 'custom',
-                'label' => 'Custom prompt',
-                'icon' => 'edit',
-                'action' => 'replace'
-            ]
-        ];
     }
 }
