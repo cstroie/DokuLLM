@@ -260,9 +260,9 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $actions[] = [
                     'id' => trim($matches[1]),
                     'label' => trim($matches[2]),
-                    'tooltip' => trim($matches[3]),
+                    'description' => trim($matches[3]),
                     'icon' => trim($matches[4]),
-                    'process' => trim($matches[5])
+                    'result' => trim($matches[5])
                 ];
             } else if ($inTable) {
                 // We've exited the table, so stop parsing

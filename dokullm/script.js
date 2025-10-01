@@ -310,7 +310,7 @@
             if (resultHandling === 'show') {
                 console.log('DokuLLM: Showing result in modal');
                 const buttonTitle = originalButton.title || action;
-                showAnalysisModal(cleanedResult, action, buttonTitle);
+                showModal(cleanedResult, action, buttonTitle);
             } else if (resultHandling === 'append') {
                 console.log('DokuLLM: Appending result to existing text');
                 // Append to the end of existing content (preserving metadata)
@@ -356,7 +356,7 @@
      * @param {string} action - The action type ('analyze' or 'summarize')
      * @param {string} titleText - The title to display in the modal
      */
-    function showAnalysisModal(contentText, action = 'analyze', titleText = '') {
+    function showModal(contentText, action = 'analyze', titleText = '') {
         // Create modal container
         const modal = document.createElement('div');
         modal.id = 'llm-' + action + '-modal';
@@ -406,12 +406,6 @@
         const title = document.createElement('h3');
         if (titleText) {
             title.textContent = titleText;
-        } else if (action === 'analyze') {
-            title.textContent = 'Text Analysis';
-        } else if (action === 'summarize') {
-            title.textContent = 'Text Summary';
-        } else if (action === 'compare') {
-            title.textContent = 'Text Comparison';
         } else {
             title.textContent = action.charAt(0).toUpperCase() + action.slice(1);
         }
