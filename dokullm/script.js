@@ -775,4 +775,39 @@
         `;
         document.head.appendChild(style);
     }
+    
+    /**
+     * Fetch action definitions from the API endpoint
+     * 
+     * Makes an AJAX request to get the LLM action definitions from the backend
+     * 
+     * @returns {Promise<Array>} Promise that resolves to an array of action definitions
+     */
+    function fetchActionDefinitions() {
+        return new Promise((resolve, reject) => {
+            const formData = new FormData();
+            formData.append('call', 'plugin_dokullm');
+            formData.append('action', 'get_actions');
+            
+            fetch(DOKU_BASE + 'lib/exe/ajax.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                resolve(data.result);
+            })
+            .catch(error => {
+                reject(error);
+            });
+        });
+    }
 })();
