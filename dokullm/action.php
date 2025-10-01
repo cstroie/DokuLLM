@@ -142,10 +142,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         // Handle the special case of get_template action
         if ($action === 'get_template') {
             try {
-                require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
-                $client = new llm_client_plugin_dokullm();
                 $templateId = $template;
-                $templateContent = $client->getPageContent($templateId);
+                $templateContent = $this->getPageContent($templateId);
                 if ($templateContent === false) {
                     throw new Exception('Template not found: ' . $templateId);
                 }
