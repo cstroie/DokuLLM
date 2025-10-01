@@ -155,6 +155,23 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             return;
         }
         
+        // Handle the special case of find_template action
+        if ($action === 'find_template') {
+            try {
+                $searchText = $INPUT->str('text');
+                $template = $this->findTemplate($searchText);
+                if (!empty($template)) {
+                    echo json_encode(['result' => ['template' => $template[0]]]);
+                } else {
+                    echo json_encode(['result' => ['template' => null]]);
+                }
+            } catch (Exception $e) {
+                http_status(500);
+                echo json_encode(['error' => $e->getMessage()]);
+            }
+            return;
+        }
+        
         // Validate input
         if (empty($text)) {
             http_status(400);
