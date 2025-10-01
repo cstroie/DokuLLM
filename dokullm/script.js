@@ -297,6 +297,12 @@
                 const metadata = extractMetadata(editor.value);
                 const contentWithoutMetadata = editor.value.substring(metadata.length);
                 editor.value = metadata + contentWithoutMetadata + '\n\n' + cleanedResult;
+            } else if (resultHandling === 'insert') {
+                console.log('DokuLLM: Inserting result before existing text');
+                // Insert before existing content (preserving metadata)
+                const metadata = extractMetadata(editor.value);
+                const contentWithoutMetadata = editor.value.substring(metadata.length);
+                editor.value = metadata + cleanedResult + '\n\n' + contentWithoutMetadata;
             } else if (selectedText) {
                 console.log('DokuLLM: Replacing selected text');
                 replaceSelectedText(editor, cleanedResult);
