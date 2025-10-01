@@ -151,8 +151,21 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $result = $this->processText($action, $text, $prompt, $metadataArray, $template);
             echo json_encode(['result' => $result]);
         } catch (Exception $e) {
-            http_status(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            // If we get an unknown action error, try to process it directly through the LLM client
+            if (strpos($e->getMessage(), 'Unknown action') !== false) {
+                try {
+                    require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
+                    $client = new llm_client_plugin_dokullm();
+                    $result = $client->$action($text, $metadataArray);
+                    echo json_encode(['result' => $result]);
+                } catch (Exception $e2) {
+                    http_status(500);
+                    echo json_encode(['error' => $e2->getMessage()]);
+                }
+            } else {
+                http_status(500);
+                echo json_encode(['error' => $e->getMessage()]);
+            }
         }
     }
 
