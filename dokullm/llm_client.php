@@ -305,14 +305,14 @@ class llm_client_plugin_dokullm
      * - Example pages: Full content of specified example pages
      * - Text snippets: Relevant text examples from ChromaDB
      * 
+     * @param string $command The command name for loading command-specific system prompts
      * @param string $prompt The prompt to send to the LLM as user message
      * @param array $metadata Optional metadata containing template, examples, and snippets
      * @param bool $useContext Whether to include template and examples in the context (default: true)
-     * @param string $command The command name for loading command-specific system prompts
      * @return string The response content from the LLM
      * @throws Exception If the API request fails or returns unexpected format
      */
-    private function callAPI($prompt, $metadata = [], $useContext = true, $command = '')
+    private function callAPI($command, $prompt, $metadata = [], $useContext = true)
     {
         // Load system prompt which provides general instructions to the LLM
         $systemPrompt = $this->loadPrompt('system', []);
