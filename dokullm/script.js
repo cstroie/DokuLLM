@@ -92,6 +92,15 @@
             templateBtn.textContent = 'Insert Template';
             templateBtn.addEventListener('click', () => insertTemplateContent(metadata.template));
             toolbar.appendChild(templateBtn);
+        } else {
+            // Add "Find Template" button if no template is defined
+            console.log('DokuLLM: Adding find template button');
+            const findTemplateBtn = document.createElement('button');
+            findTemplateBtn.type = 'button';
+            findTemplateBtn.className = 'toolbutton';
+            findTemplateBtn.textContent = 'Find Template';
+            findTemplateBtn.addEventListener('click', findAndInsertTemplate);
+            toolbar.appendChild(findTemplateBtn);
         }
         
         // Add loading indicator while fetching actions
@@ -693,6 +702,81 @@
         }
         
         return metadata;
+    }
+    
+    /**
+     * Find and insert template metadata
+     * 
+     * Searches for an appropriate template based on the current content
+     * and inserts the LLM_TEMPLATE metadata at the top of the text.
+     * 
+     * Shows loading indicators during the search operation.
+     * 
+     * @param {Event} event - The click event
+     */
+    function findAndInsertTemplate(event) {
+        console.log('DokuLLM: Finding and inserting template');
+        const editor = document.getElementById('wiki__text');
+        if (!editor) {
+            console.log('DokuLLM: Editor not found for template search');
+            return;
+        }
+        
+        // Show loading indicator
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = 'Searching...';
+        button.disabled = true;
+        editor.readOnly = true;
+        console.log('DokuLLM: Showing loading indicator for template search');
+        
+        // Get the current text to use for template search
+        const currentText = editor.value;
+        
+        // Send AJAX request to find template
+        console.log('DokuLLM: Sending AJAX request to find template');
+        const formData = new FormData();
+        formData.append('call', 'plugin_dokullm');
+        formData.append('action', 'find_template');
+        formData.append('text', currentText);
+        
+        fetch(DOKU_BASE + 'lib/exe/ajax.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            console.log('DokuLLM: Received template search response');
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                console.log('DokuLLM: Error finding template:', data.error);
+                throw new Error(data.error);
+            }
+            
+            if (data.result && data.result.template) {
+                console.log('DokuLLM: Template found:', data.result.template);
+                // Insert template metadata at the top of the text
+                const metadataLine = `~~LLM_TEMPLATE:${data.result.template}~~\n`;
+                const existingText = editor.value;
+                editor.value = metadataLine + existingText;
+                
+                // Show success message
+                alert(`Template found and inserted: ${data.result.template}`);
+            } else {
+                console.log('DokuLLM: No template found');
+                alert('No suitable template found for this content.');
+            }
+        })
+        .catch(error => {
+            console.log('DokuLLM: Error during template search:', error.message);
+            alert('Error: ' + error.message);
+        })
+        .finally(() => {
+            console.log('DokuLLM: Restoring button and enabling editor');
+            resetButton(button, originalText);
+            editor.readOnly = false;
+        });
     }
     
     /**
