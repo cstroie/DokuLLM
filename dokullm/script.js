@@ -687,7 +687,7 @@
         }
         
         // Extract previous report page from metadata
-        const previousReportMatch = pageContent.match(/~~LLM_PREVIOUS_REPORT:([^~]+)~~/);
+        const previousReportMatch = pageContent.match(/~~LLM_COMPARE:([^~]+)~~/);
         if (previousReportMatch) {
             metadata.previous_report_page = previousReportMatch[1].trim();
         }
