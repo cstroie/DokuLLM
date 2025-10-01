@@ -23,11 +23,6 @@ The plugin supports metadata tags that can be added to pages to provide context 
 - `~~LLM_TEMPLATE:page:id~~` - Specify a template page to use as reference
 - `~~LLM_EXAMPLES:page1:id,page2:id~~` - Specify example pages for reference
 - `~~LLM_PREVIOUS:page:id~~` - Specify a previous report page for continuity
-- `~~LLM_RESULT:replace~~` - Replace selected text with LLM output (default)
-- `~~LLM_RESULT:insert~~` - Insert LLM output after selected text
-- `~~LLM_RESULT:append~~` - Append LLM output at the end of the document
-- `~~LLM_RESULT:modal~~` - Show LLM output in a modal dialog
-- `~~LLM_RESULT:newpage~~` - Create a new page with LLM output
 
 These metadata tags help the LLM understand the context and style of the content being processed.
 

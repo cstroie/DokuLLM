@@ -99,7 +99,7 @@
             findTemplateBtn.type = 'button';
             findTemplateBtn.className = 'toolbutton';
             findTemplateBtn.textContent = 'Find Template';
-            findTemplateBtn.addEventListener('click', findAndInsertTemplate);
+            findTemplateBtn.addEventListener('click', findTemplate);
             toolbar.appendChild(findTemplateBtn);
         }
         
@@ -696,7 +696,7 @@
         }
         
         // Extract previous report page from metadata
-        const previousReportMatch = pageContent.match(/~~LLM_COMPARE:([^~]+)~~/);
+        const previousReportMatch = pageContent.match(/~~LLM_PREVIOUS:([^~]+)~~/);
         if (previousReportMatch) {
             metadata.previous_report_page = previousReportMatch[1].trim();
         }
@@ -714,7 +714,7 @@
      * 
      * @param {Event} event - The click event
      */
-    function findAndInsertTemplate(event) {
+    function findTemplate(event) {
         console.log('DokuLLM: Finding and inserting template');
         const editor = document.getElementById('wiki__text');
         if (!editor) {
