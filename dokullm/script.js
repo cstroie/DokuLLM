@@ -151,6 +151,7 @@
                     btn.type = 'button';
                     btn.className = 'toolbutton';
                     btn.textContent = action.label;
+                    btn.title = action.description || ''; // Add tooltip from description
                     btn.dataset.action = action.id;
                     btn.dataset.actionType = action.action; // Store action type (replace, append, show)
                     btn.addEventListener('click', function() {
