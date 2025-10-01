@@ -253,6 +253,28 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         return $actions;
     }
 
+    /**
+     * Get the content of a DokuWiki page
+     * 
+     * Retrieves the raw content of a DokuWiki page by its ID.
+     * Used for loading template and example page content for context.
+     * 
+     * @param string $pageId The page ID to retrieve
+     * @return string|false The page content or false if not found/readable
+     */
+    private function getPageContent($pageId)
+    {
+        // Convert page ID to file path
+        $pageFile = wikiFN($pageId);
+        
+        // Check if file exists and is readable
+        if (file_exists($pageFile) && is_readable($pageFile)) {
+            return file_get_contents($pageFile);
+        }
+        
+        return false;
+    }
+
 
    /**
      * Handler to load page template.
