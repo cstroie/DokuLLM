@@ -316,6 +316,32 @@ class llm_client_plugin_dokullm
         // Load system prompt which provides general instructions to the LLM
         $systemPrompt = $this->loadPrompt('system', []);
         
+        // Check if there's a command-specific system prompt appendage
+        // Extract command name from the calling method
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        $caller = isset($backtrace[1]['function']) ? $backtrace[1]['function'] : '';
+        
+        // Map caller function names to command names
+        $commandMap = [
+            'createReport' => 'create',
+            'rewriteText' => 'rewrite',
+            'correctGrammar' => 'grammar',
+            'summarizeText' => 'summarize',
+            'createConclusion' => 'conclusion',
+            'analyzeText' => 'analyze',
+            'compareText' => 'compare',
+            'continueText' => 'continue',
+            'processCustomPrompt' => 'custom'
+        ];
+        
+        if (isset($commandMap[$caller])) {
+            $command = $commandMap[$caller];
+            $commandSystemPrompt = $this->getPageContent('dokullm:prompts:' . $command . ':system');
+            if ($commandSystemPrompt !== false) {
+                $systemPrompt .= "\n\n" . $commandSystemPrompt;
+            }
+        }
+        
         // Enhance the prompt with context information from metadata
         // This provides the LLM with additional context about templates and examples
         if ($useContext && !empty($metadata) && (!empty($metadata['template']) || !empty($metadata['examples']) || !empty($metadata['snippets']))) {
