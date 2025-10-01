@@ -602,7 +602,7 @@ class llm_client_plugin_dokullm
      * @param string $text The text to find a template for
      * @return array List of template document IDs (maximum 1)
      */
-    private function queryChromaDBTemplate($text)
+    public function queryChromaDBTemplate($text)
     {
         $templateIds = $this->queryChromaDB($text, 1, ['type' => 'template']);
         
