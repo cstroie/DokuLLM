@@ -124,7 +124,7 @@ class llm_client_plugin_dokullm
         
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext);
+        return $this->callAPI($prompt, $metadata, $useContext, 'create');
     }
     
     /**
@@ -140,7 +140,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('rewrite', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext);
+        return $this->callAPI($prompt, $metadata, $useContext, 'rewrite');
     }
     
     /**
@@ -156,7 +156,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('grammar', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext);
+        return $this->callAPI($prompt, $metadata, $useContext, 'grammar');
     }
     
     /**
@@ -172,7 +172,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('summarize', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext);
+        return $this->callAPI($prompt, $metadata, $useContext, 'summarize');
     }
     
     /**
@@ -190,7 +190,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('conclusion', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext);
+        return $this->callAPI($prompt, $metadata, $useContext, 'conclusion');
     }
     
     /**
@@ -207,7 +207,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('analyze', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext);
+        return $this->callAPI($prompt, $metadata, $useContext, 'analyze');
     }
     
     /**
@@ -245,7 +245,7 @@ class llm_client_plugin_dokullm
             'previous_date' => $previousDate,
             'think' => $think
         ]);
-        return $this->callAPI($prompt, $metadata, $useContext);
+        return $this->callAPI($prompt, $metadata, $useContext, 'compare');
     }
     
     /**
@@ -261,7 +261,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('continue', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext);
+        return $this->callAPI($prompt, $metadata, $useContext, 'continue');
     }
     
     /**
@@ -279,7 +279,7 @@ class llm_client_plugin_dokullm
     {
         // Format the prompt with the text and custom prompt
         $prompt = $customPrompt . "\n\nText to process:\n" . $text;
-        return $this->callAPI($prompt, $metadata, $useContext);
+        return $this->callAPI($prompt, $metadata, $useContext, 'custom');
     }
     
     
@@ -308,34 +308,17 @@ class llm_client_plugin_dokullm
      * @param string $prompt The prompt to send to the LLM as user message
      * @param array $metadata Optional metadata containing template, examples, and snippets
      * @param bool $useContext Whether to include template and examples in the context (default: true)
+     * @param string $command The command name for loading command-specific system prompts
      * @return string The response content from the LLM
      * @throws Exception If the API request fails or returns unexpected format
      */
-    private function callAPI($prompt, $metadata = [], $useContext = true)
+    private function callAPI($prompt, $metadata = [], $useContext = true, $command = '')
     {
         // Load system prompt which provides general instructions to the LLM
         $systemPrompt = $this->loadPrompt('system', []);
         
         // Check if there's a command-specific system prompt appendage
-        // Extract command name from the calling method
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-        $caller = isset($backtrace[1]['function']) ? $backtrace[1]['function'] : '';
-        
-        // Map caller function names to command names
-        $commandMap = [
-            'createReport' => 'create',
-            'rewriteText' => 'rewrite',
-            'correctGrammar' => 'grammar',
-            'summarizeText' => 'summarize',
-            'createConclusion' => 'conclusion',
-            'analyzeText' => 'analyze',
-            'compareText' => 'compare',
-            'continueText' => 'continue',
-            'processCustomPrompt' => 'custom'
-        ];
-        
-        if (isset($commandMap[$caller])) {
-            $command = $commandMap[$caller];
+        if (!empty($command)) {
             $commandSystemPrompt = $this->getPageContent('dokullm:prompts:' . $command . ':system');
             if ($commandSystemPrompt !== false) {
                 $systemPrompt .= "\n\n" . $commandSystemPrompt;
