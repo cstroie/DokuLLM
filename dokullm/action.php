@@ -313,6 +313,31 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     }
 
 
+    /**
+     * Find an appropriate template based on the provided text
+     * 
+     * Uses ChromaDB to search for the most relevant template based on the content.
+     * 
+     * @param string $text The text to use for finding a template
+     * @return array The template ID array or empty array if none found
+     * @throws Exception If an error occurs during the search
+     */
+    private function findTemplate($text) {
+        try {
+            // Get ChromaDB client through the LLM client
+            require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
+            $client = new llm_client_plugin_dokullm();
+            
+            // Query ChromaDB for the most relevant template
+            $template = $client->queryChromaDBTemplate($text);
+            
+            return $template;
+        } catch (Exception $e) {
+            throw new Exception('Error finding template: ' . $e->getMessage());
+        }
+    }
+
+
    /**
      * Handler to load page template.
      *
