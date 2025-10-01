@@ -127,6 +127,18 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $metadataArray = [];
         }
         
+        // Handle the special case of get_actions action
+        if ($action === 'get_actions') {
+            try {
+                $actions = $this->getActionDefinitions();
+                echo json_encode(['result' => $actions]);
+            } catch (Exception $e) {
+                http_status(500);
+                echo json_encode(['error' => $e->getMessage()]);
+            }
+            return;
+        }
+        
         // Validate input (except for get_template action which doesn't need text)
         if ($action !== 'get_template' && empty($text)) {
             http_status(400);
@@ -197,6 +209,19 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             default:
                 throw new Exception('Unknown action: ' . $action);
         }
+    }
+
+    /**
+     * Get action definitions from the LLM client
+     * 
+     * @return array Array of action definitions
+     */
+    private function getActionDefinitions()
+    {
+        require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
+        
+        $client = new llm_client_plugin_dokullm();
+        return $client->getActionDefinitions();
     }
 
 
