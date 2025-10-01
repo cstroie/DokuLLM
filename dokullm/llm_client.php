@@ -104,14 +104,15 @@ class llm_client_plugin_dokullm
     {
         // If no template is defined, try to find one using ChromaDB
         if (empty($metadata['template'])) {
-            $templateResult = $this->queryChromaDBForTemplate($text);
+            $templateResult = $this->queryChromaDBTemplate($text);
             if (!empty($templateResult)) {
-                $metadata['template'] = $templateResult[0]; // Use the first result as template
+                // Use the first result as template
+                $metadata['template'] = $templateResult[0];
             }
         }
 
         // Query ChromaDB for relevant documents to use as examples
-        $chromaResults = $this->queryChromaDBWithSnippets($text, 10);
+        $chromaResults = $this->queryChromaDBSnippets($text, 10);
         
         // Add ChromaDB results to metadata as snippets
         if (!empty($chromaResults)) {
@@ -547,8 +548,8 @@ class llm_client_plugin_dokullm
             $month = $matches[2];
             $day = $matches[3];
             
-            // Assume 20xx for years 00-49, 19xx for years 50-99
-            $fullYear = intval($year) <= 49 ? '20' . $year : '19' . $year;
+            // Assume 20xx for years 00-69, 19xx for years 70-99
+            $fullYear = intval($year) <= 69 ? '20' . $year : '19' . $year;
             
             return $fullYear . '-' . $month . '-' . $day;
         }
@@ -656,7 +657,7 @@ class llm_client_plugin_dokullm
      * @param array|null $where Optional filter conditions for metadata
      * @return array List of text snippets
      */
-    private function queryChromaDBWithSnippets($text, $limit = 10, $where = null)
+    private function queryChromaDBSnippets($text, $limit = 10, $where = null)
     {
         try {
             // Get ChromaDB client and collection name
@@ -689,7 +690,7 @@ class llm_client_plugin_dokullm
      * @param string $text The text to find a template for
      * @return array List of template document IDs (maximum 1)
      */
-    private function queryChromaDBForTemplate($text)
+    private function queryChromaDBTemplate($text)
     {
         $templateIds = $this->queryChromaDB($text, 1, ['type' => 'template']);
         

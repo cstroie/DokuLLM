@@ -182,7 +182,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         
         switch ($action) {
             case 'get_template':
-                $templateId = $template; // Using template parameter for template ID
+                // Using template parameter for template ID
+                $templateId = $template;
                 $templateContent = $client->getPageContent($templateId);
                 if ($templateContent === false) {
                     throw new Exception('Template not found: ' . $templateId);
@@ -239,17 +240,17 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         
         foreach ($lines as $line) {
             // Check if we've entered the first table
-            if (!$inFirstTable && preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line)) {
+            if (!$inFirstTable && preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line)) {
                 $inFirstTable = true;
             }
             
             // If we were in the first table and now encounter a line that's not a table row, stop parsing
-            if ($inFirstTable && !preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line)) {
+            if ($inFirstTable && !preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line)) {
                 break;
             }
             
             // Look for table rows (lines starting with |) within the first table
-            if ($inFirstTable && preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line, $matches)) {
+            if ($inFirstTable && preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line, $matches)) {
                 // Skip header row
                 if (trim($matches[1]) === 'ID' || trim($matches[1]) === 'id') {
                     continue;
@@ -258,8 +259,9 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $actions[] = [
                     'id' => trim($matches[1]),
                     'label' => trim($matches[2]),
-                    'icon' => trim($matches[3]),
-                    'action' => trim($matches[4])
+                    'tooltip' => trim($matches[3]),
+                    'icon' => trim($matches[4]),
+                    'process' => trim($matches[5])
                 ];
             }
         }
