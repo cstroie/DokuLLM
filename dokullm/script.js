@@ -284,19 +284,22 @@
             // Remove AI thinking parts (between backticks) from the result
             const cleanedResult = data.result;
             
-            // Replace selected text or append to editor
-            if (action === 'analyze' || action === 'summarize') {
-                console.log('DokuLLM: Showing ' + action + ' in modal');
+            // Determine how to handle the result based on button's dataset.result property
+            const resultHandling = originalButton.dataset.result || 'replace';
+            
+            // Replace selected text or append to editor based on resultHandling
+            if (resultHandling === 'show' || action === 'analyze' || action === 'summarize') {
+                console.log('DokuLLM: Showing result in modal');
                 showAnalysisModal(cleanedResult, action);
-            } else if (selectedText) {
-                console.log('DokuLLM: Replacing selected text');
-                replaceSelectedText(editor, cleanedResult);
-            } else if (action === 'conclusion' || action === 'compare') {
-                console.log('DokuLLM: Appending ' + action + ' to existing text');
-                // For conclusion/compare, append to the end of existing content (preserving metadata)
+            } else if (resultHandling === 'append' || action === 'conclusion' || action === 'compare') {
+                console.log('DokuLLM: Appending result to existing text');
+                // Append to the end of existing content (preserving metadata)
                 const metadata = extractMetadata(editor.value);
                 const contentWithoutMetadata = editor.value.substring(metadata.length);
                 editor.value = metadata + contentWithoutMetadata + '\n\n' + cleanedResult;
+            } else if (selectedText) {
+                console.log('DokuLLM: Replacing selected text');
+                replaceSelectedText(editor, cleanedResult);
             } else {
                 console.log('DokuLLM: Replacing full text content');
                 // Preserve metadata when doing full page update
