@@ -290,7 +290,7 @@ class llm_client_plugin_dokullm
                 ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $prompt]
             ],
-            'max_tokens' => 4096,
+            'max_tokens' => 6144,
             'stream' => false,
             'think' => true
         ];
