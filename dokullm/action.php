@@ -139,8 +139,26 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             return;
         }
         
-        // Validate input (except for get_template action which doesn't need text)
-        if ($action !== 'get_template' && empty($text)) {
+        // Handle the special case of get_template action
+        if ($action === 'get_template') {
+            try {
+                require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
+                $client = new llm_client_plugin_dokullm();
+                $templateId = $template;
+                $templateContent = $client->getPageContent($templateId);
+                if ($templateContent === false) {
+                    throw new Exception('Template not found: ' . $templateId);
+                }
+                echo json_encode(['result' => ['content' => $templateContent]]);
+            } catch (Exception $e) {
+                http_status(500);
+                echo json_encode(['error' => $e->getMessage()]);
+            }
+            return;
+        }
+        
+        // Validate input
+        if (empty($text)) {
             http_status(400);
             echo json_encode(['error' => 'No text provided']);
             return;
