@@ -701,45 +701,4 @@ class llm_client_plugin_dokullm
         return $templateIds;
     }
     
-    /**
-     * Get action definitions from the DokuWiki table at dokullm:prompts
-     * 
-     * Parses the table containing action definitions with columns:
-     * ID, Label, Icon, Action
-     * 
-     * @return array Array of action definitions
-     */
-    public function getActionDefinitions()
-    {
-        // Get the content of the prompts page
-        $content = $this->getPageContent('dokullm:prompts');
-        
-        if ($content === false) {
-            // Return empty list if page doesn't exist
-            return [];
-        }
-        
-        // Parse the table from the page content
-        $actions = [];
-        $lines = explode("\n", $content);
-        
-        foreach ($lines as $line) {
-            // Look for table rows (lines starting with |)
-            if (preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line, $matches)) {
-                // Skip header row
-                if (trim($matches[1]) === 'ID' || trim($matches[1]) === 'id') {
-                    continue;
-                }
-                
-                $actions[] = [
-                    'id' => trim($matches[1]),
-                    'label' => trim($matches[2]),
-                    'icon' => trim($matches[3]),
-                    'action' => trim($matches[4])
-                ];
-            }
-        }
-        
-        return $actions;
-    }
 }
