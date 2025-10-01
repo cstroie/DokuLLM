@@ -124,7 +124,7 @@ class llm_client_plugin_dokullm
         
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext, 'create');
+        return $this->callAPI('create', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -140,7 +140,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('rewrite', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext, 'rewrite');
+        return $this->callAPI('rewrite', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -156,7 +156,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('grammar', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext, 'grammar');
+        return $this->callAPI('grammar', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -172,7 +172,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('summarize', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext, 'summarize');
+        return $this->callAPI('summarize', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -190,7 +190,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('conclusion', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext, 'conclusion');
+        return $this->callAPI('conclusion', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -207,7 +207,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('analyze', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext, 'analyze');
+        return $this->callAPI('analyze', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -245,7 +245,7 @@ class llm_client_plugin_dokullm
             'previous_date' => $previousDate,
             'think' => $think
         ]);
-        return $this->callAPI($prompt, $metadata, $useContext, 'compare');
+        return $this->callAPI('compare', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -261,7 +261,7 @@ class llm_client_plugin_dokullm
     {
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('continue', ['text' => $text, 'think' => $think]);
-        return $this->callAPI($prompt, $metadata, $useContext, 'continue');
+        return $this->callAPI('continue', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -279,7 +279,7 @@ class llm_client_plugin_dokullm
     {
         // Format the prompt with the text and custom prompt
         $prompt = $customPrompt . "\n\nText to process:\n" . $text;
-        return $this->callAPI($prompt, $metadata, $useContext, 'custom');
+        return $this->callAPI('custom', $prompt, $metadata, $useContext);
     }
     
     
