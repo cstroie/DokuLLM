@@ -171,8 +171,25 @@
                 }
             });
     }
-    
-
+    /**
+     * Copy the current page to a new page ID
+     * 
+     * Prompts the user for a new page ID and redirects to the edit page
+     * with the current page content pre-filled.
+     * 
+     * Validates that the new ID is different from the current page ID.
+     * Handles user cancellation of the prompt dialog.
+     * 
+     * Complex logic includes:
+     * 1. Prompting user for new page ID with current ID as default
+     * 2. Validating that new ID is different from current ID
+     * 3. Handling browser differences in prompt cancellation (null vs empty string)
+     * 4. Constructing the redirect URL with proper encoding
+     * 5. Redirecting to the new page edit view with copyfrom parameter
+     * 
+     * Based on the DokuWiki CopyPage plugin
+     * @see https://www.dokuwiki.org/plugin:copypage
+     */
     function copyPage() {
         // Original code: https://www.dokuwiki.org/plugin:copypage
         var oldId = JSINFO.id;
