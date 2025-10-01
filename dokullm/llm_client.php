@@ -88,6 +88,17 @@ class llm_client_plugin_dokullm
         $this->think = $conf['plugin']['dokullm']['think'];
     }
     
+
+
+    public function process($action, $text, $metadata = [], $useContext = true)
+    {
+        $think = $this->think ? '/think' : '/no_think';
+        $prompt = $this->loadPrompt($action, ['text' => $text, 'think' => $think]);
+        return $this->callAPI($action, $prompt, $metadata, $useContext);
+    }
+    
+
+
     /**
      * Create the provided text using the LLM
      * 
@@ -129,89 +140,6 @@ class llm_client_plugin_dokullm
     }
     
     /**
-     * Rewrite text to improve clarity and flow
-     * 
-     * Sends a prompt to the LLM asking it to rewrite the text for better
-     * clarity, structure, and readability.
-     * 
-     * @param string $text The text to rewrite
-     * @return string The rewritten text
-     */
-    public function rewriteText($text, $metadata = [], $useContext = true)
-    {
-        $think = $this->think ? '/think' : '/no_think';
-        $prompt = $this->loadPrompt('rewrite', ['text' => $text, 'think' => $think]);
-        return $this->callAPI('rewrite', $prompt, $metadata, $useContext);
-    }
-    
-    /**
-     * Correct grammar and spelling in the provided text
-     * 
-     * Sends a prompt to the LLM asking it to correct grammatical errors
-     * and spelling mistakes in the text.
-     * 
-     * @param string $text The text to correct
-     * @return string The corrected text
-     */
-    public function correctGrammar($text, $metadata = [], $useContext = true)
-    {
-        $think = $this->think ? '/think' : '/no_think';
-        $prompt = $this->loadPrompt('grammar', ['text' => $text, 'think' => $think]);
-        return $this->callAPI('grammar', $prompt, $metadata, $useContext);
-    }
-    
-    /**
-     * Summarize the provided text concisely
-     * 
-     * Sends a prompt to the LLM asking it to create a concise summary
-     * of the given text.
-     * 
-     * @param string $text The text to summarize
-     * @return string The summarized text
-     */
-    public function summarizeText($text, $metadata = [], $useContext = true)
-    {
-        $think = $this->think ? '/think' : '/no_think';
-        $prompt = $this->loadPrompt('summarize', ['text' => $text, 'think' => $think]);
-        return $this->callAPI('summarize', $prompt, $metadata, $useContext);
-    }
-    
-    /**
-     * Create a conclusion based on the provided text
-     * 
-     * Sends a prompt to the LLM asking it to create a well-structured
-     * conclusion based on the given text.
-     * 
-     * @param string $text The text to create a conclusion for
-     * @param array $metadata Optional metadata containing template and examples
-     * @param bool $useContext Whether to include template and examples in the context (default: false)
-     * @return string The generated conclusion
-     */
-    public function createConclusion($text, $metadata = [], $useContext = false)
-    {
-        $think = $this->think ? '/think' : '/no_think';
-        $prompt = $this->loadPrompt('conclusion', ['text' => $text, 'think' => $think]);
-        return $this->callAPI('conclusion', $prompt, $metadata, $useContext);
-    }
-    
-    /**
-     * Analyze the provided text in detail
-     * 
-     * Sends a prompt to the LLM asking it to perform a detailed analysis
-     * of the given text, identifying key themes, patterns, and insights.
-     * 
-     * @param string $text The text to analyze
-     * @param array $metadata Optional metadata containing template and examples
-     * @return string The analysis results
-     */
-    public function analyzeText($text, $metadata = [], $useContext = false)
-    {
-        $think = $this->think ? '/think' : '/no_think';
-        $prompt = $this->loadPrompt('analyze', ['text' => $text, 'think' => $think]);
-        return $this->callAPI('analyze', $prompt, $metadata, $useContext);
-    }
-    
-    /**
      * Compare two texts and highlight differences
      * 
      * Sends a prompt to the LLM asking it to compare two texts and
@@ -247,22 +175,6 @@ class llm_client_plugin_dokullm
             'think' => $think
         ]);
         return $this->callAPI('compare', $prompt, $metadata, $useContext);
-    }
-    
-    /**
-     * Continue writing from the provided text
-     * 
-     * Sends a prompt to the LLM asking it to continue writing from
-     * the given text, maintaining the same style and tone.
-     * 
-     * @param string $text The text to continue from
-     * @return string The continued text
-     */
-    public function continueText($text, $metadata = [], $useContext = true)
-    {
-        $think = $this->think ? '/think' : '/no_think';
-        $prompt = $this->loadPrompt('continue', ['text' => $text, 'think' => $think]);
-        return $this->callAPI('continue', $prompt, $metadata, $useContext);
     }
     
     /**

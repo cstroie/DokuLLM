@@ -130,7 +130,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         // Handle the special case of get_actions action
         if ($action === 'get_actions') {
             try {
-                $actions = $this->getActionDefinitions();
+                $actions = $this->getActions();
                 echo json_encode(['result' => $actions]);
             } catch (Exception $e) {
                 http_status(500);
@@ -172,7 +172,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 try {
                     require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
                     $client = new llm_client_plugin_dokullm();
-                    $result = $client->$action($text, $metadataArray);
+                    $result = $client->process($action, $text, $metadataArray);
                     echo json_encode(['result' => $result]);
                 } catch (Exception $e2) {
                     http_status(500);
@@ -210,28 +210,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $client = new llm_client_plugin_dokullm();
         
         switch ($action) {
-            case 'get_template':
-                // Using template parameter for template ID
-                $templateId = $template;
-                $templateContent = $client->getPageContent($templateId);
-                if ($templateContent === false) {
-                    throw new Exception('Template not found: ' . $templateId);
-                }
-                return ['content' => $templateContent];
             case 'create':
                 return $client->createReport($text, $metadata);
-            case 'rewrite':
-                return $client->rewriteText($text, $metadata);
-            case 'grammar':
-                return $client->correctGrammar($text, $metadata);
-            case 'summarize':
-                return $client->summarizeText($text, $metadata);
-            case 'conclusion':
-                return $client->createConclusion($text, $metadata, false);
-            case 'analyze':
-                return $client->analyzeText($text, $metadata, false);
-            case 'continue':
-                return $client->continueText($text, $metadata);
             case 'compare':
                 return $client->compareText($text, $metadata, false);
             case 'custom':
@@ -252,7 +232,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      * 
      * @return array Array of action definitions
      */
-    private function getActionDefinitions()
+    private function getActions()
     {
         // Get the content of the prompts page
         $content = $this->getPageContent('dokullm:prompts');
