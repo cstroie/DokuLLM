@@ -288,10 +288,10 @@
             const resultHandling = originalButton.dataset.result || 'replace';
             
             // Replace selected text or append to editor based on resultHandling
-            if (resultHandling === 'show' || action === 'analyze' || action === 'summarize') {
+            if (resultHandling === 'show') {
                 console.log('DokuLLM: Showing result in modal');
                 showAnalysisModal(cleanedResult, action);
-            } else if (resultHandling === 'append' || action === 'conclusion' || action === 'compare') {
+            } else if (resultHandling === 'append') {
                 console.log('DokuLLM: Appending result to existing text');
                 // Append to the end of existing content (preserving metadata)
                 const metadata = extractMetadata(editor.value);
