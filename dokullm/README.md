@@ -22,6 +22,12 @@ The plugin supports metadata tags that can be added to pages to provide context 
 
 - `~~LLM_TEMPLATE:page:id~~` - Specify a template page to use as reference
 - `~~LLM_EXAMPLES:page1:id,page2:id~~` - Specify example pages for reference
+- `~~LLM_PREVIOUS:page:id~~` - Specify a previous report page for continuity
+- `~~LLM_RESULT:replace~~` - Replace selected text with LLM output (default)
+- `~~LLM_RESULT:insert~~` - Insert LLM output after selected text
+- `~~LLM_RESULT:append~~` - Append LLM output at the end of the document
+- `~~LLM_RESULT:modal~~` - Show LLM output in a modal dialog
+- `~~LLM_RESULT:newpage~~` - Create a new page with LLM output
 
 These metadata tags help the LLM understand the context and style of the content being processed.
 
@@ -81,13 +87,41 @@ The plugin also includes a "Copy page" button in the page tools that:
 
 ## How It Works
 
-The plugin works by sending selected text to your configured LLM API with specific prompts for each function. The processed result is then inserted back into the editor.
+The plugin works by sending selected text to your configured LLM API with specific prompts for each function. The processed result is then inserted back into the editor based on the LLM_RESULT metadata or default behavior (replace).
 
 When creating content, the plugin automatically:
 1. Queries ChromaDB for relevant text snippets to use as examples
 2. If no template is specified, queries ChromaDB for an appropriate template
 3. Sends all context information (template, examples, and snippets) to the LLM
 4. Returns the processed result to the editor
+
+## DokuWiki Pages Structure
+
+The plugin uses a specific namespace structure for its prompt templates and configurations:
+
+- `dokullm:prompts` - Contains all prompt templates used by the plugin
+- `dokullm:prompts:actions` - Contains action-specific prompt templates
+- `dokullm:prompts:templates` - Contains template-specific prompt configurations
+- `dokullm:config` - Contains plugin configuration pages
+- `dokullm:examples` - Contains example pages for reference
+
+## Prompt Actions Table
+
+The following table describes the available actions and their behaviors:
+
+| Action | Description | Result Behavior |
+|--------|-------------|-----------------|
+| Insert Template | Insert content from the specified LLM_TEMPLATE page | Direct insertion at cursor position |
+| Complete | Automatically complete partial text based on context | Replace selected text or insert at cursor |
+| Rewrite | Improve clarity and flow of existing text | Replace selected text |
+| Grammar | Correct grammar and spelling errors | Replace selected text |
+| Summarize | Create concise summaries of longer texts | Replace selected text or show in modal |
+| Conclusion | Generate well-structured conclusions based on content | Append at end of document |
+| Analyze | Perform detailed analysis of text content | Show in modal dialog |
+| Continue | Continue writing from the current text | Insert after selected text |
+| Custom Prompt | Process text with your own custom instructions | Based on custom prompt design |
+
+Each action uses specific prompt templates that can be customized by editing pages in the `dokullm:prompts` namespace.
 
 ## Security Considerations
 
