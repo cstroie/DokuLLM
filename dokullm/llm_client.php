@@ -232,6 +232,17 @@ class llm_client_plugin_dokullm
                         'properties' => []
                     ]
                 ]
+            ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'get_examples',
+                    'description' => 'Get example snippets for the existing text',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => []
+                    ]
+                ]
             ]
         ];
     }
@@ -416,6 +427,16 @@ class llm_client_plugin_dokullm
                     }
                 } else {
                     $toolResponse['content'] = 'No template found for the current context';
+                }
+                break;
+                
+            case 'get_examples':
+                // Get example snippets for the current text
+                $examples = $this->queryChromaDBSnippets($this->getCurrentTextContext(), 5);
+                if (!empty($examples)) {
+                    $toolResponse['content'] = implode("\n---\n", $examples);
+                } else {
+                    $toolResponse['content'] = 'No examples found for the current context';
                 }
                 break;
                 
