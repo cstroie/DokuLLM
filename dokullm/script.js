@@ -309,15 +309,15 @@
             }
             
             console.log('DokuLLM: Processing successful, result length:', data.result.length);
-            // Extract AI thinking parts (between backticks) from the result
+            // Extract AI thinking parts (between <think> tags) from the result
             let thinkingContent = '';
-            const thinkingMatch = data.result.match(/`([^`]*)`/);
+            const thinkingMatch = data.result.match(/<think>([\s\S]*?)<\/think>/);
             if (thinkingMatch && thinkingMatch[1]) {
-                thinkingContent = thinkingMatch[1];
+                thinkingContent = thinkingMatch[1].trim();
             }
             
-            // Remove AI thinking parts (between backticks) from the result
-            const cleanedResult = data.result.replace(/`[^`]*`/g, '').trim();
+            // Remove AI thinking parts (between <think> tags) from the result
+            const cleanedResult = data.result.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
             
             // Determine how to handle the result based on button's dataset.result property
             const resultHandling = originalButton.dataset.result || 'replace';
@@ -559,15 +559,15 @@
             }
             
             console.log('DokuLLM: Custom prompt processing successful, result length:', data.result.length);
-            // Extract AI thinking parts (between backticks) from the result
+            // Extract AI thinking parts (between <think> tags) from the result
             let thinkingContent = '';
-            const thinkingMatch = data.result.match(/`([^`]*)`/);
+            const thinkingMatch = data.result.match(/<think>([\s\S]*?)<\/think>/);
             if (thinkingMatch && thinkingMatch[1]) {
-                thinkingContent = thinkingMatch[1];
+                thinkingContent = thinkingMatch[1].trim();
             }
             
-            // Remove AI thinking parts (between backticks) from the result
-            const cleanedResult = data.result.replace(/`[^`]*`/g, '').trim();
+            // Remove AI thinking parts (between <think> tags) from the result
+            const cleanedResult = data.result.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
             
             // Replace selected text or append to editor
             if (selectedText) {
