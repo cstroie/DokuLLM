@@ -486,8 +486,8 @@ class llm_client_plugin_dokullm
         // Extract the content from the response if available
         if (isset($result['choices'][0]['message']['content'])) {
             $content = trim($result['choices'][0]['message']['content']);
-            // Remove content between <tool_call> and </tool_call> tags
-            $content = preg_replace('/<tool_call>.*?<\/think>/s', '', $content);
+            // Remove content between <think> and </think> tags
+            $content = preg_replace('/<think>.*?<\/think>/s', '', $content);
             return $content;
         }
         
