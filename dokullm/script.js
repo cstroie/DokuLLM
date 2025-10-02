@@ -333,9 +333,8 @@
                 const metadata = extractMetadata(editor.value);
                 const contentWithoutMetadata = editor.value.substring(metadata.length);
                 editor.value = metadata + contentWithoutMetadata + '\n\n' + cleanedResult;
-                
                 // Show thinking content in modal if it exists and thinking is enabled
-                if (thinkingContent && action !== 'show') {
+                if (thinkingContent) {
                     showModal(thinkingContent, 'thinking', 'AI Thinking Process');
                 }
             } else if (resultHandling === 'insert') {
@@ -344,17 +343,15 @@
                 const metadata = extractMetadata(editor.value);
                 const contentWithoutMetadata = editor.value.substring(metadata.length);
                 editor.value = metadata + cleanedResult + '\n\n' + contentWithoutMetadata;
-                
                 // Show thinking content in modal if it exists and thinking is enabled
-                if (thinkingContent && action !== 'show') {
+                if (thinkingContent) {
                     showModal(thinkingContent, 'thinking', 'AI Thinking Process');
                 }
             } else if (selectedText) {
                 console.log('DokuLLM: Replacing selected text');
                 replaceSelectedText(editor, cleanedResult);
-                
                 // Show thinking content in modal if it exists and thinking is enabled
-                if (thinkingContent && action !== 'show') {
+                if (thinkingContent) {
                     showModal(thinkingContent, 'thinking', 'AI Thinking Process');
                 }
             } else {
@@ -362,9 +359,8 @@
                 // Preserve metadata when doing full page update
                 const metadata = extractMetadata(editor.value);
                 editor.value = metadata + cleanedResult;
-                
                 // Show thinking content in modal if it exists and thinking is enabled
-                if (thinkingContent && action !== 'show') {
+                if (thinkingContent) {
                     showModal(thinkingContent, 'thinking', 'AI Thinking Process');
                 }
             }
@@ -589,7 +585,6 @@
             if (promptInput) {
                 promptInput.value = '';
             }
-            
             // Show thinking content in modal if it exists and thinking is enabled
             if (thinkingContent) {
                 showModal(thinkingContent, 'thinking', 'AI Thinking Process');
