@@ -95,7 +95,7 @@ class llm_client_plugin_dokullm
         $this->top_p = $conf['plugin']['dokullm']['top_p'];
         $this->top_k = $conf['plugin']['dokullm']['top_k'];
         $this->min_p = $conf['plugin']['dokullm']['min_p'];
-        $this->think = $conf['plugin']['dokullm']['think'];
+        $this->think = $conf['plugin']['dokullm']['think'] ?? false;
     }
     
 
@@ -132,7 +132,7 @@ class llm_client_plugin_dokullm
         
         // Check if tools should be used based on configuration
         global $conf;
-        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
+        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? false;
         
         // Only try to find template and add snippets if tools are not enabled
         // When tools are enabled, the LLM will call get_template and get_examples as needed
@@ -382,7 +382,7 @@ class llm_client_plugin_dokullm
         
         // Check if tools should be used based on configuration
         global $conf;
-        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
+        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? false;
         
         // Prepare API request data with model parameters
         $data = [
