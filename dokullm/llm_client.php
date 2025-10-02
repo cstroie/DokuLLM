@@ -466,6 +466,23 @@ class llm_client_plugin_dokullm
         // Parse and validate the JSON response
         $result = json_decode($response, true);
         
+        // Handle tool calls if present
+        if (isset($result['choices'][0]['message']['tool_calls'])) {
+            $toolCalls = $result['choices'][0]['message']['tool_calls'];
+            $messages = $data['messages']; // Start with original messages
+            $messages[] = $result['choices'][0]['message']; // Add assistant's message with tool calls
+            
+            // Process each tool call
+            foreach ($toolCalls as $toolCall) {
+                $toolResponse = $this->handleToolCall($toolCall);
+                $messages[] = $toolResponse;
+            }
+            
+            // Make another API call with tool responses
+            $data['messages'] = $messages;
+            return $this->callAPIWithTools($data);
+        }
+        
         // Extract the content from the response if available
         if (isset($result['choices'][0]['message']['content'])) {
             $content = trim($result['choices'][0]['message']['content']);
