@@ -240,7 +240,13 @@ class llm_client_plugin_dokullm
                     'description' => 'Get example snippets from previous reports, adequate to the existing text',
                     'parameters' => [
                         'type' => 'object',
-                        'properties' => []
+                        'properties' => [
+                            'count' => [
+                                'type' => 'integer',
+                                'description' => 'The number of examples to retrieve',
+                                'default' => 5
+                            ]
+                        ]
                     ]
                 ]
             ]
@@ -432,7 +438,8 @@ class llm_client_plugin_dokullm
                 
             case 'get_examples':
                 // Get example snippets for the current text
-                $examples = $this->queryChromaDBSnippets($this->getCurrentTextContext(), 5);
+                $count = isset($arguments['count']) ? (int)$arguments['count'] : 5;
+                $examples = $this->queryChromaDBSnippets($this->getCurrentTextContext(), $count);
                 if (!empty($examples)) {
                     $toolResponse['content'] = implode("\n---\n", $examples);
                 } else {
