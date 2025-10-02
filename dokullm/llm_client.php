@@ -338,6 +338,7 @@ class llm_client_plugin_dokullm
             ],
             'tools' => $tools,
             'tool_choice' => 'auto',
+            'parallel_tool_calls' => false,
             'max_tokens' => 6144,
             'stream' => false,
             'keep_alive' => '30m',
