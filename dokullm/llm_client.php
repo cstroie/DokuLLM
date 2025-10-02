@@ -221,6 +221,17 @@ class llm_client_plugin_dokullm
                         'required' => ['id']
                     ]
                 ]
+            ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'get_template',
+                    'description' => 'Get a template suggestion for the existing text',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => []
+                    ]
+                ]
             ]
         ];
     }
@@ -389,6 +400,22 @@ class llm_client_plugin_dokullm
                     $toolResponse['content'] = 'Document not found: ' . $documentId;
                 } else {
                     $toolResponse['content'] = $content;
+                }
+                break;
+                
+            case 'get_template':
+                // Get template suggestion for the current text
+                // This would typically use the same logic as queryChromaDBTemplate
+                $templateIds = $this->queryChromaDBTemplate($this->getCurrentTextContext());
+                if (!empty($templateIds)) {
+                    $templateContent = $this->getPageContent($templateIds[0]);
+                    if ($templateContent !== false) {
+                        $toolResponse['content'] = $templateContent;
+                    } else {
+                        $toolResponse['content'] = 'Template found but content could not be retrieved: ' . $templateIds[0];
+                    }
+                } else {
+                    $toolResponse['content'] = 'No template found for the current context';
                 }
                 break;
                 
@@ -606,6 +633,21 @@ class llm_client_plugin_dokullm
         }
         
         // Return empty string if no date can be determined
+        return '';
+    }
+    
+    /**
+     * Get current text context
+     * 
+     * Retrieves the current text context from the most recent user message
+     * in the conversation history.
+     * 
+     * @return string The current text context
+     */
+    private function getCurrentTextContext()
+    {
+        // This is a placeholder implementation
+        // In practice, this would extract text from the conversation context
         return '';
     }
     
