@@ -148,7 +148,7 @@ class llm_client_plugin_dokullm
         
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
-        return $this->callAPI('create', $prompt, $metadata, $useContext, true);
+        return $this->callAPI('create', $prompt, [], $useContext, true);
     }
     
     /**
@@ -559,7 +559,7 @@ class llm_client_plugin_dokullm
             
             // Make another API call with tool responses
             $data['messages'] = $messages;
-            return $this->callAPIWithTools($data, true);
+            return $this->callAPIWithTools($data, false);
         }
         
         // Throw exception for unexpected response format
