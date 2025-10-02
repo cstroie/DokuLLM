@@ -455,7 +455,11 @@ class llm_client_plugin_dokullm
                 $count = isset($arguments['count']) ? (int)$arguments['count'] : 5;
                 $examples = $this->queryChromaDBSnippets($this->getCurrentTextContext(), $count);
                 if (!empty($examples)) {
-                    $toolResponse['content'] = implode("\n---\n", $examples);
+                    $formattedExamples = [];
+                    foreach ($examples as $index => $example) {
+                        $formattedExamples[] = '<example id="' . ($index + 1) . '">' . $example . '</example>';
+                    }
+                    $toolResponse['content'] = implode("\n", $formattedExamples);
                 } else {
                     $toolResponse['content'] = 'No examples found for the current context';
                 }
