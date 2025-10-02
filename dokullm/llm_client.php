@@ -38,6 +38,9 @@ class llm_client_plugin_dokullm
     /** @var string Current text for tool usage */
     private $currentText = '';
     
+    /** @var array Track tool call counts to prevent infinite loops */
+    private $toolCallCounts = [];
+    
     /** @var string The API authentication key */
     private $api_key;
     
@@ -126,25 +129,33 @@ class llm_client_plugin_dokullm
         // Store the current text for tool usage
         $this->currentText = $text;
         
-        // If no template is defined, try to find one using ChromaDB
-        if (empty($metadata['template'])) {
-            $templateResult = $this->queryChromaDBTemplate($text);
-            if (!empty($templateResult)) {
-                // Use the first result as template
-                $metadata['template'] = $templateResult[0];
-            }
-        }
-
-        // Query ChromaDB for relevant documents to use as examples
-        $chromaResults = $this->queryChromaDBSnippets($text, 10);
+        // Check if tools should be used based on configuration
+        global $conf;
+        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
         
-        // Add ChromaDB results to metadata as snippets
-        if (!empty($chromaResults)) {
-            // Merge with existing snippets
-            $metadata['snippets'] = array_merge(
-                isset($metadata['snippets']) ? $metadata['snippets'] : [],
-                $chromaResults
-            );
+        // Only try to find template and add snippets if tools are not enabled
+        // When tools are enabled, the LLM will call get_template and get_examples as needed
+        if (!$useTools) {
+            // If no template is defined, try to find one using ChromaDB
+            if (empty($metadata['template'])) {
+                $templateResult = $this->queryChromaDBTemplate($text);
+                if (!empty($templateResult)) {
+                    // Use the first result as template
+                    $metadata['template'] = $templateResult[0];
+                }
+            }
+
+            // Query ChromaDB for relevant documents to use as examples
+            $chromaResults = $this->queryChromaDBSnippets($text, 10);
+            
+            // Add ChromaDB results to metadata as snippets
+            if (!empty($chromaResults)) {
+                // Merge with existing snippets
+                $metadata['snippets'] = array_merge(
+                    isset($metadata['snippets']) ? $metadata['snippets'] : [],
+                    $chromaResults
+                );
+            }
         }
         
         $think = $this->think ? '/think' : '/no_think';
