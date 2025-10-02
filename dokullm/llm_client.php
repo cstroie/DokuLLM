@@ -265,7 +265,20 @@ class llm_client_plugin_dokullm
         
         // Check if there's a command-specific system prompt appendage
         if (!empty($command)) {
-            $commandSystemPrompt = $this->getPageContent('dokullm:prompts:' . $command . ':system');
+            global $conf;
+            $language = $conf['plugin']['dokullm']['language'];
+            
+            // Default to 'en' if language is 'default' or not set
+            if ($language === 'default' || empty($language)) {
+                $language = 'en';
+            }
+            
+            $commandSystemPrompt = $this->getPageContent('dokullm:prompts:' . $language . ':' . $command . ':system');
+            if ($commandSystemPrompt === false && $language !== 'en') {
+                // Fallback to English if language-specific prompt doesn't exist
+                $commandSystemPrompt = $this->getPageContent('dokullm:prompts:en:' . $command . ':system');
+            }
+            
             if ($commandSystemPrompt !== false) {
                 $systemPrompt .= "\n" . $commandSystemPrompt;
             }
