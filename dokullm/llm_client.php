@@ -35,8 +35,8 @@ class llm_client_plugin_dokullm
     /** @var array Cache for tool call results */
     private $toolCallCache = [];
     
-    /** @var string Current text context for tool usage */
-    private $currentTextContext = '';
+    /** @var string Current text for tool usage */
+    private $currentText = '';
     
     /** @var string The API authentication key */
     private $api_key;
@@ -98,8 +98,8 @@ class llm_client_plugin_dokullm
 
     public function process($action, $text, $metadata = [], $useContext = true)
     {
-        // Store the current text context for tool usage
-        $this->currentTextContext = $text;
+        // Store the current text for tool usage
+        $this->currentText = $text;
         
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt($action, ['text' => $text, 'think' => $think]);
@@ -122,8 +122,8 @@ class llm_client_plugin_dokullm
      */
     public function createReport($text, $metadata = [], $useContext = true)
     {
-        // Store the current text context for tool usage
-        $this->currentTextContext = $text;
+        // Store the current text for tool usage
+        $this->currentText = $text;
         
         // If no template is defined, try to find one using ChromaDB
         if (empty($metadata['template'])) {
@@ -163,8 +163,8 @@ class llm_client_plugin_dokullm
      */
     public function compareText($text, $metadata = [], $useContext = false)
     {
-        // Store the current text context for tool usage
-        $this->currentTextContext = $text;
+        // Store the current text for tool usage
+        $this->currentText = $text;
         
         // Load previous report from metadata if specified
         $previousText = '';
@@ -205,8 +205,8 @@ class llm_client_plugin_dokullm
      */
     public function processCustomPrompt($text, $customPrompt, $metadata = [], $useContext = true)
     {
-        // Store the current text context for tool usage
-        $this->currentTextContext = $text;
+        // Store the current text for tool usage
+        $this->currentText = $text;
         
         // Format the prompt with the text and custom prompt
         $prompt = $customPrompt . "\n\nText to process:\n" . $text;
@@ -432,7 +432,7 @@ class llm_client_plugin_dokullm
             case 'get_template':
                 // Get template suggestion for the current text
                 // This would typically use the same logic as queryChromaDBTemplate
-                $templateIds = $this->queryChromaDBTemplate($this->getCurrentTextContext());
+                $templateIds = $this->queryChromaDBTemplate($this->getCurrentText());
                 if (!empty($templateIds)) {
                     $templateContent = $this->getPageContent($templateIds[0]);
                     if ($templateContent !== false) {
@@ -448,7 +448,7 @@ class llm_client_plugin_dokullm
             case 'get_examples':
                 // Get example snippets for the current text
                 $count = isset($arguments['count']) ? (int)$arguments['count'] : 5;
-                $examples = $this->queryChromaDBSnippets($this->getCurrentTextContext(), $count);
+                $examples = $this->queryChromaDBSnippets($this->getCurrentText(), $count);
                 if (!empty($examples)) {
                     $formattedExamples = [];
                     foreach ($examples as $index => $example) {
@@ -718,15 +718,15 @@ class llm_client_plugin_dokullm
     }
     
     /**
-     * Get current text context
+     * Get current text
      * 
-     * Retrieves the current text context stored from the process function.
+     * Retrieves the current text stored from the process function.
      * 
-     * @return string The current text context
+     * @return string The current text
      */
-    private function getCurrentTextContext()
+    private function getCurrentText()
     {
-        return $this->currentTextContext;
+        return $this->currentText;
     }
     
     /**
