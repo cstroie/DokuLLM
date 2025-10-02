@@ -343,72 +343,9 @@ class llm_client_plugin_dokullm
         if ($this->min_p !== null) {
             $data['min_p'] = $this->min_p;
         }
-        
-        // Set up HTTP headers, including authentication if API key is configured
-        $headers = [
-            'Content-Type: application/json'
-        ];
-        
-        if (!empty($this->api_key)) {
-            $headers[] = 'Authorization: Bearer ' . $this->api_key;
-        }
-        
-        // Initialize and configure cURL for the API request
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->api_url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        
-        // Execute the API request
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
-        
-        // Handle cURL errors
-        if ($error) {
-            throw new Exception('API request failed: ' . $error);
-        }
-        
-        // Handle HTTP errors
-        if ($httpCode !== 200) {
-            throw new Exception('API request failed with HTTP code: ' . $httpCode);
-        }
-        
-        // Parse and validate the JSON response
-        $result = json_decode($response, true);
-        
-        // Handle tool calls if present
-        if (isset($result['choices'][0]['message']['tool_calls'])) {
-            $toolCalls = $result['choices'][0]['message']['tool_calls'];
-            $messages = $data['messages']; // Start with original messages
-            $messages[] = $result['choices'][0]['message']; // Add assistant's message with tool calls
 
-            // Process each tool call
-            foreach ($toolCalls as $toolCall) {
-                $toolResponse = $this->handleToolCall($toolCall);
-                $messages[] = $toolResponse;
-            }
-
-        // Extract the content from the response if available
-        if (isset($result['choices'][0]['message']['content'])) {
-            $content = trim($result['choices'][0]['message']['content']);
-            // Remove content between <think> and </think> tags
-            $content = preg_replace('/<think>.*?<\/think>/s', '', $content);
-            return $content;
-        }
-        
-            // Make another API call with tool responses
-            $data['messages'] = $messages;
-            return $this->callAPIWithTools($data);
-        }
-
-        // Throw exception for unexpected response format
-        throw new Exception('Unexpected API response format');
+        // Make an API call with tool responses
+        return $this->callAPIWithTools($data);
     }
     
     /**
@@ -495,13 +432,23 @@ class llm_client_plugin_dokullm
         // Parse and validate the JSON response
         $result = json_decode($response, true);
         
+        // Extract the content from the response if available
+        if (isset($result['choices'][0]['message']['content'])) {
+            $content = trim($result['choices'][0]['message']['content']);
+            // Remove content between <think> and </think> tags
+            $content = preg_replace('/<think>.*?<\/think>/s', '', $content);
+            return $content;
+        }
+        
         // Handle tool calls if present
         if (isset($result['choices'][0]['message']['tool_calls'])) {
             $toolCalls = $result['choices'][0]['message']['tool_calls'];
-            $messages = $data['messages']; // Start with original messages
+            // Start with original messages
+            $messages = $data['messages'];
             // Add assistant's message with tool calls, ensuring role is set
             $assistantMessage = $result['choices'][0]['message'];
             $assistantMessage['role'] = 'assistant';
+            // Add assistant's message with tool calls
             $messages[] = $assistantMessage;
             
             // Process each tool call
@@ -513,14 +460,6 @@ class llm_client_plugin_dokullm
             // Make another API call with tool responses
             $data['messages'] = $messages;
             return $this->callAPIWithTools($data);
-        }
-        
-        // Extract the content from the response if available
-        if (isset($result['choices'][0]['message']['content'])) {
-            $content = trim($result['choices'][0]['message']['content']);
-            // Remove content between <think> and </think> tags
-            $content = preg_replace('/<think>.*?<\/think>/s', '', $content);
-            return $content;
         }
         
         // Throw exception for unexpected response format

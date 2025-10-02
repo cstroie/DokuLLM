@@ -95,10 +95,7 @@ When creating content, the plugin automatically:
 The plugin uses a specific namespace structure for its prompt templates and configurations:
 
 - `dokullm:prompts` - Contains all prompt templates used by the plugin
-- `dokullm:prompts:actions` - Contains action-specific prompt templates
-- `dokullm:prompts:templates` - Contains template-specific prompt configurations
-- `dokullm:config` - Contains plugin configuration pages
-- `dokullm:examples` - Contains example pages for reference
+- `dokullm:prompts:en:action` - Contains action-specific prompt templates
 
 ## Prompt Actions Table
 
