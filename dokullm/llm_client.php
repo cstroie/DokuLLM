@@ -103,7 +103,7 @@ class llm_client_plugin_dokullm
         
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt($action, ['text' => $text, 'think' => $think]);
-        return $this->callAPI($action, $prompt, $metadata, $useContext);
+        return $this->callAPI($action, $prompt, $metadata, $useContext, true);
     }
     
 
@@ -148,7 +148,7 @@ class llm_client_plugin_dokullm
         
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
-        return $this->callAPI('create', $prompt, $metadata, $useContext);
+        return $this->callAPI('create', $prompt, $metadata, $useContext, true);
     }
     
     /**
@@ -189,7 +189,7 @@ class llm_client_plugin_dokullm
             'previous_date' => $previousDate,
             'think' => $think
         ]);
-        return $this->callAPI('compare', $prompt, $metadata, $useContext);
+        return $this->callAPI('compare', $prompt, $metadata, $useContext, true);
     }
     
     /**
@@ -210,7 +210,7 @@ class llm_client_plugin_dokullm
         
         // Format the prompt with the text and custom prompt
         $prompt = $customPrompt . "\n\nText to process:\n" . $text;
-        return $this->callAPI('custom', $prompt, $metadata, $useContext);
+        return $this->callAPI('custom', $prompt, $metadata, $useContext, true);
     }
     
     /**
@@ -301,7 +301,7 @@ class llm_client_plugin_dokullm
      * @throws Exception If the API request fails or returns unexpected format
      */
     
-    private function callAPI($command, $prompt, $metadata = [], $useContext = true)
+    private function callAPI($command, $prompt, $metadata = [], $useContext = true, $useTools = true)
     {
         // Load system prompt which provides general instructions to the LLM
         $systemPrompt = $this->loadSystemPrompt($command, []);
@@ -361,14 +361,18 @@ class llm_client_plugin_dokullm
                 ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $prompt]
             ],
-            'tools' => $tools,
-            'tool_choice' => 'auto',
-            'parallel_tool_calls' => false,
             'max_tokens' => 6144,
             'stream' => false,
             'keep_alive' => '30m',
             'think' => true
         ];
+        
+        // Add tools to the request only if useTools is true
+        if ($useTools) {
+            $data['tools'] = $tools;
+            $data['tool_choice'] = 'auto';
+            $data['parallel_tool_calls'] = false;
+        }
         
         // Only add parameters if they are defined and not null
         if ($this->temperature !== null) {
@@ -385,7 +389,7 @@ class llm_client_plugin_dokullm
         }
 
         // Make an API call with tool responses
-        return $this->callAPIWithTools($data);
+        return $this->callAPIWithTools($data, false, $useTools);
     }
     
     /**
