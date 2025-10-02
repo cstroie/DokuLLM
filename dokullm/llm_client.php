@@ -226,7 +226,7 @@ class llm_client_plugin_dokullm
                 'type' => 'function',
                 'function' => [
                     'name' => 'get_template',
-                    'description' => 'Get a template suggestion for the existing text',
+                    'description' => 'Get a template report inspired by the content of the existing text',
                     'parameters' => [
                         'type' => 'object',
                         'properties' => []
@@ -237,7 +237,7 @@ class llm_client_plugin_dokullm
                 'type' => 'function',
                 'function' => [
                     'name' => 'get_examples',
-                    'description' => 'Get example snippets for the existing text',
+                    'description' => 'Get example snippets from previous reports, adequate to the existing text',
                     'parameters' => [
                         'type' => 'object',
                         'properties' => []
