@@ -35,6 +35,9 @@ class llm_client_plugin_dokullm
     /** @var array Cache for tool call results */
     private $toolCallCache = [];
     
+    /** @var string Current text context for tool usage */
+    private $currentTextContext = '';
+    
     /** @var string The API authentication key */
     private $api_key;
     
@@ -95,6 +98,9 @@ class llm_client_plugin_dokullm
 
     public function process($action, $text, $metadata = [], $useContext = true)
     {
+        // Store the current text context for tool usage
+        $this->currentTextContext = $text;
+        
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt($action, ['text' => $text, 'think' => $think]);
         return $this->callAPI($action, $prompt, $metadata, $useContext);
@@ -705,16 +711,13 @@ class llm_client_plugin_dokullm
     /**
      * Get current text context
      * 
-     * Retrieves the current text context from the most recent user message
-     * in the conversation history.
+     * Retrieves the current text context stored from the process function.
      * 
      * @return string The current text context
      */
     private function getCurrentTextContext()
     {
-        // This is a placeholder implementation
-        // In practice, this would extract text from the conversation context
-        return '';
+        return $this->currentTextContext;
     }
     
     /**
