@@ -26,6 +26,7 @@ require_once DOKU_PLUGIN . 'dokullm/chromadb_client.php';
  * 
  * Manages configuration settings and provides methods for various
  * text processing operations through an LLM API.
+ * Implements caching for tool calls to avoid duplicate processing.
  */
 class llm_client_plugin_dokullm
 {
