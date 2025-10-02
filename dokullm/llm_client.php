@@ -393,7 +393,8 @@ class llm_client_plugin_dokullm
         if (isset($this->toolCallCache[$cacheKey])) {
             // Return cached result
             $toolResponse = $this->toolCallCache[$cacheKey];
-            $toolResponse['tool_call_id'] = $toolCall['id']; // Update with current tool call ID
+            // Update with current tool call ID
+            $toolResponse['tool_call_id'] = $toolCall['id'];
             return $toolResponse;
         }
         
@@ -630,10 +631,6 @@ class llm_client_plugin_dokullm
             }
             
             $commandSystemPrompt = $this->getPageContent('dokullm:prompts:' . $language . ':' . $action . ':system');
-            if ($commandSystemPrompt === false && $language !== 'en') {
-                // Fallback to English if language-specific prompt doesn't exist
-                $commandSystemPrompt = $this->getPageContent('dokullm:prompts:en:' . $action . ':system');
-            }
             
             if ($commandSystemPrompt !== false) {
                 $systemPrompt .= "\n" . $commandSystemPrompt;
