@@ -406,7 +406,7 @@ class llm_client_plugin_dokullm
      * @param array $data The API request data including messages with tool responses
      * @return string The final response content
      */
-    private function callAPIWithTools($data)
+    private function callAPIWithTools($data, $toolsCalled = false)
     {
         // Set up HTTP headers, including authentication if API key is configured
         $headers = [
@@ -417,6 +417,12 @@ class llm_client_plugin_dokullm
             $headers[] = 'Authorization: Bearer ' . $this->api_key;
         }
         
+       // If tools have already been called, remove tools and tool_choice from data to prevent infinite loops
+        if ($toolsCalled) {
+            unset($data['tools']);
+            unset($data['tool_choice']);
+        }
+
         // Initialize and configure cURL for the API request
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->api_url);
@@ -477,7 +483,7 @@ class llm_client_plugin_dokullm
             
             // Make another API call with tool responses
             $data['messages'] = $messages;
-            return $this->callAPIWithTools($data);
+            return $this->callAPIWithTools($data, true);
         }
         
         // Throw exception for unexpected response format
