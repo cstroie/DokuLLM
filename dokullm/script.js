@@ -309,8 +309,15 @@
             }
             
             console.log('DokuLLM: Processing successful, result length:', data.result.length);
+            // Extract AI thinking parts (between backticks) from the result
+            let thinkingContent = '';
+            const thinkingMatch = data.result.match(/`([^`]*)`/);
+            if (thinkingMatch && thinkingMatch[1]) {
+                thinkingContent = thinkingMatch[1];
+            }
+            
             // Remove AI thinking parts (between backticks) from the result
-            const cleanedResult = data.result;
+            const cleanedResult = data.result.replace(/`[^`]*`/g, '').trim();
             
             // Determine how to handle the result based on button's dataset.result property
             const resultHandling = originalButton.dataset.result || 'replace';
@@ -326,20 +333,40 @@
                 const metadata = extractMetadata(editor.value);
                 const contentWithoutMetadata = editor.value.substring(metadata.length);
                 editor.value = metadata + contentWithoutMetadata + '\n\n' + cleanedResult;
+                
+                // Show thinking content in modal if it exists and thinking is enabled
+                if (thinkingContent && action !== 'show') {
+                    showModal(thinkingContent, 'thinking', 'AI Thinking Process');
+                }
             } else if (resultHandling === 'insert') {
                 console.log('DokuLLM: Inserting result before existing text');
                 // Insert before existing content (preserving metadata)
                 const metadata = extractMetadata(editor.value);
                 const contentWithoutMetadata = editor.value.substring(metadata.length);
                 editor.value = metadata + cleanedResult + '\n\n' + contentWithoutMetadata;
+                
+                // Show thinking content in modal if it exists and thinking is enabled
+                if (thinkingContent && action !== 'show') {
+                    showModal(thinkingContent, 'thinking', 'AI Thinking Process');
+                }
             } else if (selectedText) {
                 console.log('DokuLLM: Replacing selected text');
                 replaceSelectedText(editor, cleanedResult);
+                
+                // Show thinking content in modal if it exists and thinking is enabled
+                if (thinkingContent && action !== 'show') {
+                    showModal(thinkingContent, 'thinking', 'AI Thinking Process');
+                }
             } else {
                 console.log('DokuLLM: Replacing full text content');
                 // Preserve metadata when doing full page update
                 const metadata = extractMetadata(editor.value);
                 editor.value = metadata + cleanedResult;
+                
+                // Show thinking content in modal if it exists and thinking is enabled
+                if (thinkingContent && action !== 'show') {
+                    showModal(thinkingContent, 'thinking', 'AI Thinking Process');
+                }
             }
         })
         .catch(error => {
@@ -536,8 +563,15 @@
             }
             
             console.log('DokuLLM: Custom prompt processing successful, result length:', data.result.length);
+            // Extract AI thinking parts (between backticks) from the result
+            let thinkingContent = '';
+            const thinkingMatch = data.result.match(/`([^`]*)`/);
+            if (thinkingMatch && thinkingMatch[1]) {
+                thinkingContent = thinkingMatch[1];
+            }
+            
             // Remove AI thinking parts (between backticks) from the result
-            const cleanedResult = data.result;
+            const cleanedResult = data.result.replace(/`[^`]*`/g, '').trim();
             
             // Replace selected text or append to editor
             if (selectedText) {
@@ -554,6 +588,11 @@
             const promptInput = toolbar.querySelector('.llm-prompt-input');
             if (promptInput) {
                 promptInput.value = '';
+            }
+            
+            // Show thinking content in modal if it exists and thinking is enabled
+            if (thinkingContent) {
+                showModal(thinkingContent, 'thinking', 'AI Thinking Process');
             }
         })
         .catch(error => {
