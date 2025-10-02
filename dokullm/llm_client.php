@@ -32,6 +32,9 @@ class llm_client_plugin_dokullm
     /** @var string The API endpoint URL */
     private $api_url;
     
+    /** @var array Cache for tool call results */
+    private $toolCallCache = [];
+    
     /** @var string The API authentication key */
     private $api_key;
     
@@ -404,6 +407,17 @@ class llm_client_plugin_dokullm
         $toolName = $toolCall['function']['name'];
         $arguments = json_decode($toolCall['function']['arguments'], true);
         
+        // Create a cache key from the tool name and arguments
+        $cacheKey = md5($toolName . serialize($arguments));
+        
+        // Check if we have a cached result for this tool call
+        if (isset($this->toolCallCache[$cacheKey])) {
+            // Return cached result
+            $toolResponse = $this->toolCallCache[$cacheKey];
+            $toolResponse['tool_call_id'] = $toolCall['id']; // Update with current tool call ID
+            return $toolResponse;
+        }
+        
         $toolResponse = [
             'role' => 'tool',
             'tool_call_id' => $toolCall['id']
@@ -450,6 +464,11 @@ class llm_client_plugin_dokullm
             default:
                 $toolResponse['content'] = 'Unknown tool: ' . $toolName;
         }
+        
+        // Cache the result for future calls with the same parameters
+        $cacheEntry = $toolResponse;
+        unset($cacheEntry['tool_call_id']); // Remove tool_call_id from cache as it changes per call
+        $this->toolCallCache[$cacheKey] = $cacheEntry;
         
         return $toolResponse;
     }
