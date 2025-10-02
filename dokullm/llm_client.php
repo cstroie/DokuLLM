@@ -104,11 +104,7 @@ class llm_client_plugin_dokullm
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt($action, ['text' => $text, 'think' => $think]);
         
-        // Check if tools should be used based on configuration
-        global $conf;
-        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
-        
-        return $this->callAPI($action, $prompt, $metadata, $useContext, $useTools);
+        return $this->callAPI($action, $prompt, $metadata, $useContext);
     }
     
 
@@ -154,11 +150,7 @@ class llm_client_plugin_dokullm
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
         
-        // Check if tools should be used based on configuration
-        global $conf;
-        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
-        
-        return $this->callAPI('create', $prompt, [], $useContext, $useTools);
+        return $this->callAPI('create', $prompt, [], $useContext);
     }
     
     /**
@@ -200,11 +192,7 @@ class llm_client_plugin_dokullm
             'think' => $think
         ]);
         
-        // Check if tools should be used based on configuration
-        global $conf;
-        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
-        
-        return $this->callAPI('compare', $prompt, $metadata, $useContext, $useTools);
+        return $this->callAPI('compare', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -226,11 +214,7 @@ class llm_client_plugin_dokullm
         // Format the prompt with the text and custom prompt
         $prompt = $customPrompt . "\n\nText to process:\n" . $text;
         
-        // Check if tools should be used based on configuration
-        global $conf;
-        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
-        
-        return $this->callAPI('custom', $prompt, $metadata, $useContext, $useTools);
+        return $this->callAPI('custom', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -327,7 +311,7 @@ class llm_client_plugin_dokullm
      * @throws Exception If the API request fails or returns unexpected format
      */
     
-    private function callAPI($command, $prompt, $metadata = [], $useContext = true, $useTools = true)
+    private function callAPI($command, $prompt, $metadata = [], $useContext = true)
     {
         // Load system prompt which provides general instructions to the LLM
         $systemPrompt = $this->loadSystemPrompt($command, []);
@@ -377,6 +361,10 @@ class llm_client_plugin_dokullm
             $prompt = $contextInfo . "\n\n" . $prompt;
         }
         
+        // Check if tools should be used based on configuration
+        global $conf;
+        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
+        
         // Prepare API request data with model parameters
         $data = [
             'model' => $this->model,
@@ -413,7 +401,7 @@ class llm_client_plugin_dokullm
         }
 
         // Make an API call with tool responses
-        return $this->callAPIWithTools($data, false);
+        return $this->callAPIWithTools($data, false, $useTools);
     }
     
     /**
