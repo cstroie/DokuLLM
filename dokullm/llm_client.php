@@ -499,7 +499,10 @@ class llm_client_plugin_dokullm
         if (isset($result['choices'][0]['message']['tool_calls'])) {
             $toolCalls = $result['choices'][0]['message']['tool_calls'];
             $messages = $data['messages']; // Start with original messages
-            $messages[] = $result['choices'][0]['message']; // Add assistant's message with tool calls
+            // Add assistant's message with tool calls, ensuring role is set
+            $assistantMessage = $result['choices'][0]['message'];
+            $assistantMessage['role'] = 'assistant';
+            $messages[] = $assistantMessage;
             
             // Process each tool call
             foreach ($toolCalls as $toolCall) {
