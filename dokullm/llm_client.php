@@ -122,6 +122,9 @@ class llm_client_plugin_dokullm
      */
     public function createReport($text, $metadata = [], $useContext = true)
     {
+        // Store the current text context for tool usage
+        $this->currentTextContext = $text;
+        
         // If no template is defined, try to find one using ChromaDB
         if (empty($metadata['template'])) {
             $templateResult = $this->queryChromaDBTemplate($text);
@@ -160,6 +163,9 @@ class llm_client_plugin_dokullm
      */
     public function compareText($text, $metadata = [], $useContext = false)
     {
+        // Store the current text context for tool usage
+        $this->currentTextContext = $text;
+        
         // Load previous report from metadata if specified
         $previousText = '';
         if (!empty($metadata['previous_report_page'])) {
@@ -199,6 +205,9 @@ class llm_client_plugin_dokullm
      */
     public function processCustomPrompt($text, $customPrompt, $metadata = [], $useContext = true)
     {
+        // Store the current text context for tool usage
+        $this->currentTextContext = $text;
+        
         // Format the prompt with the text and custom prompt
         $prompt = $customPrompt . "\n\nText to process:\n" . $text;
         return $this->callAPI('custom', $prompt, $metadata, $useContext);
