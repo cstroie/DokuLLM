@@ -103,7 +103,12 @@ class llm_client_plugin_dokullm
         
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt($action, ['text' => $text, 'think' => $think]);
-        return $this->callAPI($action, $prompt, $metadata, $useContext, true);
+        
+        // Check if tools should be used based on configuration
+        global $conf;
+        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
+        
+        return $this->callAPI($action, $prompt, $metadata, $useContext, $useTools);
     }
     
 
@@ -148,7 +153,12 @@ class llm_client_plugin_dokullm
         
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
-        return $this->callAPI('create', $prompt, [], $useContext, true);
+        
+        // Check if tools should be used based on configuration
+        global $conf;
+        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
+        
+        return $this->callAPI('create', $prompt, [], $useContext, $useTools);
     }
     
     /**
@@ -189,7 +199,12 @@ class llm_client_plugin_dokullm
             'previous_date' => $previousDate,
             'think' => $think
         ]);
-        return $this->callAPI('compare', $prompt, $metadata, $useContext, true);
+        
+        // Check if tools should be used based on configuration
+        global $conf;
+        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
+        
+        return $this->callAPI('compare', $prompt, $metadata, $useContext, $useTools);
     }
     
     /**
@@ -210,7 +225,12 @@ class llm_client_plugin_dokullm
         
         // Format the prompt with the text and custom prompt
         $prompt = $customPrompt . "\n\nText to process:\n" . $text;
-        return $this->callAPI('custom', $prompt, $metadata, $useContext, true);
+        
+        // Check if tools should be used based on configuration
+        global $conf;
+        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? true;
+        
+        return $this->callAPI('custom', $prompt, $metadata, $useContext, $useTools);
     }
     
     /**

@@ -121,3 +121,14 @@ $meta['replace_id'] = array('onoff');
  * @var array
  */
 $meta['think'] = array('onoff');
+
+/**
+ * Metadata for the use_tools configuration option
+ * 
+ * Defines whether the LLM can use tools to enhance its responses.
+ * When enabled, the LLM can call tools like get_document, get_template, and get_examples;
+ * when disabled, these tools will not be available to the LLM.
+ * 
+ * @var array
+ */
+$meta['use_tools'] = array('onoff');

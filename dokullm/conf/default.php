@@ -131,3 +131,14 @@ $conf['replace_id'] = true;
  */
 $conf['think'] = true;
 
+/**
+ * Enable tool usage in LLM responses
+ * 
+ * Controls whether the LLM can use tools to enhance its responses.
+ * When true, the LLM can call tools like get_document, get_template, and get_examples;
+ * when false, these tools will not be available to the LLM.
+ * 
+ * @var bool
+ */
+$conf['use_tools'] = true;
+
