@@ -195,36 +195,6 @@ class llm_client_plugin_dokullm
         return $this->callAPI('custom', $prompt, $metadata, $useContext);
     }
     
-    
-    /**
-     * Call the LLM API with the specified prompt
-     * 
-     * Makes an HTTP POST request to the configured API endpoint with
-     * the prompt and other parameters. Handles authentication if an
-     * API key is configured.
-     * 
-     * The method constructs a conversation with system and user messages,
-     * including context information from metadata when available.
-     * 
-     * Complex logic includes:
-     * 1. Loading and enhancing the system prompt with metadata context
-     * 2. Building the API request with model parameters
-     * 3. Handling authentication with API key if configured
-     * 4. Making the HTTP request with proper error handling
-     * 5. Parsing and validating the API response
-     * 
-     * The context information includes:
-     * - Template content: Used as a starting point for the response
-     * - Example pages: Full content of specified example pages
-     * - Text snippets: Relevant text examples from ChromaDB
-     * 
-     * @param string $command The command name for loading command-specific system prompts
-     * @param string $prompt The prompt to send to the LLM as user message
-     * @param array $metadata Optional metadata containing template, examples, and snippets
-     * @param bool $useContext Whether to include template and examples in the context (default: true)
-     * @return string The response content from the LLM
-     * @throws Exception If the API request fails or returns unexpected format
-     */
     /**
      * Get the list of available tools for the LLM
      * 
@@ -255,6 +225,36 @@ class llm_client_plugin_dokullm
         ];
     }
     
+    /**
+     * Call the LLM API with the specified prompt
+     * 
+     * Makes an HTTP POST request to the configured API endpoint with
+     * the prompt and other parameters. Handles authentication if an
+     * API key is configured.
+     * 
+     * The method constructs a conversation with system and user messages,
+     * including context information from metadata when available.
+     * 
+     * Complex logic includes:
+     * 1. Loading and enhancing the system prompt with metadata context
+     * 2. Building the API request with model parameters
+     * 3. Handling authentication with API key if configured
+     * 4. Making the HTTP request with proper error handling
+     * 5. Parsing and validating the API response
+     * 
+     * The context information includes:
+     * - Template content: Used as a starting point for the response
+     * - Example pages: Full content of specified example pages
+     * - Text snippets: Relevant text examples from ChromaDB
+     * 
+     * @param string $command The command name for loading command-specific system prompts
+     * @param string $prompt The prompt to send to the LLM as user message
+     * @param array $metadata Optional metadata containing template, examples, and snippets
+     * @param bool $useContext Whether to include template and examples in the context (default: true)
+     * @return string The response content from the LLM
+     * @throws Exception If the API request fails or returns unexpected format
+     */
+    
     private function callAPI($command, $prompt, $metadata = [], $useContext = true)
     {
         // Load system prompt which provides general instructions to the LLM
@@ -267,7 +267,7 @@ class llm_client_plugin_dokullm
         if (!empty($command)) {
             $commandSystemPrompt = $this->getPageContent('dokullm:prompts:' . $command . ':system');
             if ($commandSystemPrompt !== false) {
-                $systemPrompt .= "\n\n" . $commandSystemPrompt;
+                $systemPrompt .= "\n" . $commandSystemPrompt;
             }
         }
         
