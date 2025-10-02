@@ -401,7 +401,7 @@ class llm_client_plugin_dokullm
         }
 
         // Make an API call with tool responses
-        return $this->callAPIWithTools($data, false, $useTools);
+        return $this->callAPIWithTools($data, false);
     }
     
     /**
