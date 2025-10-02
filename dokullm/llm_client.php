@@ -340,6 +340,7 @@ class llm_client_plugin_dokullm
             'tool_choice' => 'auto',
             'max_tokens' => 6144,
             'stream' => false,
+            'keep_alive' => '30m',
             'think' => true
         ];
         
