@@ -269,12 +269,34 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         $chunkContents = [];
         $chunkMetadatas = [];
         $chunkEmbeddings = [];
+        $currentTags = [];
         
         foreach ($paragraphs as $index => $paragraph) {
             // Skip empty paragraphs
             $paragraph = trim($paragraph);
             if (empty($paragraph)) {
                 continue;
+            }
+            
+            // Check if this is a DokuWiki title (starts and ends with =)
+            if (preg_match('/^=+(.*?)=+$/', $paragraph, $matches)) {
+                // Extract title content
+                $titleContent = trim($matches[1]);
+                
+                // Split into words and create tags
+                $words = preg_split('/\s+/', $titleContent);
+                $tags = [];
+                
+                foreach ($words as $word) {
+                    // Only use words longer than 3 characters
+                    if (strlen($word) >= 3) {
+                        $tags[] = strtolower($word);
+                    }
+                }
+                
+                // Remove duplicate tags
+                $currentTags = array_unique($tags);
+                continue; // Skip storing title chunks
             }
             
             // Create chunk ID
@@ -289,6 +311,11 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
             $metadata['chunk_id'] = $chunkId;
             $metadata['chunk_number'] = $index + 1;
             $metadata['total_chunks'] = count($paragraphs);
+            
+            // Add current tags to metadata if any exist
+            if (!empty($currentTags)) {
+                $metadata['tags'] = implode(',', $currentTags);
+            }
             
             // Store chunk data
             $chunkIds[] = $chunkId;
