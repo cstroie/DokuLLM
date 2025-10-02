@@ -150,7 +150,7 @@ class llm_client_plugin_dokullm
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
         
-        return $this->callAPI('create', $prompt, [], $useContext);
+        return $this->callAPI('create', $prompt, $metadata, $useContext);
     }
     
     /**
