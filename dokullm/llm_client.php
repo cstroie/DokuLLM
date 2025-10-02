@@ -309,11 +309,18 @@ class llm_client_plugin_dokullm
      * 3. Handling authentication with API key if configured
      * 4. Making the HTTP request with proper error handling
      * 5. Parsing and validating the API response
+     * 6. Supporting tool usage with automatic tool calling when enabled
+     * 7. Implementing context enhancement with templates, examples, and snippets
      * 
      * The context information includes:
      * - Template content: Used as a starting point for the response
      * - Example pages: Full content of specified example pages
      * - Text snippets: Relevant text examples from ChromaDB
+     * 
+     * When tools are enabled, the method supports automatic tool calling:
+     * - Tools can retrieve documents, templates, and examples as needed
+     * - Tool responses are cached to avoid duplicate calls with identical parameters
+     * - Infinite loop protection prevents excessive tool calls
      * 
      * @param string $command The command name for loading command-specific system prompts
      * @param string $prompt The prompt to send to the LLM as user message
@@ -510,8 +517,24 @@ class llm_client_plugin_dokullm
      * Make an API call with tool responses
      * 
      * Sends a follow-up request to the LLM with tool responses.
+     * Implements complex logic for handling tool calls with caching and loop protection.
+     * 
+     * Complex logic includes:
+     * 1. Making HTTP requests with proper authentication and error handling
+     * 2. Processing tool calls from the LLM response
+     * 3. Caching tool responses to avoid duplicate calls with identical parameters
+     * 4. Tracking tool call counts to prevent infinite loops
+     * 5. Implementing loop protection with call count limits
+     * 6. Handling recursive tool calls until final content is generated
+     * 
+     * Loop protection works by:
+     * - Tracking individual tool call counts (max 3 per tool)
+     * - Tracking total tool calls (max 10 total)
+     * - Disabling tools when limits are exceeded to break potential loops
      * 
      * @param array $data The API request data including messages with tool responses
+     * @param bool $toolsCalled Whether tools have already been called (used for loop protection)
+     * @param bool $useTools Whether to process tool calls (used for loop protection)
      * @return string The final response content
      */
     private function callAPIWithTools($data, $toolsCalled = false, $useTools = true)
