@@ -247,7 +247,13 @@ class llm_client_plugin_dokullm
                     'description' => 'Retrieve a relevant template document that matches the current context and content. Use this when you need a structural template or format example to base your response on, particularly for creating consistent reports or documents.',
                     'parameters' => [
                         'type' => 'object',
-                        'properties' => []
+                        'properties' => [
+                            'language' => [
+                                'type' => 'string',
+                                'description' => 'The language the template should be written in (e.g., "ro" for Romanian, "en" for English). Currently ignored as all reports are written in Romanian.',
+                                'default' => 'ro'
+                            ]
+                        ]
                     ]
                 ]
             ],
@@ -434,6 +440,7 @@ class llm_client_plugin_dokullm
             case 'get_template':
                 // Get template suggestion for the current text
                 // This would typically use the same logic as queryChromaDBTemplate
+                // Note: We ignore the language parameter for now as all reports are in Romanian
                 $templateIds = $this->queryChromaDBTemplate($this->getCurrentText());
                 if (!empty($templateIds)) {
                     $templateContent = $this->getPageContent($templateIds[0]);
