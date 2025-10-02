@@ -446,7 +446,10 @@ class llm_client_plugin_dokullm
             // Start with original messages
             $messages = $data['messages'];
             // Add assistant's message with tool calls, ensuring role is set and keeping all original fields
-            $assistantMessage = $result['choices'][0]['message'];
+            $assistantMessage = [];
+            foreach ($result['choices'][0]['message'] as $key => $value) {
+                $assistantMessage[$key] = $value;
+            }
             $assistantMessage['role'] = 'assistant';
             // Add assistant's message with tool calls
             $messages[] = $assistantMessage;
