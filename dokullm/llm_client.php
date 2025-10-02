@@ -574,7 +574,7 @@ class llm_client_plugin_dokullm
             
             // Make another API call with tool responses
             $data['messages'] = $messages;
-            return $this->callAPIWithTools($data, false, $useTools);
+            return $this->callAPIWithTools($data, $toolsCalled, $useTools);
         }
         
         // Throw exception for unexpected response format
