@@ -306,9 +306,6 @@ class llm_client_plugin_dokullm
         // Load system prompt which provides general instructions to the LLM
         $systemPrompt = $this->loadSystemPrompt($command, []);
         
-        // Define available tools
-        $tools = $this->getAvailableTools();
-        
         // Enhance the prompt with context information from metadata
         // This provides the LLM with additional context about templates and examples
         if ($useContext && !empty($metadata) && (!empty($metadata['template']) || !empty($metadata['examples']) || !empty($metadata['snippets']))) {
@@ -369,7 +366,8 @@ class llm_client_plugin_dokullm
         
         // Add tools to the request only if useTools is true
         if ($useTools) {
-            $data['tools'] = $tools;
+            // Define available tools
+            $data['tools'] = $this->getAvailableTools();
             $data['tool_choice'] = 'auto';
             $data['parallel_tool_calls'] = false;
         }
@@ -389,7 +387,7 @@ class llm_client_plugin_dokullm
         }
 
         // Make an API call with tool responses
-        return $this->callAPIWithTools($data, false, $useTools);
+        return $this->callAPIWithTools($data, false);
     }
     
     /**
