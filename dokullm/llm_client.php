@@ -230,6 +230,27 @@ class llm_client_plugin_dokullm
         // Load system prompt which provides general instructions to the LLM
         $systemPrompt = $this->loadPrompt('system', []);
         
+        // Define available tools
+        $tools = [
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'get_document',
+                    'description' => 'Get the content of a document by its ID',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'id' => [
+                                'type' => 'string',
+                                'description' => 'The ID of the document to retrieve'
+                            ]
+                        ],
+                        'required' => ['id']
+                    ]
+                ]
+            ]
+        ];
+        
         // Check if there's a command-specific system prompt appendage
         if (!empty($command)) {
             $commandSystemPrompt = $this->getPageContent('dokullm:prompts:' . $command . ':system');
@@ -290,6 +311,8 @@ class llm_client_plugin_dokullm
                 ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $prompt]
             ],
+            'tools' => $tools,
+            'tool_choice' => 'auto',
             'max_tokens' => 6144,
             'stream' => false,
             'think' => true
@@ -352,6 +375,102 @@ class llm_client_plugin_dokullm
             $content = trim($result['choices'][0]['message']['content']);
             // Remove content between <think> and </think> tags
             $content = preg_replace('/<think>.*?<\/think>/s', '', $content);
+            return $content;
+        }
+        
+        // Throw exception for unexpected response format
+        throw new Exception('Unexpected API response format');
+    }
+    
+    /**
+     * Handle tool calls from the LLM
+     * 
+     * Processes tool calls made by the LLM and returns appropriate responses.
+     * 
+     * @param array $toolCall The tool call data from the LLM
+     * @return array The tool response message
+     */
+    private function handleToolCall($toolCall)
+    {
+        $toolName = $toolCall['function']['name'];
+        $arguments = json_decode($toolCall['function']['arguments'], true);
+        
+        $toolResponse = [
+            'role' => 'tool',
+            'tool_call_id' => $toolCall['id']
+        ];
+        
+        switch ($toolName) {
+            case 'get_document':
+                $documentId = $arguments['id'];
+                $content = $this->getPageContent($documentId);
+                if ($content === false) {
+                    $toolResponse['content'] = 'Document not found: ' . $documentId;
+                } else {
+                    $toolResponse['content'] = $content;
+                }
+                break;
+                
+            default:
+                $toolResponse['content'] = 'Unknown tool: ' . $toolName;
+        }
+        
+        return $toolResponse;
+    }
+    
+    /**
+     * Make an API call with tool responses
+     * 
+     * Sends a follow-up request to the LLM with tool responses.
+     * 
+     * @param array $data The API request data including messages with tool responses
+     * @return string The final response content
+     */
+    private function callAPIWithTools($data)
+    {
+        // Set up HTTP headers, including authentication if API key is configured
+        $headers = [
+            'Content-Type: application/json'
+        ];
+        
+        if (!empty($this->api_key)) {
+            $headers[] = 'Authorization: Bearer ' . $this->api_key;
+        }
+        
+        // Initialize and configure cURL for the API request
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->api_url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        
+        // Execute the API request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        
+        // Handle cURL errors
+        if ($error) {
+            throw new Exception('API request failed: ' . $error);
+        }
+        
+        // Handle HTTP errors
+        if ($httpCode !== 200) {
+            throw new Exception('API request failed with HTTP code: ' . $httpCode);
+        }
+        
+        // Parse and validate the JSON response
+        $result = json_decode($response, true);
+        
+        // Extract the content from the response if available
+        if (isset($result['choices'][0]['message']['content'])) {
+            $content = trim($result['choices'][0]['message']['content']);
+            // Remove content between <tool_call> and </tool_call> tags
+            $content = preg_replace('/<tool_call>.*?<\/think>/s', '', $content);
             return $content;
         }
         
