@@ -493,8 +493,8 @@ class llm_client_plugin_dokullm
         }
         
         // Cache the result for future calls with the same parameters
+        $toolResponse['cache_key'] = $cacheKey;
         $cacheEntry = $toolResponse;
-        $cacheEntry['cache_key'] = $cacheKey;
         // Remove tool_call_id from cache as it changes per call
         unset($cacheEntry['tool_call_id']);
         $this->toolCallCache[$cacheKey] = $cacheEntry;
