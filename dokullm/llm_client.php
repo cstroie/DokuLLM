@@ -459,7 +459,7 @@ class llm_client_plugin_dokullm
                     foreach ($examples as $index => $example) {
                         $formattedExamples[] = '<example id="' . ($index + 1) . '">' . $example . '</example>';
                     }
-                    $toolResponse['content'] = implode("\n", $formattedExamples);
+                    $toolResponse['content'] = '<examples>' . implode("\n", $formattedExamples) . '</examples>';
                 } else {
                     $toolResponse['content'] = 'No examples found for the current context';
                 }
