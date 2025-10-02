@@ -289,31 +289,10 @@ class llm_client_plugin_dokullm
     private function callAPI($command, $prompt, $metadata = [], $useContext = true)
     {
         // Load system prompt which provides general instructions to the LLM
-        $systemPrompt = $this->loadPrompt('system', []);
+        $systemPrompt = $this->loadSystemPrompt($command, []);
         
         // Define available tools
         $tools = $this->getAvailableTools();
-        
-        // Check if there's a command-specific system prompt appendage
-        if (!empty($command)) {
-            global $conf;
-            $language = $conf['plugin']['dokullm']['language'];
-            
-            // Default to 'en' if language is 'default' or not set
-            if ($language === 'default' || empty($language)) {
-                $language = 'en';
-            }
-            
-            $commandSystemPrompt = $this->getPageContent('dokullm:prompts:' . $language . ':' . $command . ':system');
-            if ($commandSystemPrompt === false && $language !== 'en') {
-                // Fallback to English if language-specific prompt doesn't exist
-                $commandSystemPrompt = $this->getPageContent('dokullm:prompts:en:' . $command . ':system');
-            }
-            
-            if ($commandSystemPrompt !== false) {
-                $systemPrompt .= "\n" . $commandSystemPrompt;
-            }
-        }
         
         // Enhance the prompt with context information from metadata
         // This provides the LLM with additional context about templates and examples
@@ -623,6 +602,45 @@ class llm_client_plugin_dokullm
         
         // Return the processed prompt
         return $prompt;
+    }
+    
+    /**
+     * Load system prompt with optional command-specific appendage
+     * 
+     * Loads the main system prompt and appends any command-specific system prompt
+     * if available.
+     * 
+     * @param string $action The action/command name
+     * @param array $variables Associative array of placeholder => value pairs
+     * @return string The combined system prompt
+     */
+    private function loadSystemPrompt($action, $variables = [])
+    {
+        // Load system prompt which provides general instructions to the LLM
+        $systemPrompt = $this->loadPrompt('system', $variables);
+        
+        // Check if there's a command-specific system prompt appendage
+        if (!empty($action)) {
+            global $conf;
+            $language = $conf['plugin']['dokullm']['language'];
+            
+            // Default to 'en' if language is 'default' or not set
+            if ($language === 'default' || empty($language)) {
+                $language = 'en';
+            }
+            
+            $commandSystemPrompt = $this->getPageContent('dokullm:prompts:' . $language . ':' . $action . ':system');
+            if ($commandSystemPrompt === false && $language !== 'en') {
+                // Fallback to English if language-specific prompt doesn't exist
+                $commandSystemPrompt = $this->getPageContent('dokullm:prompts:en:' . $action . ':system');
+            }
+            
+            if ($commandSystemPrompt !== false) {
+                $systemPrompt .= "\n" . $commandSystemPrompt;
+            }
+        }
+        
+        return $systemPrompt;
     }
     
     /**
