@@ -419,6 +419,7 @@ class llm_client_plugin_dokullm
      * Handle tool calls from the LLM
      * 
      * Processes tool calls made by the LLM and returns appropriate responses.
+     * Implements caching to avoid duplicate calls with identical parameters.
      * 
      * @param array $toolCall The tool call data from the LLM
      * @return array The tool response message
@@ -433,16 +434,18 @@ class llm_client_plugin_dokullm
         
         // Check if we have a cached result for this tool call
         if (isset($this->toolCallCache[$cacheKey])) {
-            // Return cached result
+            // Return cached result and indicate it was found in cache
             $toolResponse = $this->toolCallCache[$cacheKey];
             // Update with current tool call ID
             $toolResponse['tool_call_id'] = $toolCall['id'];
+            $toolResponse['cached'] = true; // Indicate this response was cached
             return $toolResponse;
         }
         
         $toolResponse = [
             'role' => 'tool',
-            'tool_call_id' => $toolCall['id']
+            'tool_call_id' => $toolCall['id'],
+            'cached' => false // Indicate this is a fresh response
         ];
         
         switch ($toolName) {
@@ -493,10 +496,10 @@ class llm_client_plugin_dokullm
         }
         
         // Cache the result for future calls with the same parameters
-        $toolResponse['cache_key'] = $cacheKey;
         $cacheEntry = $toolResponse;
-        // Remove tool_call_id from cache as it changes per call
+        // Remove tool_call_id and cached flag from cache as they change per call
         unset($cacheEntry['tool_call_id']);
+        unset($cacheEntry['cached']);
         $this->toolCallCache[$cacheKey] = $cacheEntry;
         
         return $toolResponse;
