@@ -557,8 +557,8 @@ class llm_client_plugin_dokullm
         // Extract the content from the response if available
         if (isset($result['choices'][0]['message']['content'])) {
             $content = trim($result['choices'][0]['message']['content']);
-            // Remove content between <think> and </think> tags
-            $content = preg_replace('/<think>.*?<\/think>/s', '', $content);
+            // Reset tool call counts when we get final content
+            $this->toolCallCounts = [];
             return $content;
         }
         
@@ -577,10 +577,33 @@ class llm_client_plugin_dokullm
             // Add assistant's message with tool calls
             $messages[] = $assistantMessage;
             
-            // Process each tool call
+            // Process each tool call and track counts to prevent infinite loops
             foreach ($toolCalls as $toolCall) {
+                $toolName = $toolCall['function']['name'];
+                // Increment tool call count
+                if (!isset($this->toolCallCounts[$toolName])) {
+                    $this->toolCallCounts[$toolName] = 0;
+                }
+                $this->toolCallCounts[$toolName]++;
+                
                 $toolResponse = $this->handleToolCall($toolCall);
                 $messages[] = $toolResponse;
+            }
+
+            // Check if any tool has been called more than 3 times
+            $toolsCalledCount = 0;
+            foreach ($this->toolCallCounts as $count) {
+                if ($count > 3) {
+                    // If any tool called more than 3 times, disable tools to break loop
+                    $toolsCalled = true;
+                    break;
+                }
+                $toolsCalledCount += $count;
+            }
+            
+            // If total tool calls exceed 10, also disable tools
+            if ($toolsCalledCount > 10) {
+                $toolsCalled = true;
             }
             
             // Make another API call with tool responses
