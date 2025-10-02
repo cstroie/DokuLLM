@@ -209,13 +209,13 @@ class llm_client_plugin_dokullm
                 'type' => 'function',
                 'function' => [
                     'name' => 'get_document',
-                    'description' => 'Get the content of a document by its ID',
+                    'description' => 'Retrieve the full content of a specific document by providing its unique document ID. Use this when you need to access the complete text of a particular document for reference or analysis.',
                     'parameters' => [
                         'type' => 'object',
                         'properties' => [
                             'id' => [
                                 'type' => 'string',
-                                'description' => 'The ID of the document to retrieve'
+                                'description' => 'The unique identifier of the document to retrieve. This should be a valid document ID that exists in the system.'
                             ]
                         ],
                         'required' => ['id']
@@ -226,7 +226,7 @@ class llm_client_plugin_dokullm
                 'type' => 'function',
                 'function' => [
                     'name' => 'get_template',
-                    'description' => 'Get a template report inspired by the content of the existing text',
+                    'description' => 'Retrieve a relevant template document that matches the current context and content. Use this when you need a structural template or format example to base your response on, particularly for creating consistent reports or documents.',
                     'parameters' => [
                         'type' => 'object',
                         'properties' => []
@@ -237,13 +237,13 @@ class llm_client_plugin_dokullm
                 'type' => 'function',
                 'function' => [
                     'name' => 'get_examples',
-                    'description' => 'Get example snippets from previous reports, adequate to the existing text',
+                    'description' => 'Retrieve relevant example snippets from previous reports that are similar to the current context. Use this when you need to see how similar content was previously handled, to maintain consistency in style, terminology, and structure.',
                     'parameters' => [
                         'type' => 'object',
                         'properties' => [
                             'count' => [
                                 'type' => 'integer',
-                                'description' => 'The number of examples to retrieve',
+                                'description' => 'The number of examples to retrieve (1-20). Use more examples when you need comprehensive reference material, fewer when you need just a quick reminder of the style.',
                                 'default' => 5
                             ]
                         ]
