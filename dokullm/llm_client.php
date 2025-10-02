@@ -225,13 +225,16 @@ class llm_client_plugin_dokullm
      * @return string The response content from the LLM
      * @throws Exception If the API request fails or returns unexpected format
      */
-    private function callAPI($command, $prompt, $metadata = [], $useContext = true)
+    /**
+     * Get the list of available tools for the LLM
+     * 
+     * Defines the tools that can be used by the LLM during processing.
+     * 
+     * @return array List of tool definitions
+     */
+    private function getAvailableTools()
     {
-        // Load system prompt which provides general instructions to the LLM
-        $systemPrompt = $this->loadPrompt('system', []);
-        
-        // Define available tools
-        $tools = [
+        return [
             [
                 'type' => 'function',
                 'function' => [
@@ -250,6 +253,15 @@ class llm_client_plugin_dokullm
                 ]
             ]
         ];
+    }
+    
+    private function callAPI($command, $prompt, $metadata = [], $useContext = true)
+    {
+        // Load system prompt which provides general instructions to the LLM
+        $systemPrompt = $this->loadPrompt('system', []);
+        
+        // Define available tools
+        $tools = $this->getAvailableTools();
         
         // Check if there's a command-specific system prompt appendage
         if (!empty($command)) {
