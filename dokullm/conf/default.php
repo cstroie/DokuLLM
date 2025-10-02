@@ -129,7 +129,7 @@ $conf['replace_id'] = true;
  * 
  * @var bool
  */
-$conf['think'] = true;
+$conf['think'] = false;
 
 /**
  * Enable tool usage in LLM responses
@@ -140,5 +140,5 @@ $conf['think'] = true;
  * 
  * @var bool
  */
-$conf['use_tools'] = true;
+$conf['use_tools'] = false;
 
