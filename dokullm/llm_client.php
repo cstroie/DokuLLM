@@ -250,7 +250,7 @@ class llm_client_plugin_dokullm
                         'properties' => [
                             'language' => [
                                 'type' => 'string',
-                                'description' => 'The language the template should be written in (e.g., "ro" for Romanian, "en" for English). Currently ignored as all reports are written in Romanian.',
+                                'description' => 'The language the template should be written in (e.g., "ro" for Romanian, "en" for English).',
                                 'default' => 'ro'
                             ]
                         ]
