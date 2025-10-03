@@ -485,23 +485,13 @@ class llm_client_plugin_dokullm
                 
             case 'get_template':
                 // Get template content using the convenience function
-                $templateContent = $this->getTemplateContent();
-                if (!empty($templateContent)) {
-                    $toolResponse['content'] = $templateContent;
-                } else {
-                    $toolResponse['content'] = 'No template found for the current context';
-                }
+                $toolResponse['content'] = $this->getTemplateContent();
                 break;
                 
             case 'get_examples':
                 // Get examples content using the convenience function
                 $count = isset($arguments['count']) ? (int)$arguments['count'] : 5;
-                $examplesContent = $this->getSnippets($count);
-                if (!empty($examplesContent)) {
-                    $toolResponse['content'] = '<examples>' . $examplesContent . '</examples>';
-                } else {
-                    $toolResponse['content'] = 'No examples found for the current context';
-                }
+                $toolResponse['content'] = '<examples>\n' . $this->getSnippets($count) . '\n</examples>';
                 break;
                 
             default:
@@ -883,7 +873,6 @@ class llm_client_plugin_dokullm
             if ($templateContent !== false) {
                 return $templateContent;
             }
-            return '';
         }
         
         // Otherwise, get template suggestion for the current text
@@ -894,7 +883,7 @@ class llm_client_plugin_dokullm
                 return $templateContent;
             }
         }
-        return '';
+        return '( no template )';
     }
     
     /**
@@ -909,15 +898,15 @@ class llm_client_plugin_dokullm
     private function getSnippets($count = 10)
     {
         // Get example snippets for the current text
-        $examples = $this->queryChromaDBSnippets($this->getCurrentText(), $count);
-        if (!empty($examples)) {
-            $formattedExamples = [];
-            foreach ($examples as $index => $example) {
-                $formattedExamples[] = '<example id="' . ($index + 1) . '">' . $example . '</example>';
+        $snippets = $this->queryChromaDBSnippets($this->getCurrentText(), $count);
+        if (!empty($snippets)) {
+            $formattedSnippets = [];
+            foreach ($snippets as $index => $snippet) {
+                $formattedSnippets[] = '<example id="' . ($index + 1) . '">\n' . $snippet . '\n</example>';
             }
-            return implode("\n", $formattedExamples);
+            return implode("\n", $formattedSnippets);
         }
-        return '';
+        return '( no examples )';
     }
     
     /**
@@ -939,7 +928,7 @@ class llm_client_plugin_dokullm
         foreach ($exampleIds as $index => $exampleId) {
             $content = $this->getPageContent($exampleId);
             if ($content !== false) {
-                $examplesContent[] = '<example_page source="' . $exampleId . '">' . $content . '</example_page>';
+                $examplesContent[] = '<example_page source="' . $exampleId . '">\n' . $content . '\n</example_page>';
             }
         }
         
