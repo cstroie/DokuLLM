@@ -708,7 +708,12 @@ class llm_client_plugin_dokullm
             // Add appropriate values for specific placeholders
             switch ($placeholder) {
                 case 'template':
-                    $variables[$placeholder] = $this->getTemplateContent();
+                    // If we have a page_template in variables, use it
+                    if (!empty($variables['page_template'])) {
+                        $variables[$placeholder] = $this->getTemplateContent($variables['page_template']);
+                    } else {
+                        $variables[$placeholder] = $this->getTemplateContent();
+                    }
                     break;
                     
                 case 'snippets':
