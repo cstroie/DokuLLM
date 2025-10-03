@@ -120,11 +120,18 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $prompt = $INPUT->str('prompt', '');
         $metadata = $INPUT->str('metadata', '{}');
         $template = $INPUT->str('template', '');
+        $examples = $INPUT->str('examples', '');
         
         // Parse metadata
         $metadataArray = json_decode($metadata, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             $metadataArray = [];
+        }
+        
+        // Parse examples - split by newline and filter out empty lines
+        $examplesArray = array_filter(array_map('trim', explode("\n", $examples)));
+        if (!empty($examplesArray)) {
+            $metadataArray['examples'] = $examplesArray;
         }
         
         // Handle the special case of get_actions action
