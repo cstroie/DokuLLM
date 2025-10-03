@@ -717,6 +717,11 @@ class llm_client_plugin_dokullm
                     $variables[$placeholder] = $this->getExamplesContent($variables['page_examples']);
                     break;
                     
+                case 'previous':
+                    // If we have a previous report page ID in metadata, add previous content
+                    $variables[$placeholder] = $this->getPreviousContent($variables['page_previous']);
+                    break;
+                    
                 default:
                     // For other placeholders, leave them empty or set a default value
                     $variables[$placeholder] = '';
@@ -939,6 +944,29 @@ class llm_client_plugin_dokullm
         }
         
         return implode("\n", $examplesContent);
+    }
+    
+    /**
+     * Get previous report content from previous page ID
+     * 
+     * Convenience function to retrieve content from a previous report page.
+     * Returns the content of the previous page or a default message if not found.
+     * 
+     * @param string $previousId Previous page ID
+     * @return string Previous report content or default message if not found
+     */
+    private function getPreviousContent($previousId = '')
+    {
+        if (empty($previousId)) {
+            return '( no previous report )';
+        }
+        
+        $content = $this->getPageContent($previousId);
+        if ($content !== false) {
+            return $content;
+        }
+        
+        return '( previous report not found )';
     }
     
     /**
