@@ -181,7 +181,7 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         $fileModifiedTime = filemtime($filePath);
         
         // Check if document needs update
-        $needsUpdate = $chroma->checkDocumentNeedsUpdate($collectionName, $chunkIdsToCheck, $fileModifiedTime);
+        $needsUpdate = $chroma->needsUpdate($collectionName, $chunkIdsToCheck, $fileModifiedTime);
             
         // If document is up to date, skip processing
         if (!$needsUpdate) {

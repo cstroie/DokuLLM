@@ -286,7 +286,7 @@ class ChromaDBClient {
      * @return bool True if document needs to be updated, false otherwise
      * @throws Exception If there's an error checking the document
      */
-    public function checkDocumentNeedsUpdate($collectionName, $ids, $fileModifiedTime) {
+    public function needsUpdate($collectionName, $ids, $fileModifiedTime) {
         // Use provided name, fallback to 'documents' if empty
         if (empty($collectionName)) {
             $collectionName = 'documents';
