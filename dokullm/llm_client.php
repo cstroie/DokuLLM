@@ -695,7 +695,7 @@ class llm_client_plugin_dokullm
                     $variables[$placeholder] = $this->getTemplateContent();
                     break;
                     
-                case 'examples':
+                case 'snippets':
                     $variables[$placeholder] = $this->getExamplesContent(10);
                     break;
                     
