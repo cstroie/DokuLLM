@@ -111,7 +111,8 @@ function sendFile($path, $host, $port, $tenant, $database) {
         // Process single file
         if (!file_exists($path)) {
             echo "Error: File does not exist: $path\n";
-            exit(1);
+            // Don't exit, just return to continue if called from other contexts
+            return;
         }
         
         // Skip files that start with underscore
@@ -381,7 +382,8 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         echo "  Collection: $collectionName\n";
     } catch (Exception $e) {
         echo "Error sending file to ChromaDB: " . $e->getMessage() . "\n";
-        exit(1);
+        // Don't exit, just return to continue processing other files
+        return;
     }
 }
 
@@ -404,7 +406,8 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     // Check if directory exists
     if (!is_dir($dirPath)) {
         echo "Error: Directory does not exist: $dirPath\n";
-        exit(1);
+        // Don't exit, just return to continue if called from other contexts
+        return;
     }
     
     // Create RecursiveIteratorIterator to process directories recursively
@@ -504,7 +507,8 @@ function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $co
         }
     } catch (Exception $e) {
         echo "Error querying ChromaDB: " . $e->getMessage() . "\n";
-        exit(1);
+        // Don't exit, just return to continue if called from other contexts
+        return;
     }
 }
 
@@ -537,7 +541,8 @@ function checkHeartbeat($host, $port, $tenant, $database) {
         echo "Response: " . json_encode($result) . "\n";
     } catch (Exception $e) {
         echo "Error checking ChromaDB server status: " . $e->getMessage() . "\n";
-        exit(1);
+        // Don't exit, just return to continue if called from other contexts
+        return;
     }
 }
 
@@ -570,7 +575,8 @@ function checkIdentity($host, $port, $tenant, $database) {
         echo "Response: " . json_encode($result, JSON_PRETTY_PRINT) . "\n";
     } catch (Exception $e) {
         echo "Error checking ChromaDB identity: " . $e->getMessage() . "\n";
-        exit(1);
+        // Don't exit, just return to continue if called from other contexts
+        return;
     }
 }
 
@@ -610,7 +616,8 @@ function listCollections($host, $port, $tenant, $database) {
         }
     } catch (Exception $e) {
         echo "Error listing ChromaDB collections: " . $e->getMessage() . "\n";
-        exit(1);
+        // Don't exit, just return to continue if called from other contexts
+        return;
     }
 }
 
@@ -771,7 +778,8 @@ function getDocument($documentId, $host, $port, $tenant, $database, $collection 
         }
     } catch (Exception $e) {
         echo "Error retrieving document from ChromaDB: " . $e->getMessage() . "\n";
-        exit(1);
+        // Don't exit, just return to continue if called from other contexts
+        return;
     }
 }
 
