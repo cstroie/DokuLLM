@@ -3,6 +3,7 @@
 class ChromaDBClient {
     private $baseUrl;
     private $client;
+    private $ollamaClient;
     private $tenant;
     private $database;
     private $ollamaHost;
@@ -35,6 +36,13 @@ class ChromaDBClient {
             'Accept: application/json'
         ]);
         
+        // Initialize Ollama client
+        $this->ollamaClient = curl_init();
+        curl_setopt($this->ollamaClient, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($this->ollamaClient, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+        
         // Check if tenant and database exist, create them if they don't
         $this->ensureTenantAndDatabase();
     }
@@ -46,6 +54,7 @@ class ChromaDBClient {
      */
     public function __destruct() {
         curl_close($this->client);
+        curl_close($this->ollamaClient);
     }
 
     /**
@@ -101,13 +110,8 @@ class ChromaDBClient {
      */
     public function generateEmbeddings($text) {
         $ollamaUrl = "http://{$this->ollamaHost}:{$this->ollamaPort}/api/embeddings";
-        $ollamaClient = curl_init();
         
-        curl_setopt($ollamaClient, CURLOPT_URL, $ollamaUrl);
-        curl_setopt($ollamaClient, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ollamaClient, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json'
-        ]);
+        curl_setopt($this->ollamaClient, CURLOPT_URL, $ollamaUrl);
         
         $data = [
             'model' => $this->ollamaModel,
@@ -115,17 +119,14 @@ class ChromaDBClient {
             'keep_alive' => '30m'
         ];
         
-        curl_setopt($ollamaClient, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($this->ollamaClient, CURLOPT_POSTFIELDS, json_encode($data));
         
-        $response = curl_exec($ollamaClient);
-        $httpCode = curl_getinfo($ollamaClient, CURLINFO_HTTP_CODE);
+        $response = curl_exec($this->ollamaClient);
+        $httpCode = curl_getinfo($this->ollamaClient, CURLINFO_HTTP_CODE);
         
-        if (curl_error($ollamaClient)) {
-            curl_close($ollamaClient);
-            throw new Exception('Ollama Curl error: ' . curl_error($ollamaClient));
+        if (curl_error($this->ollamaClient)) {
+            throw new Exception('Ollama Curl error: ' . curl_error($this->ollamaClient));
         }
-        
-        curl_close($ollamaClient);
         
         if ($httpCode >= 400) {
             throw new Exception("Ollama HTTP Error: $httpCode, Response: $response");
