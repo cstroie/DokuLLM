@@ -122,6 +122,12 @@ class llm_client_plugin_dokullm
             unset($metadata['examples']);
         }
         
+        // If we have 'previous' in metadata, move it to 'page_previous'
+        if (isset($metadata['previous'])) {
+            $metadata['page_previous'] = $metadata['previous'];
+            unset($metadata['previous']);
+        }
+        
         $prompt = $this->loadPrompt($action, $metadata);
         
         return $this->callAPI($action, $prompt, $metadata, $useContext);
