@@ -172,9 +172,6 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
                 echo "Collection created.\n";
             }
         }
-            
-        // Get file modification time
-        $fileModifiedTime = filemtime($filePath);
         
         // Get collection ID
         $collection = $chroma->getCollection($collectionName);
@@ -182,6 +179,9 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
             throw new Exception("Collection ID not found for '{$collectionName}'");
         }
         $collectionId = $collection['id'];
+            
+        // Get file modification time
+        $fileModifiedTime = filemtime($filePath);
         
         // Check if document needs update
         $needsUpdate = $chroma->needsUpdate($collectionId, $id, $fileModifiedTime);
