@@ -299,7 +299,13 @@ class ChromaDBClient {
         
         $collectionId = $collection['id'];
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/get";
-        $data = ['ids' => $ids];
+        $data = [
+            'ids' => $ids,
+            'include' => [
+                "metadatas",
+                "documents"
+            ]
+        ];
         
         return $this->makeRequest($endpoint, 'POST', $data);
     }
