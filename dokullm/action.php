@@ -115,40 +115,24 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     {
         global $INPUT;
         
+        // Get form data
         $action = $INPUT->str('action');
         $text = $INPUT->str('text');
         $prompt = $INPUT->str('prompt', '');
-        $metadata = $INPUT->str('metadata', '{}');
         $template = $INPUT->str('template', '');
         $examples = $INPUT->str('examples', '');
         $previous = $INPUT->str('previous', '');
         
-        // Parse metadata
-        $metadataArray = json_decode($metadata, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $metadataArray = [];
-        }
-        
         // Parse examples - split by newline and filter out empty lines
         $examplesList = array_filter(array_map('trim', explode("\n", $examples)));
         
-        // Create meta object with prompt, template, examples, and previous
-        $meta = [
+        // Create metadata object with prompt, template, examples, and previous
+        $metadata = [
             'prompt' => $prompt,
             'template' => $template,
             'examples' => $examplesList,
             'previous' => $previous
         ];
-        
-        // Add examples to metadata if provided
-        if (!empty($examplesList)) {
-            $metadataArray['examples'] = $examplesList;
-        }
-        
-        // Add previous content to metadata if provided
-        if (!empty($previous)) {
-            $metadataArray['previous'] = $previous;
-        }
         
         // Handle the special case of get_actions action
         if ($action === 'get_actions') {
@@ -204,7 +188,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         
         // Process based on action
         try {
-            $result = $this->processText($action, $text, $prompt, $metadataArray, $template);
+            $result = $this->processText($action, $text, $metadata);
             echo json_encode(['result' => $result]);
         } catch (Exception $e) {
             // If we get an unknown action error, try to process it directly through the LLM client
@@ -212,7 +196,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 try {
                     require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
                     $client = new llm_client_plugin_dokullm();
-                    $result = $client->process($action, $text, $metadataArray);
+                    $result = $client->process($action, $text, $metadata);
                     echo json_encode(['result' => $result]);
                 } catch (Exception $e2) {
                     http_status(500);
@@ -243,7 +227,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      * @return string|array The processed text result or array for template content
      * @throws Exception If an unknown action is provided
      */
-    private function processText($action, $text, $prompt = '', $metadata = [], $template = '')
+    private function processText($action, $text, $metadata = [])
     {
         require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
         
@@ -253,9 +237,9 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             case 'create':
                 return $client->createReport($text, $metadata);
             case 'compare':
-                return $client->compareText($text, $metadata, false);
+                return $client->compareText($text, $metadata);
             case 'custom':
-                return $client->processCustomPrompt($text, $prompt, $metadata);
+                return $client->processCustomPrompt($text, $metadata);
             default:
                 throw new Exception('Unknown action: ' . $action);
         }
