@@ -276,6 +276,35 @@ class ChromaDBClient {
     }
 
     /**
+     * Get documents by their IDs from a collection
+     * 
+     * Retrieves documents from the specified collection using their IDs.
+     * 
+     * @param string $collectionName The name of the collection to get documents from
+     * @param array $ids The document IDs to retrieve
+     * @return array The retrieved documents
+     * @throws Exception If the collection ID is not found
+     */
+    public function getDocuments($collectionName, $ids) {
+        // Use provided name, fallback to 'documents' if empty
+        if (empty($collectionName)) {
+            $collectionName = 'documents';
+        }
+        
+        // First get the collection to find its ID
+        $collection = $this->getCollection($collectionName);
+        if (!isset($collection['id'])) {
+            throw new Exception("Collection ID not found for '{$collectionName}'");
+        }
+        
+        $collectionId = $collection['id'];
+        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/get";
+        $data = ['ids' => $ids];
+        
+        return $this->makeRequest($endpoint, 'POST', $data);
+    }
+
+    /**
      * Query a collection for similar documents
      * 
      * Queries the specified collection for documents similar to the provided query texts.

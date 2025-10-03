@@ -149,14 +149,11 @@ function sendFile($path, $host, $port, $tenant, $database) {
 function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database, $collectionChecked = false) {
     // Parse file path to extract metadata
     $id = parseFilePath($filePath);
-    
-    // Read file content
-    $content = file_get_contents($filePath);
-    
+        
     // Use the first part of the document ID as collection name, fallback to 'reports'
     $idParts = explode(':', $id);
     $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'reports';
-    
+        
     try {
         // Create collection if it doesn't exist (only if not already checked)
         if (!$collectionChecked) {
@@ -171,6 +168,19 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
                 echo "Collection created.\n";
             }
         }
+            
+        // Check if this document ID already exists in the collection
+        echo "Checking if document '$id' already exists...\n";
+        $existingDocs = $chroma->getDocuments($collectionName, [$id . '@1']);
+            
+        // If we found documents with this ID pattern, skip processing
+        if (!empty($existingDocs['ids']) && count($existingDocs['ids']) > 0) {
+            echo "Document '$id' already exists in collection '$collectionName'. Skipping...\n";
+            return;
+        }
+            
+        // Read file content
+        $content = file_get_contents($filePath);
         
         // Split document into chunks (paragraphs separated by two newlines)
         $paragraphs = preg_split('/\n\s*\n/', $content);
