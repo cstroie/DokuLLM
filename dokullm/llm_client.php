@@ -468,32 +468,21 @@ class llm_client_plugin_dokullm
                 break;
                 
             case 'get_template':
-                // Get template suggestion for the current text
-                // This would typically use the same logic as queryChromaDBTemplate
-                // Note: We ignore the language parameter for now as all reports are in Romanian
-                $templateIds = $this->queryChromaDBTemplate($this->getCurrentText());
-                if (!empty($templateIds)) {
-                    $templateContent = $this->getPageContent($templateIds[0]);
-                    if ($templateContent !== false) {
-                        $toolResponse['content'] = $templateContent;
-                    } else {
-                        $toolResponse['content'] = 'Template found but content could not be retrieved: ' . $templateIds[0];
-                    }
+                // Get template content using the convenience function
+                $templateContent = $this->getTemplateContent();
+                if (!empty($templateContent)) {
+                    $toolResponse['content'] = $templateContent;
                 } else {
                     $toolResponse['content'] = 'No template found for the current context';
                 }
                 break;
                 
             case 'get_examples':
-                // Get example snippets for the current text
+                // Get examples content using the convenience function
                 $count = isset($arguments['count']) ? (int)$arguments['count'] : 5;
-                $examples = $this->queryChromaDBSnippets($this->getCurrentText(), $count);
-                if (!empty($examples)) {
-                    $formattedExamples = [];
-                    foreach ($examples as $index => $example) {
-                        $formattedExamples[] = '<example id="' . ($index + 1) . '">' . $example . '</example>';
-                    }
-                    $toolResponse['content'] = '<examples>' . implode("\n", $formattedExamples) . '</examples>';
+                $examplesContent = $this->getExamplesContent($count);
+                if (!empty($examplesContent)) {
+                    $toolResponse['content'] = $examplesContent;
                 } else {
                     $toolResponse['content'] = 'No examples found for the current context';
                 }
@@ -703,32 +692,11 @@ class llm_client_plugin_dokullm
             // Add appropriate values for specific placeholders
             switch ($placeholder) {
                 case 'template':
-                    // Get template suggestion for the current text
-                    $templateIds = $this->queryChromaDBTemplate($this->getCurrentText());
-                    if (!empty($templateIds)) {
-                        $templateContent = $this->getPageContent($templateIds[0]);
-                        if ($templateContent !== false) {
-                            $variables[$placeholder] = $templateContent;
-                        } else {
-                            $variables[$placeholder] = '';
-                        }
-                    } else {
-                        $variables[$placeholder] = '';
-                    }
+                    $variables[$placeholder] = $this->getTemplateContent();
                     break;
                     
                 case 'examples':
-                    // Get example snippets for the current text
-                    $examples = $this->queryChromaDBSnippets($this->getCurrentText(), 10);
-                    if (!empty($examples)) {
-                        $formattedExamples = [];
-                        foreach ($examples as $index => $example) {
-                            $formattedExamples[] = '<example id="' . ($index + 1) . '">' . $example . '</example>';
-                        }
-                        $variables[$placeholder] = '<examples>' . implode("\n", $formattedExamples) . '</examples>';
-                    } else {
-                        $variables[$placeholder] = '';
-                    }
+                    $variables[$placeholder] = $this->getExamplesContent(10);
                     break;
                     
                 default:
@@ -873,6 +841,50 @@ class llm_client_plugin_dokullm
         }
         
         return $placeholders;
+    }
+    
+    /**
+     * Get template content for the current text
+     * 
+     * Convenience function to retrieve template content for the current text.
+     * Queries ChromaDB for a relevant template and returns its content.
+     * 
+     * @return string The template content or empty string if not found
+     */
+    private function getTemplateContent()
+    {
+        // Get template suggestion for the current text
+        $templateIds = $this->queryChromaDBTemplate($this->getCurrentText());
+        if (!empty($templateIds)) {
+            $templateContent = $this->getPageContent($templateIds[0]);
+            if ($templateContent !== false) {
+                return $templateContent;
+            }
+        }
+        return '';
+    }
+    
+    /**
+     * Get examples content for the current text
+     * 
+     * Convenience function to retrieve example snippets for the current text.
+     * Queries ChromaDB for relevant examples and returns them formatted.
+     * 
+     * @param int $count Number of examples to retrieve (default: 10)
+     * @return string Formatted examples content or empty string if not found
+     */
+    private function getExamplesContent($count = 10)
+    {
+        // Get example snippets for the current text
+        $examples = $this->queryChromaDBSnippets($this->getCurrentText(), $count);
+        if (!empty($examples)) {
+            $formattedExamples = [];
+            foreach ($examples as $index => $example) {
+                $formattedExamples[] = '<example id="' . ($index + 1) . '">' . $example . '</example>';
+            }
+            return '<examples>' . implode("\n", $formattedExamples) . '</examples>';
+        }
+        return '';
     }
     
     /**
