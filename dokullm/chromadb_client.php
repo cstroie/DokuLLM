@@ -302,8 +302,7 @@ class ChromaDBClient {
         $data = [
             'ids' => $ids,
             'include' => [
-                "metadatas",
-                "documents"
+                "metadatas"
             ],
             'limit' => 1
         ];
