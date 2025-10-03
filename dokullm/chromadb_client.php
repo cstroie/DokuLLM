@@ -315,19 +315,20 @@ class ChromaDBClient {
             
             // Check if any document has a processed_at timestamp
             if (!empty($result['metadatas']) && is_array($result['metadatas'])) {
-                foreach ($result['metadatas'] as $metadata) {
-                    // If processed_at is not set, return true (needs update)
-                    if (!isset($metadata['processed_at'])) {
-                        return true;
-                    }
-                    
-                    // Parse the processed_at timestamp
-                    $processedTimestamp = strtotime($metadata['processed_at']);
-                    
-                    // If file is newer than processed time, return true (needs update)
-                    if ($fileModifiedTime > $processedTimestamp) {
-                        return true;
-                    }
+                // Check the first metadata entry directly
+                $metadata = $result['metadatas'][0];
+                
+                // If processed_at is not set, return true (needs update)
+                if (!isset($metadata['processed_at'])) {
+                    return true;
+                }
+                
+                // Parse the processed_at timestamp
+                $processedTimestamp = strtotime($metadata['processed_at']);
+                
+                // If file is newer than processed time, return true (needs update)
+                if ($fileModifiedTime > $processedTimestamp) {
+                    return true;
                 }
             }
             
