@@ -159,9 +159,9 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
     // Parse file path to extract metadata
     $id = parseFilePath($filePath);
         
-    // Use the first part of the document ID as collection name, fallback to 'reports'
+    // Use the first part of the document ID as collection name, fallback to 'documents'
     $idParts = explode(':', $id);
-    $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'reports';
+    $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
         
     try {
         // Create collection if it doesn't exist (only if not already checked)
@@ -428,11 +428,11 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     
     echo "Found " . count($files) . " files to process.\n";
     
-    // Use the first part of the document ID as collection name, fallback to 'reports'
+    // Use the first part of the document ID as collection name, fallback to 'documents'
     $sampleFile = $files[0];
     $id = parseFilePath($sampleFile);
     $idParts = explode(':', $id);
-    $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'reports';
+    $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
     
     try {
         echo "Checking if collection '$collectionName' exists...\n";
