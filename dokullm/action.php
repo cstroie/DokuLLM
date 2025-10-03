@@ -121,6 +121,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $metadata = $INPUT->str('metadata', '{}');
         $template = $INPUT->str('template', '');
         $examples = $INPUT->str('examples', '');
+        $previous = $INPUT->str('previous', '');
         
         // Parse metadata
         $metadataArray = json_decode($metadata, true);
@@ -132,6 +133,11 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $examplesList = array_filter(array_map('trim', explode("\n", $examples)));
         if (!empty($examplesList)) {
             $metadataArray['examples'] = $examplesList;
+        }
+        
+        // Add previous content to metadata if provided
+        if (!empty($previous)) {
+            $metadataArray['previous'] = $previous;
         }
         
         // Handle the special case of get_actions action
