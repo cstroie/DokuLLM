@@ -18,6 +18,7 @@ function showUsage() {
     echo "  heartbeat  Check if ChromaDB server is alive\n";
     echo "  identity   Get authentication and identity information\n";
     echo "  list       List all collections\n";
+    echo "  get        Get a document by its ID\n";
     echo "\n";
     echo "Options:\n";
     echo "  --host HOST        ChromaDB server host (default: " . CHROMA_HOST . ")\n";
@@ -44,6 +45,9 @@ function showUsage() {
     echo "\n";
     echo "List collections:\n";
     echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] list\n";
+    echo "\n";
+    echo "Get a document:\n";
+    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] [--collection COLL] get \"document_id\"\n";
     exit(1);
 }
 
@@ -698,10 +702,65 @@ function parseArgs($argv) {
             $args['filepath'] = $argv[$i];
         } else if ($args['action'] === 'query' && !$args['query']) {
             $args['query'] = $argv[$i];
+        } else if ($args['action'] === 'get' && !$args['query']) {
+            $args['query'] = $argv[$i];
         }
     }
     
     return $args;
+}
+
+/**
+ * Get a document by its ID from ChromaDB
+ * 
+ * This function retrieves a document from the specified collection in ChromaDB
+ * using its ID. It displays the document content and metadata.
+ * 
+ * @param string $documentId The document ID to retrieve
+ * @param string $host ChromaDB server host
+ * @param int $port ChromaDB server port
+ * @param string $tenant ChromaDB tenant name
+ * @param string $database ChromaDB database name
+ * @param string $collection The collection to query (default: 'documents')
+ * @return void
+ */
+function getDocument($documentId, $host, $port, $tenant, $database, $collection = 'documents') {
+    // Create ChromaDB client
+    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
+    
+    try {
+        // Get the specified document by ID
+        $results = $chroma->getDocument($collection, $documentId);
+        
+        echo "Document retrieval results for: \"$documentId\"\n";
+        echo "Host: $host:$port\n";
+        echo "Tenant: $tenant\n";
+        echo "Database: $database\n";
+        echo "Collection: $collection\n";
+        echo "==========================================\n";
+        
+        if (empty($results['ids'])) {
+            echo "No document found with ID: $documentId\n";
+            return;
+        }
+        
+        for ($i = 0; $i < count($results['ids']); $i++) {
+            echo "Document " . ($i + 1) . ":\n";
+            echo "  ID: " . $results['ids'][$i] . "\n";
+            
+            if (isset($results['documents'][$i])) {
+                echo "  Content: " . $results['documents'][$i] . "\n";
+            }
+            
+            if (isset($results['metadatas'][$i])) {
+                echo "  Metadata: " . json_encode($results['metadatas'][$i], JSON_PRETTY_PRINT) . "\n";
+            }
+            echo "\n";
+        }
+    } catch (Exception $e) {
+        echo "Error retrieving document from ChromaDB: " . $e->getMessage() . "\n";
+        exit(1);
+    }
 }
 
 // Main script logic
@@ -734,6 +793,14 @@ switch ($args['action']) {
         
     case 'list':
         listCollections($args['host'], $args['port'], $args['tenant'], $args['database']);
+        break;
+        
+    case 'get':
+        if (!$args['query']) {
+            echo "Error: Missing document ID for get action\n";
+            showUsage();
+        }
+        getDocument($args['query'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['collection']);
         break;
         
     default:
