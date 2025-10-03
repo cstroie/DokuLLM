@@ -356,7 +356,7 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         echo "Adding " . count($chunkIds) . " chunks to ChromaDB...\n";
         $result = $chroma->addDocuments($collectionName, $chunkContents, $chunkIds, $chunkMetadatas, $chunkEmbeddings);
         echo "Successfully sent file to ChromaDB:\n";
-        echo "  Original ID: $id\n";
+        echo "  Document ID: $id\n";
         echo "  Chunks: " . count($chunkIds) . "\n";
         echo "  Host: $host:$port\n";
         echo "  Tenant: $tenant\n";
