@@ -131,6 +131,16 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         
         // Parse examples - split by newline and filter out empty lines
         $examplesList = array_filter(array_map('trim', explode("\n", $examples)));
+        
+        // Create meta object with prompt, template, examples, and previous
+        $meta = [
+            'prompt' => $prompt,
+            'template' => $template,
+            'examples' => $examplesList,
+            'previous' => $previous
+        ];
+        
+        // Add examples to metadata if provided
         if (!empty($examplesList)) {
             $metadataArray['examples'] = $examplesList;
         }
