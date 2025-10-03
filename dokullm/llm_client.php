@@ -717,7 +717,7 @@ class llm_client_plugin_dokullm
                     
                 case 'examples':
                     // If we have example page IDs in metadata, add examples content
-                    $variables[$placeholder] = $this->getExamplesContent($variables['id_examples']);
+                    $variables[$placeholder] = $this->getExamplesContent($variables['page_examples']);
                     break;
                     
                 default:
