@@ -867,14 +867,25 @@ class llm_client_plugin_dokullm
     /**
      * Get template content for the current text
      * 
-     * Convenience function to retrieve template content for the current text.
-     * Queries ChromaDB for a relevant template and returns its content.
+     * Convenience function to retrieve template content. If a pageId is provided,
+     * retrieves content directly from that page. Otherwise, queries ChromaDB for
+     * a relevant template based on the current text.
      * 
+     * @param string|null $pageId Optional page ID to retrieve template from directly
      * @return string The template content or empty string if not found
      */
-    private function getTemplateContent()
+    private function getTemplateContent($pageId = null)
     {
-        // Get template suggestion for the current text
+        // If pageId is provided, use it directly
+        if ($pageId !== null) {
+            $templateContent = $this->getPageContent($pageId);
+            if ($templateContent !== false) {
+                return $templateContent;
+            }
+            return '';
+        }
+        
+        // Otherwise, get template suggestion for the current text
         $templateIds = $this->queryChromaDBTemplate($this->getCurrentText());
         if (!empty($templateIds)) {
             $templateContent = $this->getPageContent($templateIds[0]);
