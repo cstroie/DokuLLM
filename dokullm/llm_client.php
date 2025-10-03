@@ -806,6 +806,28 @@ class llm_client_plugin_dokullm
     }
     
     /**
+     * Scan text for placeholders
+     * 
+     * Finds all placeholders in the format {placeholder_name} in the provided text
+     * and returns an array of unique placeholder names.
+     * 
+     * @param string $text The text to scan for placeholders
+     * @return array List of unique placeholder names found in the text
+     */
+    public function findPlaceholders($text)
+    {
+        $placeholders = [];
+        $pattern = '/\{([^}]+)\}/';
+        
+        if (preg_match_all($pattern, $text, $matches)) {
+            // Get unique placeholder names
+            $placeholders = array_unique($matches[1]);
+        }
+        
+        return $placeholders;
+    }
+    
+    /**
      * Get ChromaDB client with configuration
      * 
      * Creates and returns a ChromaDB client with the appropriate configuration.
