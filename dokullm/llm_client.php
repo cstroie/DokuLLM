@@ -703,13 +703,9 @@ class llm_client_plugin_dokullm
                     $variables[$placeholder] = $this->getSnippets(10);
                     break;
                     
-                case 'example_pages':
+                case 'examples':
                     // If we have example page IDs in metadata, add examples content
-                    if (!empty($variables['example_pages']) && is_array($variables['example_pages'])) {
-                        $variables[$placeholder] = $this->getExamplesContent($variables['example_pages']);
-                    } else {
-                        $variables[$placeholder] = '';
-                    }
+                    $variables[$placeholder] = $this->getExamplesContent($variables['id_examples']);
                     break;
                     
                 default:
@@ -912,7 +908,7 @@ class llm_client_plugin_dokullm
     private function getExamplesContent($exampleIds = [])
     {
         if (empty($exampleIds) || !is_array($exampleIds)) {
-            return '';
+            return '( no examples )';
         }
         
         $examplesContent = [];
