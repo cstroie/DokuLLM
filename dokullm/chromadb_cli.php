@@ -66,8 +66,8 @@ function showUsage() {
  * @return string The DokuWiki ID
  */
 function parseFilePath($filePath) {
-    // Use DokuWiki's function to get the pages directory if available, otherwise fallback
-    if (defined('DOKU_INC') && defined('DOKU_CONF')) {
+    // Use DokuWiki's constant to get the pages directory if available
+    if (defined('DOKU_INC')) {
         $pagesDir = DOKU_INC . 'data/pages/';
     } else {
         // Fallback to common DokuWiki installation path
