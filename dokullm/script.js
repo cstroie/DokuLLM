@@ -289,15 +289,13 @@
         formData.append('action', action);
         formData.append('text', textToProcess);
         formData.append('prompt', '');
-        // Append individual metadata fields instead of JSON string
-        if (metadata.template) {
-            formData.append('template', metadata.template);
-        }
-        if (metadata.examples && metadata.examples.length > 0) {
-            formData.append('examples', metadata.examples.join(','));
-        }
-        if (metadata.previous) {
-            formData.append('previous', metadata.previous);
+        // Append metadata fields generically
+        for (const [key, value] of Object.entries(metadata)) {
+            if (Array.isArray(value)) {
+                formData.append(key, value.join('\n'));
+            } else if (value) {
+                formData.append(key, value);
+            }
         }
         
         fetch(DOKU_BASE + 'lib/exe/ajax.php', {
@@ -548,15 +546,13 @@
         formData.append('action', 'custom');
         formData.append('text', textToProcess);
         formData.append('prompt', customPrompt);
-        // Append individual metadata fields instead of JSON string
-        if (metadata.template) {
-            formData.append('template', metadata.template);
-        }
-        if (metadata.examples && metadata.examples.length > 0) {
-            formData.append('examples', metadata.examples.join(','));
-        }
-        if (metadata.previous) {
-            formData.append('previous', metadata.previous);
+        // Append metadata fields generically
+        for (const [key, value] of Object.entries(metadata)) {
+            if (Array.isArray(value)) {
+                formData.append(key, value.join('\n'));
+            } else if (value) {
+                formData.append(key, value);
+            }
         }
         
         fetch(DOKU_BASE + 'lib/exe/ajax.php', {
