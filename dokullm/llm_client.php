@@ -105,15 +105,17 @@ class llm_client_plugin_dokullm
         // Store the current text for tool usage
         $this->currentText = $text;
         
-        // Prepare variables for prompt loading
-        $variables = ['text' => $text, 'think' => $this->think ? '/think' : '/no_think'];
+        // Add text, think and action to metadata
+        $metadata['text'] = $text;
+        $metadata['think'] = $this->think ? '/think' : '/no_think';
+        $metadata['action'] = $action;
         
         // If we have example page IDs in metadata, add examples content
         if (!empty($metadata['examples']) && is_array($metadata['examples'])) {
-            $variables['examples'] = $this->getExamplesContent($metadata['examples']);
+            $metadata['examples'] = $this->getExamplesContent($metadata['examples']);
         }
         
-        $prompt = $this->loadPrompt($action, $variables);
+        $prompt = $this->loadPrompt($action, $metadata);
         
         return $this->callAPI($action, $prompt, $metadata, $useContext);
     }
