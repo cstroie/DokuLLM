@@ -110,11 +110,6 @@ class llm_client_plugin_dokullm
         $metadata['think'] = $this->think ? '/think' : '/no_think';
         $metadata['action'] = $action;
         
-        // If we have example page IDs in metadata, add examples content
-        if (!empty($metadata['examples']) && is_array($metadata['examples'])) {
-            $metadata['examples'] = $this->getExamplesContent($metadata['examples']);
-        }
-        
         $prompt = $this->loadPrompt($action, $metadata);
         
         return $this->callAPI($action, $prompt, $metadata, $useContext);
@@ -709,9 +704,12 @@ class llm_client_plugin_dokullm
                     break;
                     
                 case 'examples':
-                    // For examples, we need example page IDs from metadata
-                    // This will be handled in the process method
-                    $variables[$placeholder] = '';
+                    // If we have example page IDs in metadata, add examples content
+                    if (!empty($variables['examples']) && is_array($variables['examples'])) {
+                        $variables[$placeholder] = $this->getExamplesContent($variables['examples']);
+                    } else {
+                        $variables[$placeholder] = '';
+                    }
                     break;
                     
                 default:
