@@ -126,20 +126,25 @@ function sendFile($path, $host, $port, $tenant, $database) {
 }
 
 /**
- * Process a single DokuWiki file and send it to ChromaDB
+ * Process a single DokuWiki file and send it to ChromaDB with intelligent update checking
  * 
  * This function handles the complete processing of a single DokuWiki file:
- * 1. Parses the file path to extract metadata
- * 2. Reads the file content
- * 3. Ensures the appropriate collection exists
- * 4. Splits the document into chunks (paragraphs)
- * 5. Extracts metadata from the DokuWiki ID format
- * 6. Generates embeddings for each chunk
- * 7. Sends all chunks to ChromaDB
+ * 1. Parses the file path to extract metadata and document ID
+ * 2. Determines the appropriate collection based on document ID
+ * 3. Checks if the document needs updating using timestamp comparison
+ * 4. Reads and processes file content only if update is needed
+ * 5. Splits the document into chunks (paragraphs)
+ * 6. Extracts rich metadata from the DokuWiki ID format
+ * 7. Generates embeddings for each chunk
+ * 8. Sends all chunks to ChromaDB with metadata
  * 
- * Two ID formats are supported:
+ * Supported ID formats:
  * - Format 1: reports:mri:institution:250620-name-surname (third part is institution name)
  * - Format 2: reports:mri:2024:g287-name-surname (third part is year)
+ * - Templates: reports:mri:templates:name-surname (contains 'templates' part)
+ * 
+ * The function implements smart update checking by comparing file modification time
+ * with the 'processed_at' timestamp in document metadata to avoid reprocessing unchanged files.
  * 
  * @param string $filePath The path to the file to process
  * @param ChromaDBClient $chroma The ChromaDB client instance
@@ -147,7 +152,7 @@ function sendFile($path, $host, $port, $tenant, $database) {
  * @param int $port ChromaDB server port
  * @param string $tenant ChromaDB tenant name
  * @param string $database ChromaDB database name
- * @param bool $collectionChecked Whether the collection has already been checked/created
+ * @param bool $collectionChecked Whether the collection has already been checked/created (optimization for batch processing)
  * @return void
  */
 function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database, $collectionChecked = false) {
@@ -297,7 +302,7 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
             }
         }
         
-        // Process each paragraph as a chunk
+        // Process each paragraph as a chunk with intelligent metadata handling
         $chunkIds = [];
         $chunkContents = [];
         $chunkMetadatas = [];
@@ -305,31 +310,32 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         $currentTags = [];
         
         foreach ($paragraphs as $index => $paragraph) {
-            // Skip empty paragraphs
+            // Skip empty paragraphs to avoid processing whitespace-only content
             $paragraph = trim($paragraph);
             if (empty($paragraph)) {
                 continue;
             }
             
             // Check if this is a DokuWiki title (starts and ends with =)
+            // Titles are converted to tags for better searchability but not stored as content chunks
             if (preg_match('/^=+(.*?)=+$/', $paragraph, $matches)) {
-                // Extract title content
+                // Extract title content and clean it
                 $titleContent = trim($matches[1]);
                 
-                // Split into words and create tags
+                // Split into words and create searchable tags
                 $words = preg_split('/\s+/', $titleContent);
                 $tags = [];
                 
                 foreach ($words as $word) {
-                    // Only use words longer than 3 characters
+                    // Only use words longer than 3 characters to reduce noise
                     if (strlen($word) >= 3) {
                         $tags[] = strtolower($word);
                     }
                 }
                 
-                // Remove duplicate tags
+                // Remove duplicate tags and store for use in subsequent chunks
                 $currentTags = array_unique($tags);
-                continue; // Skip storing title chunks
+                continue; // Skip storing title chunks as content
             }
             
             // Create chunk ID

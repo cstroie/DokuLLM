@@ -309,16 +309,17 @@ class ChromaDBClient {
     }
 
     /**
-     * Check if a document needs to be updated based on timestamp
+     * Check if a document needs to be updated based on timestamp comparison
      * 
-     * Checks if a document exists and if its timestamp is older than the file's modification time.
-     * This function checks the first 3 chunk IDs (@1, @2, @3) since the first chunks might be titles
-     * and therefore not included in the database.
+     * Determines whether a document should be reprocessed by comparing the file's last modification
+     * time with the processed_at timestamp stored in the document's metadata. The function checks
+     * the first 3 chunk IDs (@1, @2, @3) since the first chunks might be titles and therefore 
+     * not included in the database.
      * 
      * @param string $collectionId The ID of the collection to check documents in
-     * @param string $documentId The document ID to check
-     * @param int $fileModifiedTime The file's last modification timestamp
-     * @return bool True if document needs to be updated (doesn't exist or is outdated), false if up to date
+     * @param string $documentId The base document ID to check (without chunk suffixes)
+     * @param int $fileModifiedTime The file's last modification timestamp (from filemtime)
+     * @return bool True if document needs to be updated (doesn't exist, has no timestamp, or is outdated), false if up to date
      * @throws Exception If there's an error checking the document
      */
     public function needsUpdate($collectionId, $documentId, $fileModifiedTime) {
