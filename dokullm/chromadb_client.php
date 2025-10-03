@@ -280,26 +280,14 @@ class ChromaDBClient {
      * 
      * Checks if a document exists and if its timestamp is older than the file's modification time.
      * 
-     * @param string $collectionName The name of the collection to check documents in
+     * @param string $collectionId The ID of the collection to check documents in
      * @param string $documentId The document ID to check
      * @param int $fileModifiedTime The file's last modification timestamp
      * @return bool True if document needs to be updated, false otherwise
      * @throws Exception If there's an error checking the document
      */
-    public function needsUpdate($collectionName, $documentId, $fileModifiedTime) {
-        // Use provided name, fallback to 'documents' if empty
-        if (empty($collectionName)) {
-            $collectionName = 'documents';
-        }
-        
+    public function needsUpdate($collectionId, $documentId, $fileModifiedTime) {
         try {
-            // First get the collection to find its ID
-            $collection = $this->getCollection($collectionName);
-            if (!isset($collection['id'])) {
-                throw new Exception("Collection ID not found for '{$collectionName}'");
-            }
-            
-            $collectionId = $collection['id'];
             $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/get";
             
             // Check first 3 chunk numbers (@1, @2, @3) since first chunks might be titles and skipped
@@ -328,14 +316,17 @@ class ChromaDBClient {
             // Check if any document has a processed_at timestamp
             if (!empty($result['metadatas']) && is_array($result['metadatas'])) {
                 foreach ($result['metadatas'] as $metadata) {
-                    if (isset($metadata['processed_at'])) {
-                        // Parse the processed_at timestamp
-                        $processedTimestamp = strtotime($metadata['processed_at']);
-                        
-                        // If file is newer than processed time, return true (needs update)
-                        if ($fileModifiedTime > $processedTimestamp) {
-                            return true;
-                        }
+                    // If processed_at is not set, return true (needs update)
+                    if (!isset($metadata['processed_at'])) {
+                        return true;
+                    }
+                    
+                    // Parse the processed_at timestamp
+                    $processedTimestamp = strtotime($metadata['processed_at']);
+                    
+                    // If file is newer than processed time, return true (needs update)
+                    if ($fileModifiedTime > $processedTimestamp) {
+                        return true;
                     }
                 }
             }

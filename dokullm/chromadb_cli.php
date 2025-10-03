@@ -172,8 +172,15 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         // Get file modification time
         $fileModifiedTime = filemtime($filePath);
         
+        // Get collection ID
+        $collection = $chroma->getCollection($collectionName);
+        if (!isset($collection['id'])) {
+            throw new Exception("Collection ID not found for '{$collectionName}'");
+        }
+        $collectionId = $collection['id'];
+        
         // Check if document needs update
-        $needsUpdate = $chroma->needsUpdate($collectionName, $id, $fileModifiedTime);
+        $needsUpdate = $chroma->needsUpdate($collectionId, $id, $fileModifiedTime);
             
         // If document is up to date, skip processing
         if (!$needsUpdate) {
