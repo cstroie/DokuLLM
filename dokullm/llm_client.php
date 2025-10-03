@@ -105,8 +105,15 @@ class llm_client_plugin_dokullm
         // Store the current text for tool usage
         $this->currentText = $text;
         
-        $think = $this->think ? '/think' : '/no_think';
-        $prompt = $this->loadPrompt($action, ['text' => $text, 'think' => $think]);
+        // Prepare variables for prompt loading
+        $variables = ['text' => $text, 'think' => $this->think ? '/think' : '/no_think'];
+        
+        // If we have example page IDs in metadata, add examples content
+        if (!empty($metadata['examples']) && is_array($metadata['examples'])) {
+            $variables['examples'] = $this->getExamplesContent($metadata['examples']);
+        }
+        
+        $prompt = $this->loadPrompt($action, $variables);
         
         return $this->callAPI($action, $prompt, $metadata, $useContext);
     }
@@ -699,6 +706,12 @@ class llm_client_plugin_dokullm
                     $variables[$placeholder] = $this->getSnippets(10);
                     break;
                     
+                case 'examples':
+                    // For examples, we need example page IDs from metadata
+                    // This will be handled in the process method
+                    $variables[$placeholder] = '';
+                    break;
+                    
                 default:
                     // For other placeholders, leave them empty or set a default value
                     $variables[$placeholder] = '';
@@ -885,6 +898,32 @@ class llm_client_plugin_dokullm
             return implode("\n", $formattedExamples);
         }
         return '';
+    }
+    
+    /**
+     * Get examples content from example page IDs
+     * 
+     * Convenience function to retrieve content from example pages.
+     * Returns the content of each page packed in XML elements.
+     * 
+     * @param array $exampleIds List of example page IDs
+     * @return string Formatted examples content or empty string if not found
+     */
+    private function getExamplesContent($exampleIds = [])
+    {
+        if (empty($exampleIds) || !is_array($exampleIds)) {
+            return '';
+        }
+        
+        $examplesContent = [];
+        foreach ($exampleIds as $index => $exampleId) {
+            $content = $this->getPageContent($exampleId);
+            if ($content !== false) {
+                $examplesContent[] = '<example_page source="' . $exampleId . '">' . $content . '</example_page>';
+            }
+        }
+        
+        return implode("\n", $examplesContent);
     }
     
     /**
