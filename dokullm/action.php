@@ -193,7 +193,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             switch ($action) {
                 case 'create_DISABLED':
                     $result = $client->createReport($text, $metadata);
-                case 'compare':
+                case 'compare_DISABLED':
                     $result = $client->compareText($text, $metadata);
                 case 'custom':
                     $result = $client->processCustomPrompt($text, $metadata);
