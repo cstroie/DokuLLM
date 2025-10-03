@@ -720,6 +720,12 @@ class llm_client_plugin_dokullm
                 case 'previous':
                     // If we have a previous report page ID in metadata, add previous content
                     $variables[$placeholder] = $this->getPreviousContent($variables['page_previous']);
+                    
+                    // Add current and previous dates to metadata
+                    $variables['current_date'] = $this->getPageDate();
+                    $variables['previous_date'] = !empty($variables['page_previous']) ? 
+                                                $this->getPageDate($variables['page_previous']) : 
+                                                '';
                     break;
                     
                 default:
