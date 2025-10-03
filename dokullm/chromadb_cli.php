@@ -806,7 +806,7 @@ switch ($args['action']) {
             echo "Error: Missing document ID for get action\n";
             showUsage();
         }
-        getDocument($args['query'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['collection']);
+        getDocument($args['query'], $args['host'], $args['port'], $args['tenant'], $args['database']);
         break;
         
     default:
