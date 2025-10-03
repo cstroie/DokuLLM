@@ -717,9 +717,14 @@ class llm_client_plugin_dokullm
         
         // Check if there's a command-specific system prompt appendage
         if (!empty($action)) {
-            $commandSystemPrompt = $this->loadPrompt($action . ':system', $variables);            
-            if ($commandSystemPrompt !== false) {
-                $systemPrompt .= "\n" . $commandSystemPrompt;
+            try {
+                $commandSystemPrompt = $this->loadPrompt($action . ':system', $variables);            
+                if ($commandSystemPrompt !== false) {
+                    $systemPrompt .= "\n" . $commandSystemPrompt;
+                }
+            } catch (Exception $e) {
+                // Ignore exceptions when loading command-specific system prompt
+                // This allows the main system prompt to still be used
             }
         }
         
