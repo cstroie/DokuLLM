@@ -886,9 +886,9 @@ class llm_client_plugin_dokullm
         }
         
         // Otherwise, get template suggestion for the current text
-        $templateIds = $this->queryChromaDBTemplate($this->getCurrentText());
-        if (!empty($templateIds)) {
-            $templateContent = $this->getPageContent($templateIds[0]);
+        $pageId = $this->queryChromaDBTemplate($this->getCurrentText());
+        if (!empty($pageId)) {
+            $templateContent = $this->getPageContent($pageId[0]);
             if ($templateContent !== false) {
                 return $templateContent;
             }
