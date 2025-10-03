@@ -210,42 +210,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     }
 
     /**
-     * Process text based on the specified action
-     * 
-     * Routes the text processing request to the appropriate method in
-     * the LLM client based on the action parameter.
-     * 
-     * The processing behavior is affected by the 'think' configuration parameter:
-     * - When 'think' is true, the LLM will engage in deeper thinking processes
-     * - When 'think' is false, the LLM will provide direct responses
-     * 
-     * @param string $action The action to perform (create, rewrite, grammar, etc.)
-     * @param string $text The text to process
-     * @param string $prompt Additional prompt information (used for custom prompts)
-     * @param array $metadata Metadata array containing template and examples information
-     * @param string $template Template identifier for get_template action
-     * @return string|array The processed text result or array for template content
-     * @throws Exception If an unknown action is provided
-     */
-    private function processText($action, $text, $metadata = [])
-    {
-        require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
-        
-        $client = new llm_client_plugin_dokullm();
-        
-        switch ($action) {
-            case 'create':
-                return $client->createReport($text, $metadata);
-            case 'compare':
-                return $client->compareText($text, $metadata);
-            case 'custom':
-                return $client->processCustomPrompt($text, $metadata);
-            default:
-                throw new Exception('Unknown action: ' . $action);
-        }
-    }
-
-    /**
      * Get action definitions from the DokuWiki table at dokullm:prompts
      * 
      * Parses the table containing action definitions with columns:
