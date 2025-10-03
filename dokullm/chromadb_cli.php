@@ -202,6 +202,9 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         // Add the document ID as metadata
         $baseMetadata['document_id'] = $id;
         
+        // Add current timestamp
+        $baseMetadata['processed_at'] = date('Y-m-d H:i:s');
+        
         // Check if any part of the ID is 'templates' and set template metadata
         $isTemplate = in_array('templates', $parts);
         if ($isTemplate) {
