@@ -703,10 +703,10 @@ class llm_client_plugin_dokullm
                     $variables[$placeholder] = $this->getSnippets(10);
                     break;
                     
-                case 'examples':
+                case 'example_pages':
                     // If we have example page IDs in metadata, add examples content
-                    if (!empty($variables['examples']) && is_array($variables['examples'])) {
-                        $variables[$placeholder] = $this->getExamplesContent($variables['examples']);
+                    if (!empty($variables['example_pages']) && is_array($variables['example_pages'])) {
+                        $variables[$placeholder] = $this->getExamplesContent($variables['example_pages']);
                     } else {
                         $variables[$placeholder] = '';
                     }
