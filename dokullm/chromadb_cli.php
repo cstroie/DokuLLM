@@ -110,6 +110,13 @@ function sendFile($path, $host, $port, $tenant, $database) {
             exit(1);
         }
         
+        // Skip files that start with underscore
+        $filename = basename($path);
+        if ($filename[0] === '_') {
+            echo "Skipping file (starts with underscore): $path\n";
+            return;
+        }
+        
         processSingleFile($path, $chroma, $host, $port, $tenant, $database);
     }
 }
@@ -370,8 +377,8 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     
     $files = [];
     foreach ($iterator as $file) {
-        // Process only .txt files
-        if ($file->isFile() && $file->getExtension() === 'txt') {
+        // Process only .txt files that don't start with underscore
+        if ($file->isFile() && $file->getExtension() === 'txt' && $file->getFilename()[0] !== '_') {
             $files[] = $file->getPathname();
         }
     }
