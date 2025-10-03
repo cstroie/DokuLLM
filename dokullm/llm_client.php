@@ -110,6 +110,12 @@ class llm_client_plugin_dokullm
         $metadata['think'] = $this->think ? '/think' : '/no_think';
         $metadata['action'] = $action;
         
+        // If we have 'template' in metadata, move it to 'page_template'
+        if (isset($metadata['template'])) {
+            $metadata['page_template'] = $metadata['template'];
+            unset($metadata['template']);
+        }
+        
         // If we have 'examples' in metadata, move it to 'page_examples'
         if (isset($metadata['examples'])) {
             $metadata['page_examples'] = $metadata['examples'];
