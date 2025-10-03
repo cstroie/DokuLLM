@@ -289,7 +289,16 @@
         formData.append('action', action);
         formData.append('text', textToProcess);
         formData.append('prompt', '');
-        formData.append('metadata', JSON.stringify(metadata));
+        // Append individual metadata fields instead of JSON string
+        if (metadata.template) {
+            formData.append('template', metadata.template);
+        }
+        if (metadata.examples && metadata.examples.length > 0) {
+            formData.append('examples', metadata.examples.join(','));
+        }
+        if (metadata.previous) {
+            formData.append('previous', metadata.previous);
+        }
         
         fetch(DOKU_BASE + 'lib/exe/ajax.php', {
             method: 'POST',
@@ -539,7 +548,16 @@
         formData.append('action', 'custom');
         formData.append('text', textToProcess);
         formData.append('prompt', customPrompt);
-        formData.append('metadata', JSON.stringify(metadata));
+        // Append individual metadata fields instead of JSON string
+        if (metadata.template) {
+            formData.append('template', metadata.template);
+        }
+        if (metadata.examples && metadata.examples.length > 0) {
+            formData.append('examples', metadata.examples.join(','));
+        }
+        if (metadata.previous) {
+            formData.append('previous', metadata.previous);
+        }
         
         fetch(DOKU_BASE + 'lib/exe/ajax.php', {
             method: 'POST',
