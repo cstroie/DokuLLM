@@ -427,11 +427,6 @@ class ChromaDBClient {
     /**
      * Check if the ChromaDB server is alive
      * 
-     * @return array The response from the heartbeat endpoint
-     */
-    /**
-     * Check if the ChromaDB server is alive
-     * 
      * Sends a heartbeat request to verify that the ChromaDB server is running.
      * 
      * @return array The response from the heartbeat endpoint
@@ -444,11 +439,6 @@ class ChromaDBClient {
     /**
      * Get authentication and identity information
      * 
-     * @return array The response from the auth/identity endpoint
-     */
-    /**
-     * Get authentication and identity information
-     * 
      * Retrieves authentication and identity information from the ChromaDB server.
      * 
      * @return array The response from the auth/identity endpoint
@@ -458,11 +448,6 @@ class ChromaDBClient {
         return $this->makeRequest($endpoint, 'GET');
     }
 
-    /**
-     * Ensure that the specified tenant and database exist
-     * 
-     * @return void
-     */
     /**
      * Ensure that the specified tenant and database exist
      * 
@@ -491,12 +476,6 @@ class ChromaDBClient {
     /**
      * Get tenant information
      * 
-     * @param string $tenantName The tenant name
-     * @return array The tenant information
-     */
-    /**
-     * Get tenant information
-     * 
      * Retrieves information about the specified tenant.
      * 
      * @param string $tenantName The tenant name
@@ -507,12 +486,6 @@ class ChromaDBClient {
         return $this->makeRequest($endpoint, 'GET');
     }
     
-    /**
-     * Create a new tenant
-     * 
-     * @param string $tenantName The tenant name
-     * @return array The response from the API
-     */
     /**
      * Create a new tenant
      * 
@@ -530,13 +503,6 @@ class ChromaDBClient {
     /**
      * Get database information
      * 
-     * @param string $databaseName The database name
-     * @param string $tenantName The tenant name
-     * @return array The database information
-     */
-    /**
-     * Get database information
-     * 
      * Retrieves information about the specified database within a tenant.
      * 
      * @param string $databaseName The database name
@@ -548,13 +514,6 @@ class ChromaDBClient {
         return $this->makeRequest($endpoint, 'GET');
     }
     
-    /**
-     * Create a new database
-     * 
-     * @param string $databaseName The database name
-     * @param string $tenantName The tenant name
-     * @return array The response from the API
-     */
     /**
      * Create a new database
      * 
