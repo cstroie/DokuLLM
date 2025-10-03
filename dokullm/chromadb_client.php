@@ -276,41 +276,6 @@ class ChromaDBClient {
     }
 
     /**
-     * Check if documents exist by their IDs in a collection
-     * 
-     * Checks if documents exist in the specified collection using their IDs.
-     * 
-     * @param string $collectionName The name of the collection to check documents in
-     * @param array $ids The document IDs to check
-     * @return array The check results
-     * @throws Exception If the collection ID is not found
-     */
-    public function checkDocument($collectionName, $ids) {
-        // Use provided name, fallback to 'documents' if empty
-        if (empty($collectionName)) {
-            $collectionName = 'documents';
-        }
-        
-        // First get the collection to find its ID
-        $collection = $this->getCollection($collectionName);
-        if (!isset($collection['id'])) {
-            throw new Exception("Collection ID not found for '{$collectionName}'");
-        }
-        
-        $collectionId = $collection['id'];
-        $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/get";
-        $data = [
-            'ids' => $ids,
-            'include' => [
-                "metadatas"
-            ],
-            'limit' => 1
-        ];
-        
-        return $this->makeRequest($endpoint, 'POST', $data);
-    }
-
-    /**
      * Check if a document needs to be updated based on timestamp
      * 
      * Checks if a document exists and if its timestamp is older than the file's modification time.
@@ -328,8 +293,24 @@ class ChromaDBClient {
         }
         
         try {
+            // First get the collection to find its ID
+            $collection = $this->getCollection($collectionName);
+            if (!isset($collection['id'])) {
+                throw new Exception("Collection ID not found for '{$collectionName}'");
+            }
+            
+            $collectionId = $collection['id'];
+            $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/get";
+            $data = [
+                'ids' => $ids,
+                'include' => [
+                    "metadatas"
+                ],
+                'limit' => 1
+            ];
+            
             // Check if document exists
-            $result = $this->checkDocument($collectionName, $ids);
+            $result = $this->makeRequest($endpoint, 'POST', $data);
             
             // If no documents found, return true (needs to be added)
             if (empty($result['ids'])) {
