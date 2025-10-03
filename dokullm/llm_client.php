@@ -482,7 +482,7 @@ class llm_client_plugin_dokullm
                 $count = isset($arguments['count']) ? (int)$arguments['count'] : 5;
                 $examplesContent = $this->getExamplesContent($count);
                 if (!empty($examplesContent)) {
-                    $toolResponse['content'] = $examplesContent;
+                    $toolResponse['content'] = '<examples>' . $examplesContent . '</examples>';
                 } else {
                     $toolResponse['content'] = 'No examples found for the current context';
                 }
