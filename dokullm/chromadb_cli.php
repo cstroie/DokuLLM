@@ -171,7 +171,6 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
             
         // Check if this document ID already exists in the collection
         // Check first 3 chunk numbers (@1, @2, @3) since first chunks might be titles and skipped
-        echo "Checking if document '$id' already exists...\n";
         $chunkIdsToCheck = [
             $id . '@1',
             $id . '@2', 
