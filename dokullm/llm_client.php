@@ -480,7 +480,7 @@ class llm_client_plugin_dokullm
             case 'get_examples':
                 // Get examples content using the convenience function
                 $count = isset($arguments['count']) ? (int)$arguments['count'] : 5;
-                $examplesContent = $this->getExamplesContent($count);
+                $examplesContent = $this->getSnippets($count);
                 if (!empty($examplesContent)) {
                     $toolResponse['content'] = '<examples>' . $examplesContent . '</examples>';
                 } else {
@@ -696,7 +696,7 @@ class llm_client_plugin_dokullm
                     break;
                     
                 case 'snippets':
-                    $variables[$placeholder] = $this->getExamplesContent(10);
+                    $variables[$placeholder] = $this->getSnippets(10);
                     break;
                     
                 default:
@@ -865,15 +865,15 @@ class llm_client_plugin_dokullm
     }
     
     /**
-     * Get examples content for the current text
+     * Get snippets content for the current text
      * 
-     * Convenience function to retrieve example snippets for the current text.
-     * Queries ChromaDB for relevant examples and returns them formatted.
+     * Convenience function to retrieve relevant snippets for the current text.
+     * Queries ChromaDB for relevant snippets and returns them formatted.
      * 
-     * @param int $count Number of examples to retrieve (default: 10)
-     * @return string Formatted examples content or empty string if not found
+     * @param int $count Number of snippets to retrieve (default: 10)
+     * @return string Formatted snippets content or empty string if not found
      */
-    private function getExamplesContent($count = 10)
+    private function getSnippets($count = 10)
     {
         // Get example snippets for the current text
         $examples = $this->queryChromaDBSnippets($this->getCurrentText(), $count);
