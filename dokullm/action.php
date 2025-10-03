@@ -129,9 +129,9 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         }
         
         // Parse examples - split by newline and filter out empty lines
-        $examplesArray = array_filter(array_map('trim', explode("\n", $examples)));
-        if (!empty($examplesArray)) {
-            $metadataArray['examples'] = $examplesArray;
+        $examplesList = array_filter(array_map('trim', explode("\n", $examples)));
+        if (!empty($examplesList)) {
+            $metadataArray['examples'] = $examplesList;
         }
         
         // Handle the special case of get_actions action
