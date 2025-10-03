@@ -176,7 +176,7 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
             $id . '@2', 
             $id . '@3'
         ];
-        $existingDocs = $chroma->getDocuments($collectionName, $chunkIdsToCheck);
+        $existingDocs = $chroma->checkDocument($collectionName, $chunkIdsToCheck);
             
         // If we found documents with any of these ID patterns, skip processing
         if (!empty($existingDocs['ids']) && count($existingDocs['ids']) > 0) {
