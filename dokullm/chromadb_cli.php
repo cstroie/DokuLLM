@@ -55,7 +55,7 @@ function showUsage() {
  * Parse a file path and convert it to a DokuWiki ID
  * 
  * Takes a file system path and converts it to the DokuWiki ID format by:
- * 1. Removing the base path prefix
+ * 1. Removing the base path prefix (using DokuWiki's pages directory)
  * 2. Removing the .txt extension
  * 3. Converting directory separators to colons
  * 
@@ -66,8 +66,16 @@ function showUsage() {
  * @return string The DokuWiki ID
  */
 function parseFilePath($filePath) {
+    // Use DokuWiki's function to get the pages directory if available, otherwise fallback
+    if (defined('DOKU_INC') && defined('DOKU_CONF')) {
+        $pagesDir = DOKU_INC . 'data/pages/';
+    } else {
+        // Fallback to common DokuWiki installation path
+        $pagesDir = '/var/www/html/dokuwiki/data/pages/';
+    }
+    
     // Remove the base path
-    $relativePath = str_replace('/var/www/html/dokuwiki/data/pages/reports/', '', $filePath);
+    $relativePath = str_replace($pagesDir, '', $filePath);
     
     // Remove .txt extension
     $relativePath = preg_replace('/\.txt$/', '', $relativePath);
@@ -75,8 +83,8 @@ function parseFilePath($filePath) {
     // Split path into parts and filter out empty parts
     $parts = array_filter(explode('/', $relativePath));
     
-    // Build DokuWiki ID (reports:modality:...)
-    $idParts = ['reports'];
+    // Build DokuWiki ID (use first part as namespace)
+    $idParts = [];
     foreach ($parts as $part) {
         if (!empty($part)) {
             $idParts[] = $part;
