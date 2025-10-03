@@ -346,6 +346,12 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
             $chunkEmbeddings[] = $embeddings;
         }
         
+        // If no chunks were created, skip this file
+        if (empty($chunkIds)) {
+            echo "No valid chunks found in file '$id'. Skipping...\n";
+            return;
+        }
+        
         // Send all chunks to ChromaDB
         echo "Adding " . count($chunkIds) . " chunks to ChromaDB...\n";
         $result = $chroma->addDocuments($collectionName, $chunkContents, $chunkIds, $chunkMetadatas, $chunkEmbeddings);
