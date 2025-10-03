@@ -655,8 +655,8 @@ class llm_client_plugin_dokullm
      * 2. If not found, falls back to English prompts
      * 3. Throws an exception if neither is available
      * 
-     * After loading the prompt, it replaces placeholders with actual values
-     * using a simple string replacement mechanism.
+     * After loading the prompt, it scans for placeholders and automatically
+     * adds missing ones with appropriate values before replacing all placeholders.
      * 
      * @param string $promptName The name of the prompt (e.g., 'create', 'rewrite')
      * @param array $variables Associative array of placeholder => value pairs
@@ -688,6 +688,54 @@ class llm_client_plugin_dokullm
         // If still no prompt found, throw an exception
         if ($prompt === false) {
             throw new Exception('Prompt page not found: ' . $promptPageId);
+        }
+        
+        // Find placeholders in the prompt
+        $placeholders = $this->findPlaceholders($prompt);
+        
+        // Add missing placeholders with appropriate values
+        foreach ($placeholders as $placeholder) {
+            // Skip if already provided in variables
+            if (isset($variables[$placeholder])) {
+                continue;
+            }
+            
+            // Add appropriate values for specific placeholders
+            switch ($placeholder) {
+                case 'template':
+                    // Get template suggestion for the current text
+                    $templateIds = $this->queryChromaDBTemplate($this->getCurrentText());
+                    if (!empty($templateIds)) {
+                        $templateContent = $this->getPageContent($templateIds[0]);
+                        if ($templateContent !== false) {
+                            $variables[$placeholder] = $templateContent;
+                        } else {
+                            $variables[$placeholder] = '';
+                        }
+                    } else {
+                        $variables[$placeholder] = '';
+                    }
+                    break;
+                    
+                case 'examples':
+                    // Get example snippets for the current text
+                    $examples = $this->queryChromaDBSnippets($this->getCurrentText(), 10);
+                    if (!empty($examples)) {
+                        $formattedExamples = [];
+                        foreach ($examples as $index => $example) {
+                            $formattedExamples[] = '<example id="' . ($index + 1) . '">' . $example . '</example>';
+                        }
+                        $variables[$placeholder] = '<examples>' . implode("\n", $formattedExamples) . '</examples>';
+                    } else {
+                        $variables[$placeholder] = '';
+                    }
+                    break;
+                    
+                default:
+                    // For other placeholders, leave them empty or set a default value
+                    $variables[$placeholder] = '';
+                    break;
+            }
         }
         
         // Replace placeholders with actual values
