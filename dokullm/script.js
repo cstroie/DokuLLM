@@ -80,7 +80,7 @@
         toolbar.className = 'toolbar';
         
         // Get metadata to check if template exists
-        const metadata = getPageMetadata();
+        const metadata = getMetadata();
         console.log('DokuLLM: Page metadata retrieved', metadata);
         
         // Add template button if template is defined
@@ -146,7 +146,7 @@
         addStyles();
         
         // Fetch action definitions from the API
-        fetchActionDefinitions()
+        getActions()
             .then(actions => {
                 // Remove loading indicator
                 const loadingElement = document.getElementById('llm-loading');
@@ -258,7 +258,7 @@
         };
         
         // Get metadata from the page
-        const metadata = getPageMetadata();
+        const metadata = getMetadata();
         console.log('DokuLLM: Retrieved metadata:', metadata);
         
         const selectedText = getSelectedText(editor);
@@ -518,7 +518,7 @@
         }
         
         // Get metadata from the page
-        const metadata = getPageMetadata();
+        const metadata = getMetadata();
         console.log('DokuLLM: Retrieved metadata for custom prompt:', metadata);
         
         // Find the Send button and show loading state
@@ -707,11 +707,11 @@
      * 
      * @returns {Object} Metadata object with template and examples
      */
-    function getPageMetadata() {
+    function getMetadata() {
         const metadata = {
             template: '',
             examples: [],
-            previous_report_page: ''
+            previous: ''
         };
         
         // Look for metadata in the page content
@@ -732,7 +732,7 @@
         // Extract previous report page from metadata
         const previousReportMatch = pageContent.match(/~~LLM_PREVIOUS:([^~]+)~~/);
         if (previousReportMatch) {
-            metadata.previous_report_page = previousReportMatch[1].trim();
+            metadata.previous = previousReportMatch[1].trim();
         }
         
         return metadata;
@@ -930,7 +930,7 @@
      * 
      * @returns {Promise<Array>} Promise that resolves to an array of action definitions
      */
-    function fetchActionDefinitions() {
+    function getActions() {
         return new Promise((resolve, reject) => {
             const formData = new FormData();
             formData.append('call', 'plugin_dokullm');
