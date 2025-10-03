@@ -304,7 +304,8 @@ class ChromaDBClient {
             'include' => [
                 "metadatas",
                 "documents"
-            ]
+            ],
+            'limit' => 1
         ];
         
         return $this->makeRequest($endpoint, 'POST', $data);
