@@ -724,7 +724,13 @@ function parseArgs($argv) {
  * @param string $collection The collection to query (default: 'documents')
  * @return void
  */
-function getDocument($documentId, $host, $port, $tenant, $database, $collection = 'documents') {
+function getDocument($documentId, $host, $port, $tenant, $database, $collection = null) {
+    // If no collection specified, derive it from the first part of the document ID
+    if (empty($collection)) {
+        $idParts = explode(':', $documentId);
+        $collection = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
+    }
+    
     // Create ChromaDB client
     $chroma = new ChromaDBClient($host, $port, $tenant, $database);
     
