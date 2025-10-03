@@ -281,12 +281,12 @@ class ChromaDBClient {
      * Checks if a document exists and if its timestamp is older than the file's modification time.
      * 
      * @param string $collectionName The name of the collection to check documents in
-     * @param array $ids The document IDs to check
+     * @param string $documentId The document ID to check
      * @param int $fileModifiedTime The file's last modification timestamp
      * @return bool True if document needs to be updated, false otherwise
      * @throws Exception If there's an error checking the document
      */
-    public function needsUpdate($collectionName, $ids, $fileModifiedTime) {
+    public function needsUpdate($collectionName, $documentId, $fileModifiedTime) {
         // Use provided name, fallback to 'documents' if empty
         if (empty($collectionName)) {
             $collectionName = 'documents';
@@ -301,8 +301,16 @@ class ChromaDBClient {
             
             $collectionId = $collection['id'];
             $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/get";
+            
+            // Check first 3 chunk numbers (@1, @2, @3) since first chunks might be titles and skipped
+            $chunkIdsToCheck = [
+                $documentId . '@1',
+                $documentId . '@2', 
+                $documentId . '@3'
+            ];
+            
             $data = [
-                'ids' => $ids,
+                'ids' => $chunkIdsToCheck,
                 'include' => [
                     "metadatas"
                 ],

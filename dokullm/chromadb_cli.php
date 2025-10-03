@@ -169,19 +169,11 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
             }
         }
             
-        // Check if this document needs to be updated based on timestamp
-        // Check first 3 chunk numbers (@1, @2, @3) since first chunks might be titles and skipped
-        $chunkIdsToCheck = [
-            $id . '@1',
-            $id . '@2', 
-            $id . '@3'
-        ];
-        
         // Get file modification time
         $fileModifiedTime = filemtime($filePath);
         
         // Check if document needs update
-        $needsUpdate = $chroma->needsUpdate($collectionName, $chunkIdsToCheck, $fileModifiedTime);
+        $needsUpdate = $chroma->needsUpdate($collectionName, $id, $fileModifiedTime);
             
         // If document is up to date, skip processing
         if (!$needsUpdate) {
