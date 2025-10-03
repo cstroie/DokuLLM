@@ -185,27 +185,25 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             echo json_encode(['error' => 'No text provided']);
             return;
         }
-        
-        // Process based on action
+
+
+        require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
+        $client = new llm_client_plugin_dokullm();
         try {
-            $result = $this->processText($action, $text, $metadata);
+            switch ($action) {
+                case 'create':
+                    $result = $client->createReport($text, $metadata);
+                case 'compare':
+                    $result = $client->compareText($text, $metadata);
+                case 'custom':
+                    $result = $client->processCustomPrompt($text, $metadata);
+                default:
+                    $result = $client->process($action, $text, $metadata);
+            }
             echo json_encode(['result' => $result]);
         } catch (Exception $e) {
-            // If we get an unknown action error, try to process it directly through the LLM client
-            if (strpos($e->getMessage(), 'Unknown action') !== false) {
-                try {
-                    require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
-                    $client = new llm_client_plugin_dokullm();
-                    $result = $client->process($action, $text, $metadata);
-                    echo json_encode(['result' => $result]);
-                } catch (Exception $e2) {
-                    http_status(500);
-                    echo json_encode(['error' => $e2->getMessage()]);
-                }
-            } else {
-                http_status(500);
-                echo json_encode(['error' => $e->getMessage()]);
-            }
+            http_status(500);
+            echo json_encode(['error' => $e->getMessage()]);
         }
     }
 
