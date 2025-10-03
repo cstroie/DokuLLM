@@ -170,10 +170,16 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         }
             
         // Check if this document ID already exists in the collection
+        // Check first 3 chunk numbers (@1, @2, @3) since first chunks might be titles and skipped
         echo "Checking if document '$id' already exists...\n";
-        $existingDocs = $chroma->getDocuments($collectionName, [$id . '@1']);
+        $chunkIdsToCheck = [
+            $id . '@1',
+            $id . '@2', 
+            $id . '@3'
+        ];
+        $existingDocs = $chroma->getDocuments($collectionName, $chunkIdsToCheck);
             
-        // If we found documents with this ID pattern, skip processing
+        // If we found documents with any of these ID patterns, skip processing
         if (!empty($existingDocs['ids']) && count($existingDocs['ids']) > 0) {
             echo "Document '$id' already exists in collection '$collectionName'. Skipping...\n";
             return;
