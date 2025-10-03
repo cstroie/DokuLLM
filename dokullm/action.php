@@ -191,7 +191,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $client = new llm_client_plugin_dokullm();
         try {
             switch ($action) {
-                case 'create':
+                case 'create_DISABLED':
                     $result = $client->createReport($text, $metadata);
                 case 'compare':
                     $result = $client->compareText($text, $metadata);

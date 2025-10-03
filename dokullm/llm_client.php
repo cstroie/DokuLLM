@@ -709,11 +709,7 @@ class llm_client_plugin_dokullm
             switch ($placeholder) {
                 case 'template':
                     // If we have a page_template in variables, use it
-                    if (!empty($variables['page_template'])) {
-                        $variables[$placeholder] = $this->getTemplateContent($variables['page_template']);
-                    } else {
-                        $variables[$placeholder] = $this->getTemplateContent();
-                    }
+                    $variables[$placeholder] = $this->getTemplateContent($variables['page_template']);
                     break;
                     
                 case 'snippets':
