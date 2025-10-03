@@ -311,6 +311,55 @@ class ChromaDBClient {
     }
 
     /**
+     * Check if a document needs to be updated based on timestamp
+     * 
+     * Checks if a document exists and if its timestamp is older than the file's modification time.
+     * 
+     * @param string $collectionName The name of the collection to check documents in
+     * @param array $ids The document IDs to check
+     * @param int $fileModifiedTime The file's last modification timestamp
+     * @return bool True if document needs to be updated, false otherwise
+     * @throws Exception If there's an error checking the document
+     */
+    public function checkDocumentNeedsUpdate($collectionName, $ids, $fileModifiedTime) {
+        // Use provided name, fallback to 'documents' if empty
+        if (empty($collectionName)) {
+            $collectionName = 'documents';
+        }
+        
+        try {
+            // Check if document exists
+            $result = $this->checkDocument($collectionName, $ids);
+            
+            // If no documents found, return true (needs to be added)
+            if (empty($result['ids'])) {
+                return true;
+            }
+            
+            // Check if any document has a processed_at timestamp
+            if (!empty($result['metadatas']) && is_array($result['metadatas'])) {
+                foreach ($result['metadatas'] as $metadata) {
+                    if (isset($metadata['processed_at'])) {
+                        // Parse the processed_at timestamp
+                        $processedTimestamp = strtotime($metadata['processed_at']);
+                        
+                        // If file is newer than processed time, return true (needs update)
+                        if ($fileModifiedTime > $processedTimestamp) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            // Document exists and is up to date
+            return false;
+        } catch (Exception $e) {
+            // If there's an error checking the document, assume it needs to be updated
+            return true;
+        }
+    }
+
+    /**
      * Query a collection for similar documents
      * 
      * Queries the specified collection for documents similar to the provided query texts.

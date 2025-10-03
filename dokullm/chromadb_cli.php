@@ -169,18 +169,23 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
             }
         }
             
-        // Check if this document ID already exists in the collection
+        // Check if this document needs to be updated based on timestamp
         // Check first 3 chunk numbers (@1, @2, @3) since first chunks might be titles and skipped
         $chunkIdsToCheck = [
             $id . '@1',
             $id . '@2', 
             $id . '@3'
         ];
-        $existingDocs = $chroma->checkDocument($collectionName, $chunkIdsToCheck);
+        
+        // Get file modification time
+        $fileModifiedTime = filemtime($filePath);
+        
+        // Check if document needs update
+        $needsUpdate = $chroma->checkDocumentNeedsUpdate($collectionName, $chunkIdsToCheck, $fileModifiedTime);
             
-        // If we found documents with any of these ID patterns, skip processing
-        if (!empty($existingDocs['ids']) && count($existingDocs['ids']) > 0) {
-            echo "Document '$id' already exists in collection '$collectionName'. Skipping...\n";
+        // If document is up to date, skip processing
+        if (!$needsUpdate) {
+            echo "Document '$id' is up to date in collection '$collectionName'. Skipping...\n";
             return;
         }
             
