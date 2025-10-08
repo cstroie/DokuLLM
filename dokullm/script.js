@@ -304,7 +304,9 @@
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                return response.text().then(text => {
+                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+                });
             }
             console.log('DokuLLM: Received response from backend');
             return response.json();
@@ -561,7 +563,9 @@
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                return response.text().then(text => {
+                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+                });
             }
             console.log('DokuLLM: Received response for custom prompt');
             return response.json();
@@ -956,7 +960,9 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    return response.text().then(text => {
+                        throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+                    });
                 }
                 return response.json();
             })
