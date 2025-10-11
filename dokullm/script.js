@@ -163,8 +163,8 @@
                     btn.title = action.description || '';
                     btn.dataset.action = action.id;
                     btn.dataset.result = action.result;
-                    btn.addEventListener('click', function() {
-                        processLLMAction(action.id);
+                    btn.addEventListener('click', function(event) {
+                        processLLMAction(action.id, event);
                     });
                     toolbar.appendChild(btn);
                 });
@@ -243,7 +243,7 @@
     // Store selection range for processing
     let currentSelectionRange = null;
     
-    function processLLMAction(action) {
+    function processLLMAction(action, event) {
         console.log('DokuLLM: Processing text with action:', action);
         const editor = document.getElementById('wiki__text');
         if (!editor) {
@@ -289,6 +289,9 @@
             originalStates.promptInput = promptInput.disabled;
             promptInput.disabled = true;
         }
+        
+        // Store reference to the button that triggered this action
+        const originalButton = event.target;
         
         // Disable all buttons and store their original states
         buttons.forEach(button => {
