@@ -425,6 +425,12 @@
         // Process code blocks first (```code```)
         let html = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
         
+        // Process DokuWiki file blocks ({{file>page#section}})
+        html = html.replace(/\{\{file>([^}]+)\}\}/g, '<div class="include">$1</div>');
+        
+        // Process DokuWiki includes ({{page}})
+        html = html.replace(/\{\{([^}]+)\}\}/g, '<div class="include">$1</div>');
+        
         // Process inline code (`code`)
         html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
         
@@ -436,13 +442,30 @@
         html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
         html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
         
-        // Process bold (**text** or __text__)
+        // Process DokuWiki bold (**text**)
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Process DokuWiki italic (//text//)
+        html = html.replace(/\/\/(.*?)\/\//g, '<em>$1</em>');
+        
+        // Process markdown bold (__text__)
         html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
         
-        // Process italic (*text* or _text_)
+        // Process markdown italic (*text* or _text_)
         html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
         html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+        
+        // Process DokuWiki external links ([[http://example.com|text]])
+        html = html.replace(/\[\[(https?:\/\/[^\]|]+)\|([^\]]+)\]\]/g, '<a href="$1" target="_blank">$2</a>');
+        
+        // Process DokuWiki external links ([[http://example.com]])
+        html = html.replace(/\[\[(https?:\/\/[^\]]+)\]\]/g, '<a href="$1" target="_blank">$1</a>');
+        
+        // Process DokuWiki internal links ([[page|text]])
+        html = html.replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '<a href="?id=$1">$2</a>');
+        
+        // Process DokuWiki internal links ([[page]])
+        html = html.replace(/\[\[([^\]]+)\]\]/g, '<a href="?id=$1">$1</a>');
         
         // Process unordered lists (* item or - item) with role attribute
         html = html.replace(/^\* (.*$)/gm, '<li role="ul">$1</li>');
