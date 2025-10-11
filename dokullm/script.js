@@ -492,7 +492,7 @@
         });
         
         // Create append button
-        appendButton = document.createElement('button');
+        const appendButton = document.createElement('button');
         appendButton.textContent = 'Append';
         appendButton.title = 'Append to report';
         appendButton.className = 'llm-modal-append';
