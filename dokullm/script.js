@@ -419,18 +419,21 @@
         html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
         html = html.replace(/_(.*?)_/g, '<em>$1</em>');
         
-        // Process unordered lists (* item or - item)
-        html = html.replace(/^\* (.*$)/gm, '<li>$1</li>');
-        html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
+        // Process unordered lists (* item or - item) with role attribute
+        html = html.replace(/^\* (.*$)/gm, '<li role="ul">$1</li>');
+        html = html.replace(/^- (.*$)/gm, '<li role="ul">$1</li>');
         
-        // Wrap consecutive <li> elements in <ul>
-        html = html.replace(/(<li>.*<\/li>(\s*<li>.*<\/li>)*)/g, '<ul>$1</ul>');
+        // Process ordered lists (1. item) with role attribute
+        html = html.replace(/^\d+\. (.*$)/gm, '<li role="ol">$1</li>');
         
-        // Process ordered lists (1. item)
-        html = html.replace(/^\d+\. (.*$)/gm, '<li>$1</li>');
+        // Wrap consecutive <li role="ul"> elements in <ul>
+        html = html.replace(/(<li role="ul">.*<\/li>(\s*<li role="ul">.*<\/li>)*)/g, '<ul>$1</ul>');
         
-        // Wrap consecutive <li> elements in <ol>
-        html = html.replace(/(<li>.*<\/li>(\s*<li>.*<\/li>)*)/g, '<ol>$1</ol>');
+        // Wrap consecutive <li role="ol"> elements in <ol>
+        html = html.replace(/(<li role="ol">.*<\/li>(\s*<li role="ol">.*<\/li>)*)/g, '<ol>$1</ol>');
+        
+        // Remove role attributes from li elements (they were only used for identification)
+        html = html.replace(/<li role="(ul|ol)">/g, '<li>');
         
         return html;
     }
