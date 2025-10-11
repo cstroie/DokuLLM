@@ -388,6 +388,57 @@
     }
     
     /**
+     * Convert markdown/DokuWiki text to HTML
+     * 
+     * Performs basic conversion of markdown/DokuWiki syntax to HTML.
+     * Supports headings, lists, inline formatting, and code blocks.
+     * 
+     * @param {string} text - The markdown/DokuWiki text to convert
+     * @returns {string} The converted HTML
+     */
+    function convertToHtml(text) {
+        // Process code blocks first (```code```)
+        let html = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+        
+        // Process inline code (`code`)
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        
+        // Process headings (# Heading, ## Heading, etc.)
+        html = html.replace(/^###### (.*$)/gm, '<h6>$1</h6>');
+        html = html.replace(/^##### (.*$)/gm, '<h5>$1</h5>');
+        html = html.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
+        html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+        html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+        html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+        
+        // Process bold (**text** or __text__)
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+        
+        // Process italic (*text* or _text_)
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+        
+        // Process unordered lists (* item or - item)
+        html = html.replace(/^\* (.*$)/gm, '<li>$1</li>');
+        html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
+        
+        // Wrap consecutive <li> elements in <ul>
+        html = html.replace(/(<li>.*<\/li>(\s*<li>.*<\/li>)*)/g, '<ul>$1</ul>');
+        
+        // Process ordered lists (1. item)
+        html = html.replace(/^\d+\. (.*$)/gm, '<li>$1</li>');
+        
+        // Wrap consecutive <li> elements in <ol>
+        html = html.replace(/(<li>.*<\/li>(\s*<li>.*<\/li>)*)/g, '<ol>$1</ol>');
+        
+        // Process line breaks
+        html = html.replace(/\n/g, '<br>');
+        
+        return html;
+    }
+    
+    /**
      * Show analysis or summarize results in a modal dialog
      * 
      * Creates and displays a modal dialog with the analysis or summarize results.
@@ -454,7 +505,7 @@
         
         // Create content area
         const content = document.createElement('div');
-        content.innerHTML = contentText.replace(/\n/g, '<br>');
+        content.innerHTML = convertToHtml(contentText);
         content.style.cssText = `
             margin-top: 20px;
             white-space: pre-wrap;
