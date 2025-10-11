@@ -4,7 +4,7 @@
  *
  */
 
-$lang['api_url'] = 'LLM API URL';
+$lang['api_url'] = 'LLM API Endpoint URL';
 $lang['api_key'] = 'API Key';
 $lang['model'] = 'Model';
 $lang['timeout'] = 'Request Timeout (seconds)';
