@@ -272,12 +272,35 @@
             return;
         }
         
-        // Show loading indicator
-        const originalButton = event ? event.target : document.querySelector(`[data-action="${action}"]`);
-        const originalText = originalButton.textContent;
-        originalButton.textContent = 'Processing...';
-        originalButton.disabled = true;
-        console.log('DokuLLM: Button disabled, showing processing state');
+        // Disable the entire toolbar and prompt input
+        const toolbar = document.getElementById('llm-toolbar');
+        const promptContainer = document.getElementById('llm-custom-prompt');
+        const promptInput = promptContainer ? promptContainer.querySelector('.llm-prompt-input') : null;
+        const buttons = toolbar.querySelectorAll('button:not(.llm-modal-close)');
+        
+        // Store original states for restoration
+        const originalStates = {
+            promptInput: promptInput ? promptInput.disabled : false,
+            buttons: []
+        };
+        
+        // Disable prompt input if it exists
+        if (promptInput) {
+            originalStates.promptInput = promptInput.disabled;
+            promptInput.disabled = true;
+        }
+        
+        // Disable all buttons and store their original states
+        buttons.forEach(button => {
+            originalStates.buttons.push({
+                element: button,
+                text: button.textContent,
+                disabled: button.disabled
+            });
+            button.textContent = 'Processing...';
+            button.disabled = true;
+        });
+        console.log('DokuLLM: Toolbar disabled, showing processing state');
         
         // Make textarea readonly during processing
         editor.readOnly = true;
@@ -373,10 +396,15 @@
             alert('Error: ' + error.message);
         })
         .finally(() => {
-            console.log('DokuLLM: Resetting button and enabling editor');
-            if (originalButton) {
-                resetButton(originalButton, originalText);
+            console.log('DokuLLM: Resetting toolbar and enabling editor');
+            // Re-enable the toolbar and prompt input
+            if (promptInput) {
+                promptInput.disabled = originalStates.promptInput;
             }
+            originalStates.buttons.forEach(buttonState => {
+                buttonState.element.textContent = buttonState.text;
+                buttonState.element.disabled = buttonState.disabled;
+            });
             editor.readOnly = false;
         });
     }
