@@ -432,9 +432,6 @@
         // Wrap consecutive <li> elements in <ol>
         html = html.replace(/(<li>.*<\/li>(\s*<li>.*<\/li>)*)/g, '<ol>$1</ol>');
         
-        // Process line breaks
-        html = html.replace(/\n/g, '<br>');
-        
         return html;
     }
     
