@@ -297,7 +297,10 @@
                 text: button.textContent,
                 disabled: button.disabled
             });
-            button.textContent = 'Processing...';
+            // Only change text of the button that triggered the action
+            if (event && event.target === button) {
+                button.textContent = 'Processing...';
+            }
             button.disabled = true;
         });
         console.log('DokuLLM: Toolbar disabled, showing processing state');
