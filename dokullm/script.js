@@ -318,15 +318,15 @@
             }
             
             console.log('DokuLLM: Processing successful, result length:', data.result.length);
-            // Extract AI thinking parts (between <think> tags) from the result
+            // Extract AI thinking parts (between 'think' tags) from the result
             let thinkingContent = '';
-            const thinkingMatch = data.result.match(/<think>([\s\S]*?)<\/think>/);
+            const thinkingMatch = preg_match('/<'.'think'.'>([\s\S]*?)'.'<\/'.'think'.'>/', data.result);
             if (thinkingMatch && thinkingMatch[1]) {
                 thinkingContent = thinkingMatch[1].trim();
             }
             
             // Remove AI thinking parts (between <think> tags) from the result
-            const cleanedResult = data.result.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+            const cleanedResult = preg_replace('/<'.'think'.'>[\s\S]*?'.'<\/'.'think'.'>/g', data.result, '').trim();
             
             // Determine how to handle the result based on button's dataset.result property
             const resultHandling = originalButton.dataset.result || 'replace';
