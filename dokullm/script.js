@@ -488,6 +488,19 @@
             document.body.removeChild(modal);
         });
         
+        // Create append button for analyze action
+        let appendButton = null;
+        if (action === 'analyze') {
+            appendButton = document.createElement('button');
+            appendButton.textContent = 'Append';
+            appendButton.title = 'Append to report';
+            appendButton.className = 'llm-modal-append';
+            appendButton.addEventListener('click', () => {
+                appendToReport(contentText);
+                document.body.removeChild(modal);
+            });
+        }
+        
         // Create title based on action or use provided title
         const title = document.createElement('h3');
         if (titleText) {
@@ -507,6 +520,9 @@
         
         // Assemble modal
         modalContent.appendChild(closeButton);
+        if (appendButton) {
+            modalContent.appendChild(appendButton);
+        }
         modalContent.appendChild(title);
         modalContent.appendChild(content);
         modal.appendChild(modalContent);
@@ -518,6 +534,33 @@
                 document.body.removeChild(modal);
             }
         });
+    }
+    
+    /**
+     * Append content to the end of the report
+     * 
+     * Adds the provided content to the end of the editor content,
+     * preserving metadata at the beginning.
+     * 
+     * @param {string} content - The content to append
+     */
+    function appendToReport(content) {
+        const editor = document.getElementById('wiki__text');
+        if (!editor) {
+            console.log('DokuLLM: Editor not found for appending content');
+            return;
+        }
+        
+        // Preserve metadata when appending content
+        const metadata = extractMetadata(editor.value);
+        const contentWithoutMetadata = editor.value.substring(metadata.length);
+        
+        // Append new content with proper spacing
+        editor.value = metadata + contentWithoutMetadata + '\n\n' + content;
+        
+        // Focus the editor at the end
+        editor.focus();
+        editor.setSelectionRange(editor.value.length, editor.value.length);
     }
     
     /**
@@ -1047,7 +1090,19 @@
                 position: absolute;
                 top: 10px;
                 right: 10px;
-                background: var(--background_neu,#eee)
+                background: var(--background_neu,#eee);
+                color: var(--text, #000);
+                border: 1px solid var(--border, #333);
+                padding: 5px 10px;
+                border-radius: 3px;
+                cursor: pointer;
+            }
+            
+            .llm-modal-append {
+                position: absolute;
+                top: 10px;
+                right: 70px;
+                background: var(--background_neu,#eee);
                 color: var(--text, #000);
                 border: 1px solid var(--border, #333);
                 padding: 5px 10px;
