@@ -491,18 +491,16 @@
             document.body.removeChild(modal);
         });
         
-        // Create append button for analyze action
+        // Create append button for any action
         let appendButton = null;
-        if (action === 'analyze') {
-            appendButton = document.createElement('button');
-            appendButton.textContent = 'Append';
-            appendButton.title = 'Append to report';
-            appendButton.className = 'llm-modal-append';
-            appendButton.addEventListener('click', () => {
-                appendToReport(contentText);
-                document.body.removeChild(modal);
-            });
-        }
+        appendButton = document.createElement('button');
+        appendButton.textContent = 'Append';
+        appendButton.title = 'Append to report';
+        appendButton.className = 'llm-modal-append';
+        appendButton.addEventListener('click', () => {
+            appendToReport(contentText);
+            document.body.removeChild(modal);
+        });
         
         // Create title based on action or use provided title
         const title = document.createElement('h3');
@@ -523,9 +521,7 @@
         
         // Assemble modal
         modalContent.appendChild(closeButton);
-        if (appendButton) {
-            modalContent.appendChild(appendButton);
-        }
+        modalContent.appendChild(appendButton);
         modalContent.appendChild(title);
         modalContent.appendChild(content);
         modal.appendChild(modalContent);
