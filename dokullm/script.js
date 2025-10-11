@@ -1105,7 +1105,7 @@
             .llm-modal-append {
                 position: absolute;
                 top: 10px;
-                right: 70px;
+                right: 80px;
                 background: var(--background_neu,#eee);
                 color: var(--text, #000);
                 border: 1px solid var(--border, #333);
