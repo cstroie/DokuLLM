@@ -343,7 +343,7 @@
             console.log('DokuLLM: Processing successful, result length:', data.result.length);
             
             // Remove some part
-            cleanedResult, thinkingContent = cleanThinking(data.result);
+            const [cleanedResult, thinkingContent] = cleanThinking(data.result);
 
             // Determine how to handle the result based on button's dataset.result property
             const resultHandling = originalButton.dataset.result || 'replace';
