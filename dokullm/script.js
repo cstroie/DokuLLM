@@ -354,7 +354,7 @@
             // Replace selected text or handle result based on resultHandling
             if (resultHandling === 'show') {
                 console.log('DokuLLM: Showing result in modal');
-                const buttonTitle = originalButton.title || action;
+                const buttonTitle = event.target.title || action;
                 showModal(cleanedResult, action, buttonTitle);
             } else if (resultHandling === 'append') {
                 console.log('DokuLLM: Appending result to existing text');
