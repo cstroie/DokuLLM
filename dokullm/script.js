@@ -944,6 +944,10 @@
     function addStyles() {
         const style = document.createElement('style');
         style.textContent = `
+            .dokuwiki div.toolbar button.toolbutton {
+                background-color: var(--background_alt, #eee);
+            }
+
             #llm-toolbar {
                 margin-bottom: 0.5em;
             }
@@ -976,7 +980,9 @@
             }
             
             .llm-modal-content {
-                background-color: white;
+                background: var(--background_site, #fff);
+                color: var(--text_neu, #000);
+                word-wrap: break-word;
                 padding: 20px;
                 border-radius: 5px;
                 max-width: 80%;
@@ -989,8 +995,9 @@
                 position: absolute;
                 top: 10px;
                 right: 10px;
-                background-color: #ccc;
-                border: none;
+                background: var(--background_neu,#eee)
+                color: var(--text, #000);
+                border: 1px solid var(--border, #333);
                 padding: 5px 10px;
                 border-radius: 3px;
                 cursor: pointer;
