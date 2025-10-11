@@ -452,44 +452,16 @@
         // Create modal container
         const modal = document.createElement('div');
         modal.id = 'llm-' + action + '-modal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 10000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        `;
+        modal.className = 'llm-modal';
         
         // Create modal content
         const modalContent = document.createElement('div');
-        modalContent.style.cssText = `
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            max-width: 80%;
-            max-height: 80%;
-            overflow: auto;
-            position: relative;
-        `;
+        modalContent.className = 'llm-modal-content';
         
         // Create close button
         const closeButton = document.createElement('button');
         closeButton.textContent = 'Close';
-        closeButton.style.cssText = `
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #ccc;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-        `;
+        closeButton.className = 'llm-modal-close';
         closeButton.addEventListener('click', () => {
             document.body.removeChild(modal);
         });
@@ -967,6 +939,7 @@
      * - Disabled button states
      * - Custom prompt input field styling
      * - Toolbar layout
+     * - Modal dialog styling
      */
     function addStyles() {
         const style = document.createElement('style');
@@ -987,6 +960,40 @@
                 padding: 5px;
                 border: 1px solid #ccc;
                 border-radius: 3px;
+            }
+            
+            .llm-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 10000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .llm-modal-content {
+                background-color: white;
+                padding: 20px;
+                border-radius: 5px;
+                max-width: 80%;
+                max-height: 80%;
+                overflow: auto;
+                position: relative;
+            }
+            
+            .llm-modal-close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background-color: #ccc;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 3px;
+                cursor: pointer;
             }
         `;
         document.head.appendChild(style);
