@@ -1099,6 +1099,7 @@
                 padding: 5px 10px;
                 border-radius: 3px;
                 cursor: pointer;
+                z-index: 1001;
             }
             
             .llm-modal-append {
@@ -1111,6 +1112,7 @@
                 padding: 5px 10px;
                 border-radius: 3px;
                 cursor: pointer;
+                z-index: 1001;
             }
         `;
         document.head.appendChild(style);
