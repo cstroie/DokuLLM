@@ -290,9 +290,6 @@
             promptInput.disabled = true;
         }
         
-        // Store reference to the button that triggered this action
-        const originalButton = event.target;
-        
         // Disable all buttons and store their original states
         buttons.forEach(button => {
             originalStates.buttons.push({
