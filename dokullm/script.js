@@ -1096,14 +1096,14 @@
     }
 
     function cleanThinking(text) {
-            // Extract AI thinking parts (between 'think' tags) from the result
-            let thinkingContent = '';
-            const thinkingMatch = preg_match('/<think>([\s\S]*?)<\/think>/', text);
-            if (thinkingMatch && thinkingMatch[1]) {
-                thinkingContent = thinkingMatch[1].trim();
-            }
-            // Remove AI thinking parts (between <think> tags) from the result
-            const cleanedResult = preg_replace('/<think>[\s\S]*?<\/think>/g', text, '').trim();
+        // Extract AI thinking parts (between 'think' tags) from the result
+        let thinkingContent = '';
+        const thinkingMatch = text.match(/<think>([\s\S]*?)<\/think>/);
+        if (thinkingMatch && thinkingMatch[1]) {
+            thinkingContent = thinkingMatch[1].trim();
+        }
+        // Remove AI thinking parts (between <think> tags) from the result
+        const cleanedResult = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
         return [cleanedResult, thinkingContent];
     }
 
