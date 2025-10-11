@@ -318,16 +318,10 @@
             }
             
             console.log('DokuLLM: Processing successful, result length:', data.result.length);
-            // Extract AI thinking parts (between 'think' tags) from the result
-            let thinkingContent = '';
-            const thinkingMatch = preg_match('/<'.'think'.'>([\s\S]*?)'.'<\/'.'think'.'>/', data.result);
-            if (thinkingMatch && thinkingMatch[1]) {
-                thinkingContent = thinkingMatch[1].trim();
-            }
             
-            // Remove AI thinking parts (between <think> tags) from the result
-            const cleanedResult = preg_replace('/<'.'think'.'>[\s\S]*?'.'<\/'.'think'.'>/g', data.result, '').trim();
-            
+            // Remove some part
+            cleanedResult, thinkingContent = cleanThinking(data.result);
+
             // Determine how to handle the result based on button's dataset.result property
             const resultHandling = originalButton.dataset.result || 'replace';
             
@@ -1072,4 +1066,17 @@
             });
         });
     }
+
+    function cleanThinking(text) {
+            // Extract AI thinking parts (between 'think' tags) from the result
+            let thinkingContent = '';
+            const thinkingMatch = preg_match('/<think>([\s\S]*?)<\/think>/', text);
+            if (thinkingMatch && thinkingMatch[1]) {
+                thinkingContent = thinkingMatch[1].trim();
+            }
+            // Remove AI thinking parts (between <think> tags) from the result
+            const cleanedResult = preg_replace('/<think>[\s\S]*?<\/think>/g', text, '').trim();
+        return [cleanedResult, thinkingContent];
+    }
+
 })();
