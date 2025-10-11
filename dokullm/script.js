@@ -491,8 +491,7 @@
             document.body.removeChild(modal);
         });
         
-        // Create append button for any action
-        let appendButton = null;
+        // Create append button
         appendButton = document.createElement('button');
         appendButton.textContent = 'Append';
         appendButton.title = 'Append to report';
