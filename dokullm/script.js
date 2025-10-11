@@ -349,7 +349,7 @@
             const [cleanedResult, thinkingContent] = cleanThinking(data.result);
 
             // Determine how to handle the result based on button's dataset.result property
-            const resultHandling = originalButton.dataset.result || 'replace';
+            const resultHandling = event.target.dataset.result || 'replace';
             
             // Replace selected text or handle result based on resultHandling
             if (resultHandling === 'show') {
