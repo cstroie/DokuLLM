@@ -797,11 +797,34 @@
             return;
         }
         
-        // Show loading indicator
-        const button = event.target;
-        const originalText = button.textContent;
-        button.textContent = 'Searching...';
-        button.disabled = true;
+        // Disable the entire toolbar and prompt input
+        const toolbar = document.getElementById('llm-toolbar');
+        const promptContainer = document.getElementById('llm-custom-prompt');
+        const promptInput = promptContainer ? promptContainer.querySelector('.llm-prompt-input') : null;
+        const buttons = toolbar.querySelectorAll('button:not(.llm-modal-close)');
+        
+        // Store original states for restoration
+        const originalStates = {
+            promptInput: promptInput ? promptInput.disabled : false,
+            buttons: []
+        };
+        
+        // Disable prompt input if it exists
+        if (promptInput) {
+            originalStates.promptInput = promptInput.disabled;
+            promptInput.disabled = true;
+        }
+        
+        // Disable all buttons and store their original states
+        buttons.forEach(button => {
+            originalStates.buttons.push({
+                element: button,
+                text: button.textContent,
+                disabled: button.disabled
+            });
+            button.textContent = 'Searching...';
+            button.disabled = true;
+        });
         editor.readOnly = true;
         console.log('DokuLLM: Showing loading indicator for template search');
         
@@ -848,8 +871,15 @@
             alert('Error: ' + error.message);
         })
         .finally(() => {
-            console.log('DokuLLM: Restoring button and enabling editor');
-            resetButton(button, originalText);
+            console.log('DokuLLM: Restoring toolbar and enabling editor');
+            // Re-enable the toolbar and prompt input
+            if (promptInput) {
+                promptInput.disabled = originalStates.promptInput;
+            }
+            originalStates.buttons.forEach(buttonState => {
+                buttonState.element.textContent = buttonState.text;
+                buttonState.element.disabled = buttonState.disabled;
+            });
             editor.readOnly = false;
         });
     }
