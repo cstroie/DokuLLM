@@ -142,9 +142,6 @@
         // Insert custom prompt container after the editor
         editor.parentNode.insertBefore(customPromptContainer, editor.nextSibling);
         
-        // Add CSS styles
-        addStyles();
-        
         // Fetch action definitions from the API
         getActions()
             .then(actions => {
@@ -1054,25 +1051,6 @@
         });
     }
     
-    /**
-     * Add CSS styles for the LLM toolbar
-     * 
-     * Dynamically creates and adds CSS rules for the toolbar and buttons.
-     * Styles include:
-     * - Button spacing and appearance
-     * - Disabled button states
-     * - Custom prompt input field styling
-     * - Toolbar layout
-     * - Modal dialog styling
-     */
-    function addStyles() {
-        // Create link element for external CSS
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.type = 'text/css';
-        link.href = DOKU_BASE + 'lib/plugins/dokullm/style.css';
-        document.head.appendChild(link);
-    }
     
     /**
      * Fetch action definitions from the API endpoint
