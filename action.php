@@ -229,10 +229,19 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     }
 
     /**
-     * Get action definitions from the DokuWiki table at dokullm:prompts
+     * Get action definitions from the DokuWiki table at dokullm:profiles:PROFILE
      * 
      * Parses the table containing action definitions with columns:
-     * ID, Label, Icon, Action
+     * ID, Label, Description, Icon, Result
+     *   - ID is the action id, the same as prompt name
+     *   - Label is the button label
+     *   - Description is a longer action descrption, used as tooltip
+     *   - Icon is the icon to be placed on the button
+     *   - Result is the action the system will have to do with the result:
+     *       - show
+     *       - append
+     *       - replace
+     *       - insert
      * 
      * Stops parsing after the first table ends to avoid processing
      * additional tables with disabled or work-in-progress commands.
@@ -241,8 +250,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      */
     private function getActions()
     {
-        // Get the content of the prompts page
-        $content = $this->getPageContent('dokullm:prompts');
+        // Get the content of the profile page
+        $content = $this->getPageContent('dokullm:profiles:default');
         
         if ($content === false) {
             // Return empty list if page doesn't exist
