@@ -202,10 +202,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         );
         try {
             switch ($action) {
-                case 'create_DISABLED':
-                    $result = $client->createReport($text, $metadata);
-                case 'compare_DISABLED':
-                    $result = $client->compareText($text, $metadata);
                 case 'custom':
                     $result = $client->processCustomPrompt($text, $metadata);
                 default:
@@ -378,13 +374,13 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         
         try {
             // Get configuration values
-            $chromaHost = $this->getConf('chroma_host', '127.0.0.1');
-            $chromaPort = $this->getConf('chroma_port', 8000);
-            $chromaTenant = $this->getConf('chroma_tenant', 'dokullm');
-            $chromaDatabase = $this->getConf('chroma_database', 'dokullm');
-            $ollamaHost = $this->getConf('ollama_host', '127.0.0.1');
-            $ollamaPort = $this->getConf('ollama_port', 11434);
-            $ollamaModel = $this->getConf('ollama_embeddings_model', 'nomic-embed-text');
+            $chromaHost = $this->getConf('chroma_host');
+            $chromaPort = $this->getConf('chroma_port');
+            $chromaTenant = $this->getConf('chroma_tenant');
+            $chromaDatabase = $this->getConf('chroma_database');
+            $ollamaHost = $this->getConf('ollama_host');
+            $ollamaPort = $this->getConf('ollama_port');
+            $ollamaModel = $this->getConf('ollama_embeddings_model');
             
             // Use the existing ChromaDB client to process the file
             $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient(
