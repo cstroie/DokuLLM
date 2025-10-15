@@ -16,21 +16,28 @@ class ChromaDBClient {
      * Creates a new ChromaDB client instance with the specified connection parameters.
      * Also ensures that the specified tenant and database exist.
      * 
-     * @param string $host ChromaDB server host (default: CHROMA_HOST)
-     * @param int $port ChromaDB server port (default: CHROMA_PORT)
-     * @param string $tenant ChromaDB tenant name (default: CHROMA_TENANT)
-     * @param string $database ChromaDB database name (default: CHROMA_DATABASE)
-     * @param string $ollamaHost Ollama server host (default: OLLAMA_HOST)
-     * @param int $ollamaPort Ollama server port (default: OLLAMA_PORT)
-     * @param string $ollamaModel Ollama embeddings model (default: OLLAMA_EMBEDDINGS_MODEL)
+     * @param string $host ChromaDB server host
+     * @param int $port ChromaDB server port
+     * @param string $tenant ChromaDB tenant name
+     * @param string $database ChromaDB database name
+     * @param string $ollamaHost Ollama server host
+     * @param int $ollamaPort Ollama server port
+     * @param string $ollamaModel Ollama embeddings model
      */
-    public function __construct($host = CHROMA_HOST, $port = CHROMA_PORT, $tenant = CHROMA_TENANT, $database = CHROMA_DATABASE, $ollamaHost = OLLAMA_HOST, $ollamaPort = OLLAMA_PORT, $ollamaModel = OLLAMA_EMBEDDINGS_MODEL) {
+    public function __construct($host = null, $port = null, $tenant = null, $database = null, $ollamaHost = null, $ollamaPort = null, $ollamaModel = null) {
+        // Load DokuWiki plugin configuration
+        global $conf;
+        
+        // Use provided parameters or fall back to configuration values
+        $host = $host ?? ($conf['plugin']['dokullm']['chroma_host'] ?? '127.0.0.1');
+        $port = $port ?? ($conf['plugin']['dokullm']['chroma_port'] ?? 8000);
+        $this->tenant = $tenant ?? ($conf['plugin']['dokullm']['chroma_tenant'] ?? 'dokullm');
+        $this->database = $database ?? ($conf['plugin']['dokullm']['chroma_database'] ?? 'dokullm');
+        $this->ollamaHost = $ollamaHost ?? ($conf['plugin']['dokullm']['ollama_host'] ?? '127.0.0.1');
+        $this->ollamaPort = $ollamaPort ?? ($conf['plugin']['dokullm']['ollama_port'] ?? 11434);
+        $this->ollamaModel = $ollamaModel ?? ($conf['plugin']['dokullm']['ollama_embeddings_model'] ?? 'nomic-embed-text');
+        
         $this->baseUrl = "http://{$host}:{$port}";
-        $this->tenant = $tenant;
-        $this->database = $database;
-        $this->ollamaHost = $ollamaHost;
-        $this->ollamaPort = $ollamaPort;
-        $this->ollamaModel = $ollamaModel;
         $this->client = curl_init();
         curl_setopt($this->client, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->client, CURLOPT_HTTPHEADER, [
@@ -899,16 +906,16 @@ function parseFilePath($filePath) {
         // Fallback to common DokuWiki installation path
         $pagesDir = '/var/www/html/dokuwiki/data/pages/';
     }
-    
+        
     // Remove the base path
     $relativePath = str_replace($pagesDir, '', $filePath);
-    
+        
     // Remove .txt extension
     $relativePath = preg_replace('/\.txt$/', '', $relativePath);
-    
+        
     // Split path into parts and filter out empty parts
     $parts = array_filter(explode('/', $relativePath));
-    
+        
     // Build DokuWiki ID (use first part as namespace)
     $idParts = [];
     foreach ($parts as $part) {
@@ -916,7 +923,7 @@ function parseFilePath($filePath) {
             $idParts[] = $part;
         }
     }
-    
+        
     return implode(':', $idParts);
 }
 
