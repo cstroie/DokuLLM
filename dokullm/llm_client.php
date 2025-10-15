@@ -1014,7 +1014,7 @@ class llm_client_plugin_dokullm
         }
         
         // Create ChromaDB client
-        $chromaClient = new ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);
+        $chromaClient = new \dokuwiki\plugin\dokullm\ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);
         
 
         return [$chromaClient, $chromaCollection];
