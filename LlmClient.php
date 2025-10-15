@@ -347,10 +347,10 @@ class LlmClient
      * @throws Exception If the API request fails or returns unexpected format
      */
     
-    private function callAPI($command, $language, $prompt, $metadata = [], $useContext = true, $useTools = false)
+    private function callAPI($command, $prompt, $metadata = [], $useContext = true, $useTools = false)
     {
         // Load system prompt which provides general instructions to the LLM
-        $systemPrompt = $this->loadSystemPrompt($command, $language, []);
+        $systemPrompt = $this->loadSystemPrompt($command, $this->language, []);
         
         // Enhance the prompt with context information from metadata
         // This provides the LLM with additional context about templates and examples
@@ -655,8 +655,9 @@ class LlmClient
      * @return string The processed prompt with placeholders replaced
      * @throws Exception If the prompt page cannot be loaded in any language
      */
-    private function loadPrompt($promptName, $language, $variables = [])
+    private function loadPrompt($promptName, $variables = [])
     {
+        $language = $this->language;
         // Default to 'en' if language is 'default' or not set
         if ($language === 'default' || empty($language)) {
             $language = 'en';
@@ -743,15 +744,15 @@ class LlmClient
      * @param array $variables Associative array of placeholder => value pairs
      * @return string The combined system prompt
      */
-    private function loadSystemPrompt($action, $language, $variables = [])
+    private function loadSystemPrompt($action, $variables = [])
     {
         // Load system prompt which provides general instructions to the LLM
-        $systemPrompt = $this->loadPrompt('system', $language, $variables);
+        $systemPrompt = $this->loadPrompt('system', $variables);
         
         // Check if there's a command-specific system prompt appendage
         if (!empty($action)) {
             try {
-                $commandSystemPrompt = $this->loadPrompt($action . ':system', $language, $variables);            
+                $commandSystemPrompt = $this->loadPrompt($action . ':system', $variables);            
                 if ($commandSystemPrompt !== false) {
                     $systemPrompt .= "\n" . $commandSystemPrompt;
                 }
