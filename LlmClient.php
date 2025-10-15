@@ -20,6 +20,18 @@ if (!defined('DOKU_INC')) {
     die();
 }
 
+/**
+ * Get configuration value for the dokullm plugin
+ * 
+ * @param string $key Configuration key
+ * @param mixed $default Default value if key not found
+ * @return mixed Configuration value
+ */
+function getConf($key, $default = null) {
+    global $conf;
+    return isset($conf['plugin']['dokullm'][$key]) ? $conf['plugin']['dokullm'][$key] : $default;
+}
+
 
 /**
  * LLM Client class for handling API communications
@@ -86,16 +98,15 @@ class LlmClient
      */
     public function __construct()
     {
-        global $conf;
-        $this->api_url = $conf['plugin']['dokullm']['api_url'];
-        $this->api_key = $conf['plugin']['dokullm']['api_key'];
-        $this->model = $conf['plugin']['dokullm']['model'];
-        $this->timeout = $conf['plugin']['dokullm']['timeout'];
-        $this->temperature = $conf['plugin']['dokullm']['temperature'];
-        $this->top_p = $conf['plugin']['dokullm']['top_p'];
-        $this->top_k = $conf['plugin']['dokullm']['top_k'];
-        $this->min_p = $conf['plugin']['dokullm']['min_p'];
-        $this->think = $conf['plugin']['dokullm']['think'] ?? false;
+        $this->api_url = $this->getConf('api_url');
+        $this->api_key = $this->getConf('api_key');
+        $this->model = $this->getConf('model');
+        $this->timeout = $this->getConf('timeout');
+        $this->temperature = $this->getConf('temperature');
+        $this->top_p = $this->getConf('top_p');
+        $this->top_k = $this->getConf('top_k');
+        $this->min_p = $this->getConf('min_p');
+        $this->think = $this->getConf('think', false);
     }
     
 
@@ -153,8 +164,7 @@ class LlmClient
         $this->currentText = $text;
         
         // Check if tools should be used based on configuration
-        global $conf;
-        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? false;
+        $useTools = $this->getConf('use_tools', false);
         
         // Only try to find template and add snippets if tools are not enabled
         // When tools are enabled, the LLM will call get_template and get_examples as needed
@@ -403,8 +413,7 @@ class LlmClient
         }
         
         // Check if tools should be used based on configuration
-        global $conf;
-        $useTools = $conf['plugin']['dokullm']['use_tools'] ?? false;
+        $useTools = $this->getConf('use_tools', false);
         
         // Prepare API request data with model parameters
         $data = [
@@ -666,8 +675,7 @@ class LlmClient
      */
     private function loadPrompt($promptName, $variables = [])
     {
-        global $conf;
-        $language = $conf['plugin']['dokullm']['language'];
+        $language = $this->getConf('language');
         
         // Default to 'en' if language is 'default' or not set
         if ($language === 'default' || empty($language)) {
@@ -986,15 +994,14 @@ class LlmClient
     private function getChromaDBClient()
     {
         // Get ChromaDB configuration from DokuWiki plugin configuration
-        global $conf;
-        $chromaHost = $conf['plugin']['dokullm']['chroma_host'] ?? 'localhost';
-        $chromaPort = $conf['plugin']['dokullm']['chroma_port'] ?? 8000;
-        $chromaTenant = $conf['plugin']['dokullm']['chroma_tenant'] ?? 'dokullm';
-        $chromaDatabase = $conf['plugin']['dokullm']['chroma_database'] ?? 'dokullm';
-        $chromaDefaultCollection = $conf['plugin']['dokullm']['chroma_collection'] ?? 'documents';
-        $ollamaHost = $conf['plugin']['dokullm']['ollama_host'] ?? 'localhost';
-        $ollamaPort = $conf['plugin']['dokullm']['ollama_port'] ?? 11434;
-        $ollamaModel = $conf['plugin']['dokullm']['ollama_embeddings_model'] ?? 'nomic-embed-text';
+        $chromaHost = $this->getConf('chroma_host', 'localhost');
+        $chromaPort = $this->getConf('chroma_port', 8000);
+        $chromaTenant = $this->getConf('chroma_tenant', 'dokullm');
+        $chromaDatabase = $this->getConf('chroma_database', 'dokullm');
+        $chromaDefaultCollection = $this->getConf('chroma_collection', 'documents');
+        $ollamaHost = $this->getConf('ollama_host', 'localhost');
+        $ollamaPort = $this->getConf('ollama_port', 11434);
+        $ollamaModel = $this->getConf('ollama_embeddings_model', 'nomic-embed-text');
         
         // Use the first part of the current page ID as collection name, fallback to default
         global $ID;
