@@ -628,7 +628,7 @@ class LlmClient
                     $variables[$placeholder] = $this->getPreviousContent($variables['page_previous']);
                     
                     // Add current and previous dates to metadata
-                    $variables['current_date'] = $this->getPageDate();
+                    $variables['current_date'] = $this->getPageDate($this->pageId);
                     $variables['previous_date'] = !empty($variables['page_previous']) ? 
                                                 $this->getPageDate($variables['page_previous']) : 
                                                 '';
@@ -715,10 +715,8 @@ class LlmClient
      */
     private function getPageDate($pageId = null)
     {
-        global $ID;
-        
         // Use provided page ID or current page ID
-        $targetPageId = $pageId ?: $ID;
+        $targetPageId = $pageId ?: $this->pageId;
         
         // Try to extract date from page ID (looking for YYmmdd pattern)
         if (preg_match('/(\d{2})(\d{2})(\d{2})/', $targetPageId, $matches)) {
