@@ -29,15 +29,15 @@ class ChromaDBClient {
         global $conf;
         
         // Use provided parameters or fall back to configuration values
-        $host = $host ?? ($conf['plugin']['dokullm']['chroma_host'] ?? '127.0.0.1');
-        $port = $port ?? ($conf['plugin']['dokullm']['chroma_port'] ?? 8000);
+        $chromaHost = $host ?? ($conf['plugin']['dokullm']['chroma_host'] ?? '127.0.0.1');
+        $chromaPort = $port ?? ($conf['plugin']['dokullm']['chroma_port'] ?? 8000);
         $this->tenant = $tenant ?? ($conf['plugin']['dokullm']['chroma_tenant'] ?? 'dokullm');
         $this->database = $database ?? ($conf['plugin']['dokullm']['chroma_database'] ?? 'dokullm');
         $this->ollamaHost = $ollamaHost ?? ($conf['plugin']['dokullm']['ollama_host'] ?? '127.0.0.1');
         $this->ollamaPort = $ollamaPort ?? ($conf['plugin']['dokullm']['ollama_port'] ?? 11434);
         $this->ollamaModel = $ollamaModel ?? ($conf['plugin']['dokullm']['ollama_embeddings_model'] ?? 'nomic-embed-text');
         
-        $this->baseUrl = "http://{$host}:{$port}";
+        $this->baseUrl = "http://{$chromaHost}:{$chromaPort}";
         $this->client = curl_init();
         curl_setopt($this->client, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->client, CURLOPT_HTTPHEADER, [
