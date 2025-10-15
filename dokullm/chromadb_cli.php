@@ -132,7 +132,8 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
     try {
         // Create collection if it doesn't exist (only if not already checked)
         if (!$collectionChecked) {
-            ensureCollectionExists($chroma, $collectionName);
+            $status = $chroma->ensureCollectionExists($collectionName);
+            echo $status . "\n";
         }
         
         // Get collection ID
@@ -394,7 +395,8 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
     $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
     
     try {
-        ensureCollectionExists($chroma, $collectionName);
+        $status = $chroma->ensureCollectionExists($collectionName);
+        echo $status . "\n";
         $collectionChecked = true;
     } catch (Exception $e) {
         echo "Error ensuring collection exists: " . $e->getMessage() . "\n";

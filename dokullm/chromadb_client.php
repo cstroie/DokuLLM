@@ -536,18 +536,16 @@ class ChromaDBClient {
      * This helper function checks if a collection exists and creates it if it doesn't.
      * 
      * @param string $collectionName The name of the collection to check/create
-     * @return void
+     * @return string Status message indicating what happened
      */
     public function ensureCollectionExists($collectionName) {
         try {
-            echo "Checking if collection '$collectionName' exists...\n";
             $collection = $this->getCollection($collectionName);
-            echo "Collection '$collectionName' already exists.\n";
+            return "Collection '$collectionName' already exists.";
         } catch (Exception $e) {
             // Collection doesn't exist, create it
-            echo "Creating collection '$collectionName'...\n";
             $created = $this->createCollection($collectionName);
-            echo "Collection created.\n";
+            return "Collection '$collectionName' created.";
         }
     }
 }
