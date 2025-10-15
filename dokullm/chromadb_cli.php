@@ -72,7 +72,7 @@ function showUsage() {
  */
 function sendFile($path, $host, $port, $tenant, $database) {
     // Create ChromaDB client
-    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
     
     if (is_dir($path)) {
         // Process directory
@@ -260,7 +260,7 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
  */
 function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $collection = 'documents') {
     // Create ChromaDB client
-    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
     
     try {
         // Query the specified collection by collection
@@ -310,7 +310,7 @@ function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $co
  */
 function checkHeartbeat($host, $port, $tenant, $database) {
     // Create ChromaDB client
-    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
     
     try {
         echo "Checking ChromaDB server status...\n";
@@ -344,7 +344,7 @@ function checkHeartbeat($host, $port, $tenant, $database) {
  */
 function checkIdentity($host, $port, $tenant, $database) {
     // Create ChromaDB client
-    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
     
     try {
         echo "Checking ChromaDB identity...\n";
@@ -378,7 +378,7 @@ function checkIdentity($host, $port, $tenant, $database) {
  */
 function listCollections($host, $port, $tenant, $database) {
     // Create ChromaDB client
-    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
     
     try {
         echo "Listing ChromaDB collections...\n";
@@ -529,7 +529,7 @@ function getDocument($documentId, $host, $port, $tenant, $database, $collection 
     }
     
     // Create ChromaDB client
-    $chroma = new ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
     
     try {
         // Get the specified document by ID

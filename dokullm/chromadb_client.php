@@ -543,9 +543,11 @@ class ChromaDBClient {
     public function ensureCollectionExists($collectionName) {
         try {
             $collection = $this->getCollection($collectionName);
+            return "Collection '$collectionName' already exists.";
         } catch (Exception $e) {
             // Collection doesn't exist, create it
             $created = $this->createCollection($collectionName);
+            return "Collection '$collectionName' created.";
         }
     }
     
