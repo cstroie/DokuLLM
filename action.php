@@ -29,7 +29,7 @@ if (!defined('DOKU_INC')) {
  * - api_key: Authentication key for the API (optional)
  * - model: The model identifier to use for requests
  * - timeout: Request timeout in seconds
- * - language: Language code for prompt templates
+ * - profile: Profile for prompt templates
  * - temperature: Temperature setting for response randomness (0.0-1.0)
  * - top_p: Top-p (nucleus sampling) setting (0.0-1.0)
  * - top_k: Top-k setting (integer >= 1)
