@@ -142,3 +142,93 @@ $conf['think'] = false;
  */
 $conf['use_tools'] = false;
 
+/**
+ * ChromaDB Host
+ * 
+ * The hostname or IP address of your ChromaDB server.
+ * This is used for document storage and retrieval.
+ * 
+ * @var string
+ */
+$conf['chroma_host'] = '10.200.8.16';
+
+/**
+ * ChromaDB Port
+ * 
+ * The port number on which ChromaDB is running.
+ * Default ChromaDB port is 8000, but can be customized.
+ * 
+ * @var int
+ */
+$conf['chroma_port'] = 8087;
+
+/**
+ * ChromaDB Tenant
+ * 
+ * The tenant name for ChromaDB organization.
+ * Used to isolate data between different organizations or projects.
+ * 
+ * @var string
+ */
+$conf['chroma_tenant'] = 'dokullm';
+
+/**
+ * ChromaDB Database
+ * 
+ * The database name within the ChromaDB tenant.
+ * Used to organize collections within a tenant.
+ * 
+ * @var string
+ */
+$conf['chroma_database'] = 'dokullm';
+
+/**
+ * ChromaDB Collection
+ * 
+ * The default collection name for document storage.
+ * Collections are used to group related documents.
+ * 
+ * @var string
+ */
+$conf['chroma_collection'] = 'reports';
+
+/**
+ * Default Institution
+ * 
+ * The default institution identifier for templates.
+ * Used to determine which templates to use by default.
+ * 
+ * @var string
+ */
+$conf['default_institution'] = 'scuc';
+
+/**
+ * Ollama Host
+ * 
+ * The hostname or IP address of your Ollama server.
+ * Used for generating embeddings for document search.
+ * 
+ * @var string
+ */
+$conf['ollama_host'] = '10.200.8.16';
+
+/**
+ * Ollama Port
+ * 
+ * The port number on which Ollama is running.
+ * Default Ollama port is 11434.
+ * 
+ * @var int
+ */
+$conf['ollama_port'] = 11434;
+
+/**
+ * Ollama Embeddings Model
+ * 
+ * The model name used for generating text embeddings.
+ * Embeddings are used for semantic search in ChromaDB.
+ * 
+ * @var string
+ */
+$conf['ollama_embeddings_model'] = 'nomic-embed-text';
+

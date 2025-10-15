@@ -132,3 +132,84 @@ $meta['think'] = array('onoff');
  * @var array
  */
 $meta['use_tools'] = array('onoff');
+
+/**
+ * Metadata for the ChromaDB host configuration option
+ * 
+ * Defines the ChromaDB host as a string input field in the configuration interface.
+ * 
+ * @var array
+ */
+$meta['chroma_host'] = array('string');
+
+/**
+ * Metadata for the ChromaDB port configuration option
+ * 
+ * Defines the ChromaDB port as a numeric input field.
+ * 
+ * @var array
+ */
+$meta['chroma_port'] = array('numeric');
+
+/**
+ * Metadata for the ChromaDB tenant configuration option
+ * 
+ * Defines the ChromaDB tenant as a string input field in the configuration interface.
+ * 
+ * @var array
+ */
+$meta['chroma_tenant'] = array('string');
+
+/**
+ * Metadata for the ChromaDB database configuration option
+ * 
+ * Defines the ChromaDB database as a string input field in the configuration interface.
+ * 
+ * @var array
+ */
+$meta['chroma_database'] = array('string');
+
+/**
+ * Metadata for the ChromaDB collection configuration option
+ * 
+ * Defines the ChromaDB collection as a string input field in the configuration interface.
+ * 
+ * @var array
+ */
+$meta['chroma_collection'] = array('string');
+
+/**
+ * Metadata for the default institution configuration option
+ * 
+ * Defines the default institution as a string input field in the configuration interface.
+ * 
+ * @var array
+ */
+$meta['default_institution'] = array('string');
+
+/**
+ * Metadata for the Ollama host configuration option
+ * 
+ * Defines the Ollama host as a string input field in the configuration interface.
+ * 
+ * @var array
+ */
+$meta['ollama_host'] = array('string');
+
+/**
+ * Metadata for the Ollama port configuration option
+ * 
+ * Defines the Ollama port as a numeric input field.
+ * 
+ * @var array
+ */
+$meta['ollama_port'] = array('numeric');
+
+/**
+ * Metadata for the Ollama embeddings model configuration option
+ * 
+ * Defines the Ollama embeddings model as a string input field in the configuration interface.
+ * 
+ * @var array
+ */
+$meta['ollama_embeddings_model'] = array('string');
