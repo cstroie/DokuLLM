@@ -130,213 +130,34 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
     $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
         
     try {
-        // Create collection if it doesn't exist (only if not already checked)
-        if (!$collectionChecked) {
-            $status = $chroma->ensureCollectionExists($collectionName);
-            echo $status . "\n";
+        // Process the file using the class method
+        $result = $chroma->processSingleFile($filePath, $collectionName, $collectionChecked);
+        
+        // Handle the result with verbose output
+        if (!empty($result['collection_status'])) {
+            echo $result['collection_status'] . "\n";
         }
         
-        // Get collection ID
-        $collection = $chroma->getCollection($collectionName);
-        if (!isset($collection['id'])) {
-            throw new Exception("Collection ID not found for '{$collectionName}'");
-        }
-        $collectionId = $collection['id'];
-            
-        // Get file modification time
-        $fileModifiedTime = filemtime($filePath);
-        
-        // Check if document needs update
-        $needsUpdate = $chroma->needsUpdate($collectionId, $id, $fileModifiedTime);
-            
-        // If document is up to date, skip processing
-        if (!$needsUpdate) {
-            echo "Document '$id' is up to date in collection '$collectionName'. Skipping...\n";
-            return;
-        }
-            
-        // Read file content
-        $content = file_get_contents($filePath);
-        
-        // Split document into chunks (paragraphs separated by two newlines)
-        $paragraphs = preg_split('/\n\s*\n/', $content);
-        $chunks = [];
-        $chunkMetadata = [];
-        
-        // Parse the DokuWiki ID to extract base metadata
-        $parts = explode(':', $id);
-        
-        // Extract metadata from the last part of the ID
-        $lastPart = end($parts);
-        $baseMetadata = [];
-        
-        // Add the document ID as metadata
-        $baseMetadata['document_id'] = $id;
-        
-        // Add current timestamp
-        $baseMetadata['processed_at'] = date('Y-m-d H:i:s');
-        
-        // Check if any part of the ID is 'templates' and set template metadata
-        $isTemplate = in_array('templates', $parts);
-        if ($isTemplate) {
-            $baseMetadata['type'] = 'template';
-        } else {
-            $baseMetadata['type'] = 'report';
-        }
-        
-        // Extract modality from the second part
-        if (isset($parts[1])) {
-            $baseMetadata['modality'] = $parts[1];
-        }
-        
-        // Handle different ID formats based on the third part: word (institution) or numeric (year)
-        // Format 1: reports:mri:institution:250620-name-surname (third part is institution name)
-        // Format 2: reports:mri:2024:g287-name-surname (third part is year)
-        // For templates, don't set institution, date or year
-        if (isset($parts[2]) && !$isTemplate) {
-            // Check if third part is numeric (year) or word (institution)
-            if (is_numeric($parts[2])) {
-                // Format: reports:mri:2024:g287-name-surname (year format)
-                // Extract year from the third part
-                $baseMetadata['year'] = $parts[2];
+        switch ($result['status']) {
+            case 'success':
+                echo "Adding " . $result['details']['chunks'] . " chunks to ChromaDB...\n";
+                echo "Successfully sent file to ChromaDB:\n";
+                echo "  Document ID: " . $result['details']['document_id'] . "\n";
+                echo "  Chunks: " . $result['details']['chunks'] . "\n";
+                echo "  Host: $host:$port\n";
+                echo "  Tenant: $tenant\n";
+                echo "  Database: $database\n";
+                echo "  Collection: " . $result['details']['collection'] . "\n";
+                break;
                 
-                // Set default institution from config
-                $baseMetadata['institution'] = DEFAULT_INSTITUTION;
+            case 'skipped':
+                echo $result['message'] . "\n";
+                break;
                 
-                // Extract registration and name from the last part
-                // Registration should start with one letter or number and contain numbers before the '-' character
-                if (preg_match('/^([a-zA-Z0-9]+[0-9]*)-(.+)$/', $lastPart, $matches)) {
-                    // Check if the first part contains at least one digit to be considered a registration
-                    if (preg_match('/[0-9]/', $matches[1])) {
-                        $baseMetadata['registration'] = $matches[1];
-                        $baseMetadata['name'] = str_replace('-', ' ', $matches[2]);
-                    } else {
-                        // If no registration pattern found, treat entire part as patient name
-                        $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
-                    }
-                } else {
-                    // If no match, treat entire part as patient name
-                    $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
-                }
-            } else {
-                // Format: reports:mri:institution:250620-name-surname (institution format)
-                // Extract institution from the third part
-                $baseMetadata['institution'] = $parts[2];
-                
-                // Extract date and name from the last part
-                if (preg_match('/^(\d{6})-(.+)$/', $lastPart, $matches)) {
-                    $dateStr = $matches[1];
-                    $name = $matches[2];
-                    
-                    // Convert date format (250620 -> 2025-06-20)
-                    $day = substr($dateStr, 0, 2);
-                    $month = substr($dateStr, 2, 2);
-                    $year = substr($dateStr, 4, 2);
-                    // Assuming 20xx for years 00-69 and 19xx for years 70-99
-                    $fullYear = (int)$year <= 70 ? '20' . $year : '19' . $year;
-                    $formattedDate = $fullYear . '-' . $month . '-' . $day;
-                    
-                    $baseMetadata['date'] = $formattedDate;
-                    $baseMetadata['name'] = str_replace('-', ' ', $name);
-                }
-            }
+            case 'error':
+                echo $result['message'] . "\n";
+                break;
         }
-        
-        // For templates, always extract name from the last part
-        if ($isTemplate && isset($lastPart)) {
-            // Extract name from the last part (everything after the last colon)
-            if (preg_match('/^([a-zA-Z0-9]+[0-9]*)-(.+)$/', $lastPart, $matches)) {
-                // Check if the first part contains at least one digit to be considered a registration
-                if (preg_match('/[0-9]/', $matches[1])) {
-                    $baseMetadata['registration'] = $matches[1];
-                    $baseMetadata['name'] = str_replace('-', ' ', $matches[2]);
-                } else {
-                    // If no registration pattern found, treat entire part as template name
-                    $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
-                }
-            } else {
-                // If no match, treat entire part as template name
-                $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
-            }
-        }
-        
-        // Process each paragraph as a chunk with intelligent metadata handling
-        $chunkIds = [];
-        $chunkContents = [];
-        $chunkMetadatas = [];
-        $chunkEmbeddings = [];
-        $currentTags = [];
-        
-        foreach ($paragraphs as $index => $paragraph) {
-            // Skip empty paragraphs to avoid processing whitespace-only content
-            $paragraph = trim($paragraph);
-            if (empty($paragraph)) {
-                continue;
-            }
-            
-            // Check if this is a DokuWiki title (starts and ends with =)
-            // Titles are converted to tags for better searchability but not stored as content chunks
-            if (preg_match('/^=+(.*?)=+$/', $paragraph, $matches)) {
-                // Extract title content and clean it
-                $titleContent = trim($matches[1]);
-                
-                // Split into words and create searchable tags
-                $words = preg_split('/\s+/', $titleContent);
-                $tags = [];
-                
-                foreach ($words as $word) {
-                    // Only use words longer than 3 characters to reduce noise
-                    if (strlen($word) >= 3) {
-                        $tags[] = strtolower($word);
-                    }
-                }
-                
-                // Remove duplicate tags and store for use in subsequent chunks
-                $currentTags = array_unique($tags);
-                continue; // Skip storing title chunks as content
-            }
-            
-            // Create chunk ID
-            $chunkId = $id . '@' . ($index + 1);
-            
-            // Generate embeddings for the chunk
-            echo "Generating embeddings for chunk " . ($index + 1) . "...\n";
-            $embeddings = $chroma->generateEmbeddings($paragraph);
-            
-            // Add chunk-specific metadata
-            $metadata = $baseMetadata;
-            $metadata['chunk_id'] = $chunkId;
-            $metadata['chunk_number'] = $index + 1;
-            $metadata['total_chunks'] = count($paragraphs);
-            
-            // Add current tags to metadata if any exist
-            if (!empty($currentTags)) {
-                $metadata['tags'] = implode(',', $currentTags);
-            }
-            
-            // Store chunk data
-            $chunkIds[] = $chunkId;
-            $chunkContents[] = $paragraph;
-            $chunkMetadatas[] = $metadata;
-            $chunkEmbeddings[] = $embeddings;
-        }
-        
-        // If no chunks were created, skip this file
-        if (empty($chunkIds)) {
-            echo "No valid chunks found in file '$id'. Skipping...\n";
-            return;
-        }
-        
-        // Send all chunks to ChromaDB
-        echo "Adding " . count($chunkIds) . " chunks to ChromaDB...\n";
-        $result = $chroma->addDocuments($collectionName, $chunkContents, $chunkIds, $chunkMetadatas, $chunkEmbeddings);
-        echo "Successfully sent file to ChromaDB:\n";
-        echo "  Document ID: $id\n";
-        echo "  Chunks: " . count($chunkIds) . "\n";
-        echo "  Host: $host:$port\n";
-        echo "  Tenant: $tenant\n";
-        echo "  Database: $database\n";
-        echo "  Collection: $collectionName\n";
     } catch (Exception $e) {
         echo "Error sending file to ChromaDB: " . $e->getMessage() . "\n";
         // Don't exit, just return to continue processing other files
