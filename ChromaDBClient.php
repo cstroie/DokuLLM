@@ -665,7 +665,8 @@ class ChromaDBClient {
                     $baseMetadata['year'] = $parts[2];
                     
                     // Set default institution from config
-                    $baseMetadata['institution'] = DEFAULT_INSTITUTION;
+                    global $conf;
+                    $baseMetadata['institution'] = $conf['plugin']['dokullm']['default_institution'] ?? 'default';
                     
                     // Extract registration and name from the last part
                     // Registration should start with one letter or number and contain numbers before the '-' character
