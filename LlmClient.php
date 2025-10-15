@@ -894,17 +894,18 @@ class LlmClient
         // If we have a ChromaDB client passed in constructor, use it
         if ($this->chromaClient !== null) {
             // Get the collection name based on the page ID
+	    // FIXME
             $chromaCollection = 'reports';
-            $pageId = $this->pageId;
+            $pageId = $pageId;
             
-            if (!empty($pageId)) {
+            if (!empty($this->pageId)) {
                 // Split the page ID by ':' and take the first part as collection name
-                $parts = explode(':', $pageId);
+                $parts = explode(':', $this->pageId);
                 if (isset($parts[0]) && !empty($parts[0])) {
                     // If the first part is 'playground', use the default collection
                     // Otherwise, use the first part as the collection name
                     if ($parts[0] === 'playground') {
-                        $chromaCollection = $pageId;
+                        $chromaCollection = '';
                     } else {
                         $chromaCollection = $parts[0];
                     }

@@ -40,6 +40,7 @@ class ChromaDBClient {
         $chromaPort = $port;
         $this->tenant = $tenant;
         $this->database = $database;
+        $this->defaultCollection = $defaultCollection;
         $this->ollamaHost = $ollamaHost;
         $this->ollamaPort = $ollamaPort;
         $this->ollamaModel = $ollamaModel;
