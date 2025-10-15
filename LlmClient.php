@@ -99,7 +99,7 @@ class LlmClient
     
 
 
-    public function process($action, $language, $text, $metadata = [], $useContext = true)
+    public function process($action, $text, $metadata = [], $useContext = true)
     {
         // Store the current text for tool usage
         $this->currentText = $text;
@@ -127,9 +127,9 @@ class LlmClient
             unset($metadata['previous']);
         }
         
-        $prompt = $this->loadPrompt($action, $language, $metadata);
+        $prompt = $this->loadPrompt($action, $this->language, $metadata);
         
-        return $this->callAPI($action, $language, $prompt, $metadata, $useContext);
+        return $this->callAPI($action, $this->language, $prompt, $metadata, $useContext);
     }
     
 
@@ -179,7 +179,7 @@ class LlmClient
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
         
-        return $this->callAPI('create', $language, $prompt, $metadata, $useContext);
+        return $this->callAPI('create', $this->language, $prompt, $metadata, $useContext);
     }
     
     /**
@@ -221,7 +221,7 @@ class LlmClient
             'think' => $think
         ]);
         
-        return $this->callAPI('compare', $language, $prompt, $metadata, $useContext);
+        return $this->callAPI('compare', $this->language, $prompt, $metadata, $useContext);
     }
     
     /**
@@ -243,7 +243,7 @@ class LlmClient
         // Format the prompt with the text and custom prompt
         $prompt = $metadata['prompt'] . "\n\nText to process:\n" . $text;
         
-        return $this->callAPI('custom', $language, $prompt, $metadata, $useContext);
+        return $this->callAPI('custom', $this->language, $prompt, $metadata, $useContext);
     }
     
     /**
