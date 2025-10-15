@@ -45,13 +45,14 @@ $meta['model'] = array('string');
 $meta['timeout'] = array('numeric', '_min' => 5);
 
 /**
- * Metadata for the language configuration option
+ * Metadata for the profile configuration option
  * 
- * Defines the language as a multichoice field with 'default' and 'ro' options.
+ * Defines the profile as a string input field in the configuration interface.
+ * User prompts can be classified in multiple profiles. By default, 'default'.
  * 
  * @var array
  */
-$meta['language'] = array('string');
+$meta['profile'] = array('string');
 
 /**
  * Metadata for the temperature configuration option

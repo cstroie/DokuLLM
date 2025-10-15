@@ -47,14 +47,14 @@ $conf['model'] = 'gpt-3.5-turbo';
 $conf['timeout'] = 30;
 
 /**
- * The language for prompts
+ * The profile for prompts
  * 
- * Specifies which language to use for the prompts.
- * 'default' uses English prompts, 'ro' uses Romanian prompts.
+ * Specifies which profile to use for the prompts.
+ * User prompts can be classified in multiple profiles. By default, 'default'.
  * 
  * @var string
  */
-$conf['language'] = 'default';
+$conf['profile'] = 'default';
 
 /**
  * The temperature setting for the LLM
