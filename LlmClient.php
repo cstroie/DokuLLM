@@ -657,20 +657,19 @@ class LlmClient
      */
     private function loadPrompt($promptName, $variables = [])
     {
-        $language = $this->language;
         // Default to 'en' if language is 'default' or not set
-        if ($language === 'default' || empty($language)) {
-            $language = 'en';
+        if ($this->language === 'default' || empty($this->language)) {
+            $this->language = 'en';
         }
         
         // Construct the page ID for the prompt in the configured language
-        $promptPageId = 'dokullm:prompts:' . $language . ':' . $promptName;
+        $promptPageId = 'dokullm:prompts:' . $this->language . ':' . $promptName;
         
         // Try to get the content of the prompt page in the configured language
         $prompt = $this->getPageContent($promptPageId);
         
         // If the language-specific prompt doesn't exist, try English as fallback
-        if ($prompt === false && $language !== 'en') {
+        if ($prompt === false && $this->language !== 'en') {
             $promptPageId = 'dokullm:prompts:en:' . $promptName;
             $prompt = $this->getPageContent($promptPageId);
         }
