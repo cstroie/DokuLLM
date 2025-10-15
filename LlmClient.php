@@ -96,17 +96,17 @@ class LlmClient
      * - min_p: Minimum probability threshold (0.0-1.0)
      * - think: Whether to enable thinking in LLM responses (boolean)
      */
-    public function __construct()
+    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null)
     {
-        $this->api_url = $this->getConf('api_url');
-        $this->api_key = $this->getConf('api_key');
-        $this->model = $this->getConf('model');
-        $this->timeout = $this->getConf('timeout');
-        $this->temperature = $this->getConf('temperature');
-        $this->top_p = $this->getConf('top_p');
-        $this->top_k = $this->getConf('top_k');
-        $this->min_p = $this->getConf('min_p');
-        $this->think = $this->getConf('think', false);
+        $this->api_url = $api_url ?? $this->getConf('api_url');
+        $this->api_key = $api_key ?? $this->getConf('api_key');
+        $this->model = $model ?? $this->getConf('model');
+        $this->timeout = $timeout ?? $this->getConf('timeout');
+        $this->temperature = $temperature ?? $this->getConf('temperature');
+        $this->top_p = $top_p ?? $this->getConf('top_p');
+        $this->top_k = $top_k ?? $this->getConf('top_k');
+        $this->min_p = $min_p ?? $this->getConf('min_p');
+        $this->think = $think ?? $this->getConf('think', false);
     }
     
 

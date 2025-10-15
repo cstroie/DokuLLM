@@ -188,7 +188,17 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         }
 
 
-        $client = new \dokuwiki\plugin\dokullm\LlmClient();
+        $client = new \dokuwiki\plugin\dokullm\LlmClient(
+            $this->getConf('api_url'),
+            $this->getConf('api_key'),
+            $this->getConf('model'),
+            $this->getConf('timeout'),
+            $this->getConf('temperature'),
+            $this->getConf('top_p'),
+            $this->getConf('top_k'),
+            $this->getConf('min_p'),
+            $this->getConf('think', false)
+        );
         try {
             switch ($action) {
                 case 'create_DISABLED':
@@ -294,7 +304,17 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     private function findTemplate($text) {
         try {
             // Get ChromaDB client through the LLM client
-            $client = new \dokuwiki\plugin\dokullm\LlmClient();
+            $client = new \dokuwiki\plugin\dokullm\LlmClient(
+                $this->getConf('api_url'),
+                $this->getConf('api_key'),
+                $this->getConf('model'),
+                $this->getConf('timeout'),
+                $this->getConf('temperature'),
+                $this->getConf('top_p'),
+                $this->getConf('top_k'),
+                $this->getConf('min_p'),
+                $this->getConf('think', false)
+            );
             
             // Query ChromaDB for the most relevant template
             $template = $client->queryChromaDBTemplate($text);
