@@ -129,7 +129,7 @@ function sendFile($path, $host, $port, $tenant, $database) {
  */
 function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database, $collectionChecked = false) {
     // Parse file path to extract metadata
-    $id = parseFilePath($filePath);
+    $id = \dokuwiki\plugin\dokullm\parseFilePath($filePath);
         
     // Use the first part of the document ID as collection name, fallback to 'documents'
     $idParts = explode(':', $id);
