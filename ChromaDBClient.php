@@ -380,7 +380,7 @@ class ChromaDBClient {
             
             // Document exists and is up to date
             return false;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // If there's an error checking the document, assume it needs to be updated
             return true;
         }
@@ -806,7 +806,7 @@ class ChromaDBClient {
                 ],
                 'collection_status' => $collectionStatus
             ];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return [
                 'status' => 'error',
                 'message' => "Error sending file to ChromaDB: " . $e->getMessage()
