@@ -339,7 +339,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $this->sendPageToChromaDB($ID, $content);
         } catch (Exception $e) {
             // Log error but don't stop execution
-            dbglog('dokullm: Error sending page to ChromaDB: ' . $e->getMessage());
+            \dokuwiki\Logger::getInstance()->log('dokullm: Error sending page to ChromaDB: ' . $e->getMessage());
         }
     }
 
@@ -382,11 +382,11 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             
             // Log success or failure
             if ($result['status'] === 'success') {
-                dbglog('dokullm: Successfully sent page to ChromaDB: ' . $pageId);
+                \dokuwiki\Logger::getInstance()->log('dokullm: Successfully sent page to ChromaDB: ' . $pageId);
             } else if ($result['status'] === 'skipped') {
-                dbglog('dokullm: Skipped sending page to ChromaDB: ' . $pageId . ' - ' . $result['message']);
+                \dokuwiki\Logger::getInstance()->log('dokullm: Skipped sending page to ChromaDB: ' . $pageId . ' - ' . $result['message']);
             } else {
-                dbglog('dokullm: Error sending page to ChromaDB: ' . $pageId . ' - ' . $result['message']);
+                \dokuwiki\Logger::getInstance()->log('dokullm: Error sending page to ChromaDB: ' . $pageId . ' - ' . $result['message']);
             }
         } catch (Exception $e) {
             throw $e;
