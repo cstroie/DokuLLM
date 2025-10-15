@@ -127,9 +127,9 @@ class LlmClient
             unset($metadata['previous']);
         }
         
-        $prompt = $this->loadPrompt($action, $this->language, $metadata);
+        $prompt = $this->loadPrompt($action, $metadata);
         
-        return $this->callAPI($action, $this->language, $prompt, $metadata, $useContext);
+        return $this->callAPI($action, $prompt, $metadata, $useContext);
     }
     
 
@@ -350,7 +350,7 @@ class LlmClient
     private function callAPI($command, $prompt, $metadata = [], $useContext = true, $useTools = false)
     {
         // Load system prompt which provides general instructions to the LLM
-        $systemPrompt = $this->loadSystemPrompt($command, $this->language, []);
+        $systemPrompt = $this->loadSystemPrompt($command, []);
         
         // Enhance the prompt with context information from metadata
         // This provides the LLM with additional context about templates and examples
