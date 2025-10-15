@@ -28,7 +28,7 @@ if (!defined('DOKU_INC')) {
  * text processing operations through an LLM API.
  * Implements caching for tool calls to avoid duplicate processing.
  */
-class llm_client_plugin_dokullm
+class LlmClient
 {
     /** @var string The API endpoint URL */
     private $api_url;
