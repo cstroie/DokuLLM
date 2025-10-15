@@ -196,7 +196,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $this->getConf('chroma_database'),
             $this->getConf('ollama_host'),
             $this->getConf('ollama_port'),
-            $this->getConf('ollama_embeddings_model')
+            $this->getConf('ollama_embeddings_model'),
+            $this->getConf('chroma_collection')
         );
         
         $client = new \dokuwiki\plugin\dokullm\LlmClient(
@@ -320,7 +321,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $this->getConf('chroma_database'),
                 $this->getConf('ollama_host'),
                 $this->getConf('ollama_port'),
-                $this->getConf('ollama_embeddings_model')
+                $this->getConf('ollama_embeddings_model'),
+                $this->getConf('chroma_collection')
             );
             
             $client = new \dokuwiki\plugin\dokullm\LlmClient(
@@ -413,7 +415,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $chromaDatabase,
                 $ollamaHost,
                 $ollamaPort,
-                $ollamaModel
+                $ollamaModel,
+                $this->getConf('chroma_collection')
             );
             
             // Use the first part of the document ID as collection name, fallback to 'documents'
