@@ -10,6 +10,26 @@ class ChromaDBClient {
     private $database;
     private $ollamaHost;
     private $ollamaPort;
+    private $ollamaModel;
+    
+    /**
+     * Get configuration value for the dokullm plugin
+     * 
+     * @param string $key Configuration key
+     * @param mixed $default Default value if key not found
+     * @return mixed Configuration value
+     */
+    private function getConf($key, $default = null) {
+        global $conf;
+        return isset($conf['plugin']['dokullm'][$key]) ? $conf['plugin']['dokullm'][$key] : $default;
+    }
+    private $baseUrl;
+    private $client;
+    private $ollamaClient;
+    private $tenant;
+    private $database;
+    private $ollamaHost;
+    private $ollamaPort;
     /**
      * Initialize the ChromaDB client
      * 
@@ -25,17 +45,14 @@ class ChromaDBClient {
      * @param string $ollamaModel Ollama embeddings model
      */
     public function __construct($host = null, $port = null, $tenant = null, $database = null, $ollamaHost = null, $ollamaPort = null, $ollamaModel = null) {
-        // Load DokuWiki plugin configuration
-        global $conf;
-        
         // Use provided parameters or fall back to configuration values
-        $chromaHost = $host ?? ($conf['plugin']['dokullm']['chroma_host'] ?? '127.0.0.1');
-        $chromaPort = $port ?? ($conf['plugin']['dokullm']['chroma_port'] ?? 8000);
-        $this->tenant = $tenant ?? ($conf['plugin']['dokullm']['chroma_tenant'] ?? 'dokullm');
-        $this->database = $database ?? ($conf['plugin']['dokullm']['chroma_database'] ?? 'dokullm');
-        $this->ollamaHost = $ollamaHost ?? ($conf['plugin']['dokullm']['ollama_host'] ?? '127.0.0.1');
-        $this->ollamaPort = $ollamaPort ?? ($conf['plugin']['dokullm']['ollama_port'] ?? 11434);
-        $this->ollamaModel = $ollamaModel ?? ($conf['plugin']['dokullm']['ollama_embeddings_model'] ?? 'nomic-embed-text');
+        $chromaHost = $host ?? $this->getConf('chroma_host', '127.0.0.1');
+        $chromaPort = $port ?? $this->getConf('chroma_port', 8000);
+        $this->tenant = $tenant ?? $this->getConf('chroma_tenant', 'dokullm');
+        $this->database = $database ?? $this->getConf('chroma_database', 'dokullm');
+        $this->ollamaHost = $ollamaHost ?? $this->getConf('ollama_host', '127.0.0.1');
+        $this->ollamaPort = $ollamaPort ?? $this->getConf('ollama_port', 11434);
+        $this->ollamaModel = $ollamaModel ?? $this->getConf('ollama_embeddings_model', 'nomic-embed-text');
         
         $this->baseUrl = "http://{$chromaHost}:{$chromaPort}";
         $this->client = curl_init();
@@ -665,8 +682,7 @@ class ChromaDBClient {
                     $baseMetadata['year'] = $parts[2];
                     
                     // Set default institution from config
-                    global $conf;
-                    $baseMetadata['institution'] = $conf['plugin']['dokullm']['default_institution'] ?? 'default';
+                    $baseMetadata['institution'] = $this->getConf('default_institution', 'default');
                     
                     // Extract registration and name from the last part
                     // Registration should start with one letter or number and contain numbers before the '-' character
