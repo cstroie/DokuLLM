@@ -47,6 +47,24 @@
                 copyPage();
             });
         }
+        
+        // Dirty hack to handle selection of mobile menu
+        // See: https://github.com/splitbrain/dokuwiki/blob/release_stable_2018-04-22/lib/scripts/behaviour.js#L102-L115
+        const quickSelect = jQuery('select.quickselect');
+        if (quickSelect.length > 0) {
+            quickSelect
+                .unbind('change')  // Remove dokuwiki's default handler to override its behavior
+                .change(function(e) {
+                    if (e.target.value != 'dokullmplugin__copy') {
+                        // do the default action
+                        e.target.form.submit();
+                        return;
+                    }
+
+                    e.target.value = '';  // Reset selection to enable re-select when a prompt is canceled
+                    copyPage();
+                });
+        }
     });
     
     /**
