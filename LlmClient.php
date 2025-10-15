@@ -891,9 +891,9 @@ class LlmClient
         // If we have a ChromaDB client passed in constructor, use it
         if ($this->chromaClient !== null) {
             // Get the collection name based on the current page ID
-            $chromaDefaultCollection = 'documents'; // Default fallback
             global $ID;
-            $chromaCollection = $chromaDefaultCollection;
+            $chromaCollection = 'reports';
+            $chromaDefaultCollection = $ID;
             
             if (!empty($ID)) {
                 // Split the page ID by ':' and take the first part as collection name
