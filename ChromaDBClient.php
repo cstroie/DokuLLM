@@ -29,11 +29,12 @@ class ChromaDBClient {
      * @param int $port ChromaDB server port
      * @param string $tenant ChromaDB tenant name
      * @param string $database ChromaDB database name
+     * @param string $defaultCollection Default collection name
      * @param string $ollamaHost Ollama server host
      * @param int $ollamaPort Ollama server port
      * @param string $ollamaModel Ollama embeddings model
      */
-    public function __construct($host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel) {
+    public function __construct($host, $port, $tenant, $database, $defaultCollection, $ollamaHost, $ollamaPort, $ollamaModel) {
         // Use provided parameters (no fallback since they're mandatory)
         $chromaHost = $host;
         $chromaPort = $port;
