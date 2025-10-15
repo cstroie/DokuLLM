@@ -181,56 +181,59 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
  * @return void
  */
 function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
-    // Check if directory exists
-    if (!is_dir($dirPath)) {
-        echo "Error: Directory does not exist: $dirPath\n";
-        // Don't exit, just return to continue if called from other contexts
-        return;
+    echo "Processing directory: $dirPath\n";
+    
+    $result = $chroma->processDirectory($dirPath);
+    
+    switch ($result['status']) {
+        case 'error':
+            echo "Error: " . $result['message'] . "\n";
+            return;
+            
+        case 'skipped':
+            echo $result['message'] . "\n";
+            return;
+            
+        case 'success':
+            echo "Found " . $result['files_count'] . " files to process.\n";
+            
+            // Process each file result
+            foreach ($result['results'] as $fileResult) {
+                $file = $fileResult['file'];
+                $resultData = $fileResult['result'];
+                
+                echo "\nProcessing file: $file\n";
+                
+                // Handle the result with verbose output
+                if (!empty($resultData['collection_status'])) {
+                    echo $resultData['collection_status'] . "\n";
+                }
+                
+                switch ($resultData['status']) {
+                    case 'success':
+                        echo "Adding " . $resultData['details']['chunks'] . " chunks to ChromaDB...\n";
+                        echo "Successfully sent file to ChromaDB:\n";
+                        echo "  Document ID: " . $resultData['details']['document_id'] . "\n";
+                        echo "  Chunks: " . $resultData['details']['chunks'] . "\n";
+                        echo "  Host: $host:$port\n";
+                        echo "  Tenant: $tenant\n";
+                        echo "  Database: $database\n";
+                        echo "  Collection: " . $resultData['details']['collection'] . "\n";
+                        break;
+                        
+                    case 'skipped':
+                        echo $resultData['message'] . "\n";
+                        break;
+                        
+                    case 'error':
+                        echo $resultData['message'] . "\n";
+                        break;
+                }
+            }
+            
+            echo "\n" . $result['message'] . "\n";
+            break;
     }
-    
-    // Create RecursiveIteratorIterator to process directories recursively
-    $iterator = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($dirPath, RecursiveDirectoryIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::LEAVES_ONLY
-    );
-    
-    $files = [];
-    foreach ($iterator as $file) {
-        // Process only .txt files that don't start with underscore
-        if ($file->isFile() && $file->getExtension() === 'txt' && $file->getFilename()[0] !== '_') {
-            $files[] = $file->getPathname();
-        }
-    }
-    
-    if (empty($files)) {
-        echo "No .txt files found in directory: $dirPath\n";
-        return;
-    }
-    
-    echo "Found " . count($files) . " files to process.\n";
-    
-    // Use the first part of the document ID as collection name, fallback to 'documents'
-    $sampleFile = $files[0];
-    $id = parseFilePath($sampleFile);
-    $idParts = explode(':', $id);
-    $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
-    
-    try {
-        $status = $chroma->ensureCollectionExists($collectionName);
-        echo $status . "\n";
-        $collectionChecked = true;
-    } catch (Exception $e) {
-        echo "Error ensuring collection exists: " . $e->getMessage() . "\n";
-        // Don't exit, just continue processing
-        $collectionChecked = true;
-    }
-    
-    foreach ($files as $file) {
-        echo "\nProcessing file: $file\n";
-        processSingleFile($file, $chroma, $host, $port, $tenant, $database, $collectionChecked);
-    }
-    
-    echo "\nFinished processing directory.\n";
 }
 
 /**
