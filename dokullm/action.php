@@ -356,10 +356,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         // Convert page ID to file path format for ChromaDB
         $filePath = wikiFN($pageId);
         
-        // Create a temporary file with the content for processing
-        $tempFile = tempnam(sys_get_temp_dir(), 'dokullm_');
-        file_put_contents($tempFile, $content);
-        
         try {
             // Use the existing ChromaDB client to process the file
             require_once DOKU_PLUGIN . 'dokullm/chromadb_client.php';
@@ -381,11 +377,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $idParts = explode(':', $pageId);
             $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
             
-            // Process the file
-            $result = $chroma->processSingleFile($tempFile, $collectionName, false);
-            
-            // Clean up temporary file
-            unlink($tempFile);
+            // Process the file directly
+            $result = $chroma->processSingleFile($filePath, $collectionName, false);
             
             // Log success or failure
             if ($result['status'] === 'success') {
@@ -396,10 +389,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 dbglog('dokullm: Error sending page to ChromaDB: ' . $pageId . ' - ' . $result['message']);
             }
         } catch (Exception $e) {
-            // Clean up temporary file
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
-            }
             throw $e;
         }
     }
