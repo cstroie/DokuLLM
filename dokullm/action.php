@@ -188,8 +188,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         }
 
 
-        require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
-        $client = new llm_client_plugin_dokullm();
+        $client = new \dokuwiki\plugin\dokullm\llm_client_plugin_dokullm();
         try {
             switch ($action) {
                 case 'create_DISABLED':
@@ -295,8 +294,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     private function findTemplate($text) {
         try {
             // Get ChromaDB client through the LLM client
-            require_once DOKU_PLUGIN . 'dokullm/llm_client.php';
-            $client = new llm_client_plugin_dokullm();
+            $client = new \dokuwiki\plugin\dokullm\llm_client_plugin_dokullm();
             
             // Query ChromaDB for the most relevant template
             $template = $client->queryChromaDBTemplate($text);
