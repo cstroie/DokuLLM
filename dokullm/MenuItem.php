@@ -18,7 +18,7 @@ class MenuItem extends AbstractItem
     protected $type = 'dokullmplugin__copy';
 
     /** @var string icon file */
-    protected $svg = __DIR__ . '/copy.svg';
+    protected $svg = __DIR__ . '/images/copy.svg';
 
     /**
      * Get the label for the menu item from the plugin language file
