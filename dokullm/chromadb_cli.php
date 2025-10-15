@@ -92,28 +92,6 @@ function sendFile($path, $host, $port, $tenant, $database) {
 }
 
 /**
- * Ensure a collection exists, creating it if necessary
- * 
- * This helper function checks if a collection exists and creates it if it doesn't.
- * 
- * @param ChromaDBClient $chroma The ChromaDB client instance
- * @param string $collectionName The name of the collection to check/create
- * @return void
- */
-function ensureCollectionExists($chroma, $collectionName) {
-    try {
-        echo "Checking if collection '$collectionName' exists...\n";
-        $collection = $chroma->getCollection($collectionName);
-        echo "Collection '$collectionName' already exists.\n";
-    } catch (Exception $e) {
-        // Collection doesn't exist, create it
-        echo "Creating collection '$collectionName'...\n";
-        $created = $chroma->createCollection($collectionName);
-        echo "Collection created.\n";
-    }
-}
-
-/**
  * Process a single DokuWiki file and send it to ChromaDB with intelligent update checking
  * 
  * This function handles the complete processing of a single DokuWiki file:
