@@ -1,6 +1,12 @@
 <?php
-require_once 'config.php';
-require_once 'chromadb_client.php';
+// Load DokuWiki's autoloader
+if (!defined('DOKU_INC')) {
+    define('DOKU_INC', realpath(dirname(__FILE__) . '/../../../') . '/');
+}
+require_once DOKU_INC . 'inc/init.php';
+
+// Load configuration
+require_once dirname(__FILE__) . '/config.php';
 
 /**
  * Display usage information for the CLI tool

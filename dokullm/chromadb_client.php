@@ -1,5 +1,7 @@
 <?php
 
+namespace dokuwiki\plugin\dokullm;
+
 class ChromaDBClient {
     private $baseUrl;
     private $client;

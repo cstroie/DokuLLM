@@ -358,12 +358,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         
         try {
             // Use the existing ChromaDB client to process the file
-            require_once DOKU_PLUGIN . 'dokullm/chromadb_client.php';
-            
-            // Get configuration from config.php
-            require_once DOKU_PLUGIN . 'dokullm/config.php';
-            
-            $chroma = new ChromaDBClient(
+            $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient(
                 CHROMA_HOST, 
                 CHROMA_PORT, 
                 CHROMA_TENANT, 
