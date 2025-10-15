@@ -197,7 +197,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $this->getConf('top_p'),
             $this->getConf('top_k'),
             $this->getConf('min_p'),
-            $this->getConf('think', false)
+            $this->getConf('think', false),
+            $this->getConf('language', 'en')
         );
         try {
             switch ($action) {
@@ -313,7 +314,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $this->getConf('top_p'),
                 $this->getConf('top_k'),
                 $this->getConf('min_p'),
-                $this->getConf('think', false)
+                $this->getConf('think', false),
+                $this->getConf('language', 'en')
             );
             
             // Query ChromaDB for the most relevant template
