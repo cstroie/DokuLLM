@@ -356,15 +356,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         
         try {
             // Use the existing ChromaDB client to process the file
-            $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient(
-                CHROMA_HOST, 
-                CHROMA_PORT, 
-                CHROMA_TENANT, 
-                CHROMA_DATABASE,
-                OLLAMA_HOST,
-                OLLAMA_PORT,
-                OLLAMA_EMBEDDINGS_MODEL
-            );
+            // The ChromaDBClient now reads configuration from DokuWiki plugin settings
+            $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient();
             
             // Use the first part of the document ID as collection name, fallback to 'documents'
             $idParts = explode(':', $pageId);
