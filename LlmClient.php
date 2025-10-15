@@ -83,7 +83,7 @@ class LlmClient
      * - min_p: Minimum probability threshold (0.0-1.0)
      * - think: Whether to enable thinking in LLM responses (boolean)
      */
-    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null)
+    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null, $language = null)
     {
         $this->api_url = $api_url;
         $this->api_key = $api_key;
@@ -94,6 +94,7 @@ class LlmClient
         $this->top_k = $top_k;
         $this->min_p = $min_p;
         $this->think = $think;
+        $this->language = $language;
     }
     
 
