@@ -985,15 +985,16 @@ class LlmClient
      */
     private function getChromaDBClient()
     {
-        // Include config.php to get ChromaDB configuration
-        require_once 'config.php';
-        
-        // Get ChromaDB configuration from config.php
-        $chromaHost = defined('CHROMA_HOST') ? CHROMA_HOST : 'localhost';
-        $chromaPort = defined('CHROMA_PORT') ? CHROMA_PORT : 8000;
-        $chromaTenant = defined('CHROMA_TENANT') ? CHROMA_TENANT : 'dokullm';
-        $chromaDatabase = defined('CHROMA_DATABASE') ? CHROMA_DATABASE : 'dokullm';
-        $chromaDefaultCollection = defined('CHROMA_COLLECTION') ? CHROMA_COLLECTION : 'documents';
+        // Get ChromaDB configuration from DokuWiki plugin configuration
+        global $conf;
+        $chromaHost = $conf['plugin']['dokullm']['chroma_host'] ?? 'localhost';
+        $chromaPort = $conf['plugin']['dokullm']['chroma_port'] ?? 8000;
+        $chromaTenant = $conf['plugin']['dokullm']['chroma_tenant'] ?? 'dokullm';
+        $chromaDatabase = $conf['plugin']['dokullm']['chroma_database'] ?? 'dokullm';
+        $chromaDefaultCollection = $conf['plugin']['dokullm']['chroma_collection'] ?? 'documents';
+        $ollamaHost = $conf['plugin']['dokullm']['ollama_host'] ?? 'localhost';
+        $ollamaPort = $conf['plugin']['dokullm']['ollama_port'] ?? 11434;
+        $ollamaModel = $conf['plugin']['dokullm']['ollama_embeddings_model'] ?? 'nomic-embed-text';
         
         // Use the first part of the current page ID as collection name, fallback to default
         global $ID;
@@ -1013,8 +1014,16 @@ class LlmClient
             }
         }
         
-        // Create ChromaDB client
-        $chromaClient = new \dokuwiki\plugin\dokullm\ChromaDBClient($chromaHost, $chromaPort, $chromaTenant, $chromaDatabase);
+        // Create ChromaDB client with all required parameters
+        $chromaClient = new \dokuwiki\plugin\dokullm\ChromaDBClient(
+            $chromaHost, 
+            $chromaPort, 
+            $chromaTenant, 
+            $chromaDatabase,
+            $ollamaHost,
+            $ollamaPort,
+            $ollamaModel
+        );
         
 
         return [$chromaClient, $chromaCollection];
