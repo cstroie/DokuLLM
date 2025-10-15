@@ -882,14 +882,14 @@ class LlmClient
     private function getChromaDBClient()
     {
         // Get ChromaDB configuration from DokuWiki plugin configuration
-        $chromaHost = $this->getConf('chroma_host', 'localhost');
-        $chromaPort = $this->getConf('chroma_port', 8000);
-        $chromaTenant = $this->getConf('chroma_tenant', 'dokullm');
-        $chromaDatabase = $this->getConf('chroma_database', 'dokullm');
-        $chromaDefaultCollection = $this->getConf('chroma_collection', 'documents');
-        $ollamaHost = $this->getConf('ollama_host', 'localhost');
-        $ollamaPort = $this->getConf('ollama_port', 11434);
-        $ollamaModel = $this->getConf('ollama_embeddings_model', 'nomic-embed-text');
+        $chromaHost = $this->getConf('chroma_host');
+        $chromaPort = $this->getConf('chroma_port');
+        $chromaTenant = $this->getConf('chroma_tenant');
+        $chromaDatabase = $this->getConf('chroma_database');
+        $chromaDefaultCollection = $this->getConf('chroma_collection');
+        $ollamaHost = $this->getConf('ollama_host');
+        $ollamaPort = $this->getConf('ollama_port');
+        $ollamaModel = $this->getConf('ollama_embeddings_model');
         
         // Use the first part of the current page ID as collection name, fallback to default
         global $ID;
