@@ -51,7 +51,7 @@ $meta['timeout'] = array('numeric', '_min' => 5);
  * 
  * @var array
  */
-$meta['language'] = array('multichoice', '_choices' => array('default', 'ro'));
+$meta['language'] = array('string');
 
 /**
  * Metadata for the temperature configuration option
