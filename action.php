@@ -231,22 +231,27 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     /**
      * Get action definitions from the DokuWiki table at dokullm:profiles:PROFILE
      * 
-     * Parses the table containing action definitions with columns:
-     * ID, Label, Description, Icon, Result
-     *   - ID is the action id, the same as prompt name
-     *   - Label is the button label
-     *   - Description is a longer action descrption, used as tooltip
-     *   - Icon is the icon to be placed on the button
-     *   - Result is the action the system will have to do with the result:
-     *       - show
-     *       - append
-     *       - replace
-     *       - insert
+     * Parses the table containing action definitions with the following columns:
      * 
-     * Stops parsing after the first table ends to avoid processing
-     * additional tables with disabled or work-in-progress commands.
+     * - ID: The action identifier, which corresponds to the prompt name
+     * - Label: The text displayed on the button
+     * - Description: A detailed description of the action, used as a tooltip
+     * - Icon: The icon displayed on the button (can be empty)
+     * - Result: The action to perform with the LLM result:
+     *   - show: Display the result in a modal dialog
+     *   - append: Add the result to the end of the current content
+     *   - replace: Replace the selected content with the result
+     *   - insert: Insert the result at the cursor position
      * 
-     * @return array Array of action definitions
+     * The parsing stops after the first table ends to avoid processing
+     * additional tables that might contain disabled or work-in-progress commands.
+     * 
+     * @return array Array of action definitions, each containing:
+     *               - id: string, the action identifier
+     *               - label: string, the button label
+     *               - description: string, the action description
+     *               - icon: string, the icon name
+     *               - result: string, the result handling method
      */
     private function getActions()
     {
