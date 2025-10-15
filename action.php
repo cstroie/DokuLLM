@@ -211,7 +211,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $this->getConf('min_p'),
             $this->getConf('think', false),
             $this->getConf('language', 'en'),
-            $chromaClient
+            $chromaClient,
+            $ID
         );
         try {
             switch ($action) {
@@ -336,7 +337,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $this->getConf('min_p'),
                 $this->getConf('think', false),
                 $this->getConf('language', 'en'),
-                $chromaClient
+                $chromaClient,
+                $ID
             );
             
             // Query ChromaDB for the most relevant template
