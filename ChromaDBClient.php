@@ -23,13 +23,6 @@ class ChromaDBClient {
         global $conf;
         return isset($conf['plugin']['dokullm'][$key]) ? $conf['plugin']['dokullm'][$key] : $default;
     }
-    private $baseUrl;
-    private $client;
-    private $ollamaClient;
-    private $tenant;
-    private $database;
-    private $ollamaHost;
-    private $ollamaPort;
     /**
      * Initialize the ChromaDB client
      * 
