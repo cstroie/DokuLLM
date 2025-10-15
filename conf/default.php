@@ -150,7 +150,7 @@ $conf['use_tools'] = false;
  * 
  * @var string
  */
-$conf['chroma_host'] = '10.200.8.16';
+$conf['chroma_host'] = '127.0.0.1';
 
 /**
  * ChromaDB Port
@@ -160,7 +160,7 @@ $conf['chroma_host'] = '10.200.8.16';
  * 
  * @var int
  */
-$conf['chroma_port'] = 8087;
+$conf['chroma_port'] = 8000;
 
 /**
  * ChromaDB Tenant
@@ -190,7 +190,7 @@ $conf['chroma_database'] = 'dokullm';
  * 
  * @var string
  */
-$conf['chroma_collection'] = 'reports';
+$conf['chroma_collection'] = 'documents';
 
 /**
  * Default Institution
@@ -200,7 +200,7 @@ $conf['chroma_collection'] = 'reports';
  * 
  * @var string
  */
-$conf['default_institution'] = 'scuc';
+$conf['default_institution'] = 'default';
 
 /**
  * Ollama Host
@@ -210,7 +210,7 @@ $conf['default_institution'] = 'scuc';
  * 
  * @var string
  */
-$conf['ollama_host'] = '10.200.8.16';
+$conf['ollama_host'] = '127.0.0.1';
 
 /**
  * Ollama Port

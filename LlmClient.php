@@ -20,8 +20,6 @@ if (!defined('DOKU_INC')) {
     die();
 }
 
-
-
 /**
  * LLM Client class for handling API communications
  * 
@@ -87,32 +85,20 @@ class LlmClient
      */
     public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null)
     {
-        $this->api_url = $api_url ?? $this->getConf('api_url');
-        $this->api_key = $api_key ?? $this->getConf('api_key');
-        $this->model = $model ?? $this->getConf('model');
-        $this->timeout = $timeout ?? $this->getConf('timeout');
-        $this->temperature = $temperature ?? $this->getConf('temperature');
-        $this->top_p = $top_p ?? $this->getConf('top_p');
-        $this->top_k = $top_k ?? $this->getConf('top_k');
-        $this->min_p = $min_p ?? $this->getConf('min_p');
-        $this->think = $think ?? $this->getConf('think', false);
-    }
-    
-    /**
-     * Get configuration value for the dokullm plugin
-     * 
-     * @param string $key Configuration key
-     * @param mixed $default Default value if key not found
-     * @return mixed Configuration value
-     */
-    private function getConf($key, $default = null) {
-        global $conf;
-        return isset($conf['plugin']['dokullm'][$key]) ? $conf['plugin']['dokullm'][$key] : $default;
+        $this->api_url = $api_url;
+        $this->api_key = $api_key;
+        $this->model = $model;
+        $this->timeout = $timeout;
+        $this->temperature = $temperature;
+        $this->top_p = $top_p;
+        $this->top_k = $top_k;
+        $this->min_p = $min_p;
+        $this->think = $think;
     }
     
 
 
-    public function process($action, $text, $metadata = [], $useContext = true)
+    public function process($action, $language, $text, $metadata = [], $useContext = true)
     {
         // Store the current text for tool usage
         $this->currentText = $text;
@@ -140,9 +126,9 @@ class LlmClient
             unset($metadata['previous']);
         }
         
-        $prompt = $this->loadPrompt($action, $metadata);
+        $prompt = $this->loadPrompt($action, $language, $metadata);
         
-        return $this->callAPI($action, $prompt, $metadata, $useContext);
+        return $this->callAPI($action, $language, $prompt, $metadata, $useContext);
     }
     
 
@@ -159,13 +145,10 @@ class LlmClient
      * @param bool $useContext Whether to include template and examples in the context (default: true)
      * @return string The created text
      */
-    public function createReport($text, $metadata = [], $useContext = true)
+    public function createReport($text, $metadata = [], $useContext = true, $useTools = false)
     {
         // Store the current text for tool usage
         $this->currentText = $text;
-        
-        // Check if tools should be used based on configuration
-        $useTools = $this->getConf('use_tools', false);
         
         // Only try to find template and add snippets if tools are not enabled
         // When tools are enabled, the LLM will call get_template and get_examples as needed
@@ -195,7 +178,7 @@ class LlmClient
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
         
-        return $this->callAPI('create', $prompt, $metadata, $useContext);
+        return $this->callAPI('create', $language, $prompt, $metadata, $useContext);
     }
     
     /**
@@ -237,7 +220,7 @@ class LlmClient
             'think' => $think
         ]);
         
-        return $this->callAPI('compare', $prompt, $metadata, $useContext);
+        return $this->callAPI('compare', $language, $prompt, $metadata, $useContext);
     }
     
     /**
@@ -259,7 +242,7 @@ class LlmClient
         // Format the prompt with the text and custom prompt
         $prompt = $metadata['prompt'] . "\n\nText to process:\n" . $text;
         
-        return $this->callAPI('custom', $prompt, $metadata, $useContext);
+        return $this->callAPI('custom', $language, $prompt, $metadata, $useContext);
     }
     
     /**
@@ -363,10 +346,10 @@ class LlmClient
      * @throws Exception If the API request fails or returns unexpected format
      */
     
-    private function callAPI($command, $prompt, $metadata = [], $useContext = true)
+    private function callAPI($command, $language, $prompt, $metadata = [], $useContext = true, $useTools = false)
     {
         // Load system prompt which provides general instructions to the LLM
-        $systemPrompt = $this->loadSystemPrompt($command, []);
+        $systemPrompt = $this->loadSystemPrompt($command, $language, []);
         
         // Enhance the prompt with context information from metadata
         // This provides the LLM with additional context about templates and examples
@@ -412,9 +395,6 @@ class LlmClient
             // Append context information to system prompt
             $prompt = $contextInfo . "\n\n" . $prompt;
         }
-        
-        // Check if tools should be used based on configuration
-        $useTools = $this->getConf('use_tools', false);
         
         // Prepare API request data with model parameters
         $data = [
@@ -674,10 +654,8 @@ class LlmClient
      * @return string The processed prompt with placeholders replaced
      * @throws Exception If the prompt page cannot be loaded in any language
      */
-    private function loadPrompt($promptName, $variables = [])
+    private function loadPrompt($promptName, $language, $variables = [])
     {
-        $language = $this->getConf('language');
-        
         // Default to 'en' if language is 'default' or not set
         if ($language === 'default' || empty($language)) {
             $language = 'en';
@@ -764,15 +742,15 @@ class LlmClient
      * @param array $variables Associative array of placeholder => value pairs
      * @return string The combined system prompt
      */
-    private function loadSystemPrompt($action, $variables = [])
+    private function loadSystemPrompt($action, $language, $variables = [])
     {
         // Load system prompt which provides general instructions to the LLM
-        $systemPrompt = $this->loadPrompt('system', $variables);
+        $systemPrompt = $this->loadPrompt('system', $language, $variables);
         
         // Check if there's a command-specific system prompt appendage
         if (!empty($action)) {
             try {
-                $commandSystemPrompt = $this->loadPrompt($action . ':system', $variables);            
+                $commandSystemPrompt = $this->loadPrompt($action . ':system', $language, $variables);            
                 if ($commandSystemPrompt !== false) {
                     $systemPrompt .= "\n" . $commandSystemPrompt;
                 }
