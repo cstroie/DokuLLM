@@ -101,11 +101,11 @@ class ChromaDBClient {
         $httpCode = curl_getinfo($this->client, CURLINFO_HTTP_CODE);
         
         if (curl_error($this->client)) {
-            throw new Exception('Curl error: ' . curl_error($this->client));
+            throw new \Exception('Curl error: ' . curl_error($this->client));
         }
         
         if ($httpCode >= 400) {
-            throw new Exception("HTTP Error: $httpCode, Response: $response");
+            throw new \Exception("HTTP Error: $httpCode, Response: $response");
         }
         
         return json_decode($response, true);
@@ -134,17 +134,17 @@ class ChromaDBClient {
         $httpCode = curl_getinfo($this->ollamaClient, CURLINFO_HTTP_CODE);
         
         if (curl_error($this->ollamaClient)) {
-            throw new Exception('Ollama Curl error: ' . curl_error($this->ollamaClient));
+            throw new \Exception('Ollama Curl error: ' . curl_error($this->ollamaClient));
         }
         
         if ($httpCode >= 400) {
-            throw new Exception("Ollama HTTP Error: $httpCode, Response: $response");
+            throw new \Exception("Ollama HTTP Error: $httpCode, Response: $response");
         }
         
         $result = json_decode($response, true);
         
         if (!isset($result['embedding'])) {
-            throw new Exception("Ollama response missing embedding: " . $response);
+            throw new \Exception("Ollama response missing embedding: " . $response);
         }
         
         return $result['embedding'];
@@ -189,7 +189,7 @@ class ChromaDBClient {
         }
         
         // If not found, throw exception
-        throw new Exception("Collection '{$name}' not found");
+        throw new \Exception("Collection '{$name}' not found");
     }
 
     /**
@@ -233,7 +233,7 @@ class ChromaDBClient {
         // First get the collection to find its ID
         $collection = $this->getCollection($name);
         if (!isset($collection['id'])) {
-            throw new Exception("Collection ID not found for '{$name}'");
+            throw new \Exception("Collection ID not found for '{$name}'");
         }
         
         $collectionId = $collection['id'];
@@ -261,7 +261,7 @@ class ChromaDBClient {
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
         if (!isset($collection['id'])) {
-            throw new Exception("Collection ID not found for '{$collectionName}'");
+            throw new \Exception("Collection ID not found for '{$collectionName}'");
         }
         
         $collectionId = $collection['id'];
@@ -297,7 +297,7 @@ class ChromaDBClient {
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
         if (!isset($collection['id'])) {
-            throw new Exception("Collection ID not found for '{$collectionName}'");
+            throw new \Exception("Collection ID not found for '{$collectionName}'");
         }
         
         $collectionId = $collection['id'];
@@ -409,7 +409,7 @@ class ChromaDBClient {
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
         if (!isset($collection['id'])) {
-            throw new Exception("Collection ID not found for '{$collectionName}'");
+            throw new \Exception("Collection ID not found for '{$collectionName}'");
         }
         
         $collectionId = $collection['id'];
@@ -469,7 +469,7 @@ class ChromaDBClient {
         // Check if tenant exists, create if it doesn't
         try {
             $this->getTenant($this->tenant);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Tenant doesn't exist, create it
             $this->createTenant($this->tenant);
         }
@@ -477,7 +477,7 @@ class ChromaDBClient {
         // Check if database exists, create if it doesn't
         try {
             $this->getDatabase($this->database, $this->tenant);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Database doesn't exist, create it
             $this->createDatabase($this->database, $this->tenant);
         }
@@ -551,7 +551,7 @@ class ChromaDBClient {
         try {
             $collection = $this->getCollection($collectionName);
             return "Collection '$collectionName' already exists.";
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Collection doesn't exist, create it
             $created = $this->createCollection($collectionName);
             return "Collection '$collectionName' created.";
