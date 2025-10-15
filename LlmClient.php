@@ -82,7 +82,7 @@ class LlmClient
      * - api_key: Authentication key for the API (optional)
      * - model: The model identifier to use for requests
      * - timeout: Request timeout in seconds
-     * - language: Language code for prompt templates
+     * - profile: Profile for prompt templates
      * - temperature: Temperature setting for response randomness (0.0-1.0)
      * - top_p: Top-p (nucleus sampling) setting (0.0-1.0)
      * - top_k: Top-k setting (integer >= 1)
@@ -91,7 +91,7 @@ class LlmClient
      * - chromaClient: ChromaDB client instance (optional)
      * - pageId: Page ID (optional)
      */
-    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null, $language = null, $chromaClient = null, $pageId = null)
+    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null, $profile = null, $chromaClient = null, $pageId = null)
     {
         $this->api_url = $api_url;
         $this->api_key = $api_key;
@@ -102,7 +102,7 @@ class LlmClient
         $this->top_k = $top_k;
         $this->min_p = $min_p;
         $this->think = $think;
-        $this->language = $language;
+        $this->profile = $profile;
         $this->chromaClient = $chromaClient;
         $this->pageId = $pageId;
     }
@@ -199,10 +199,10 @@ class LlmClient
                     'parameters' => [
                         'type' => 'object',
                         'properties' => [
-                            'language' => [
+                            'type' => [
                                 'type' => 'string',
-                                'description' => 'The language the template should be written in (e.g., "ro" for Romanian, "en" for English).',
-                                'default' => 'ro'
+                                'description' => 'The type of the template (e.g., "mri" for MRI reports, "daily" for daily reports).',
+                                'default' => ''
                             ]
                         ]
                     ]
@@ -558,11 +558,11 @@ class LlmClient
      * Load a prompt template from a DokuWiki page and replace placeholders
      * 
      * Loads prompt templates from DokuWiki pages with IDs in the format
-     * dokullm:prompts:LANGUAGE:PROMPT_NAME
+     * dokullm:profiles:PROFILE:PROMPT_NAME
      * 
-     * The method implements a language fallback mechanism:
-     * 1. First tries to load the prompt in the configured language
-     * 2. If not found, falls back to English prompts
+     * The method implements a profile fallback mechanism:
+     * 1. First tries to load the prompt from the configured profile
+     * 2. If not found, falls back to default prompts
      * 3. Throws an exception if neither is available
      * 
      * After loading the prompt, it scans for placeholders and automatically
@@ -571,24 +571,24 @@ class LlmClient
      * @param string $promptName The name of the prompt (e.g., 'create', 'rewrite')
      * @param array $variables Associative array of placeholder => value pairs
      * @return string The processed prompt with placeholders replaced
-     * @throws Exception If the prompt page cannot be loaded in any language
+     * @throws Exception If the prompt page cannot be loaded from any profile
      */
     private function loadPrompt($promptName, $variables = [])
     {
-        // Default to 'en' if language is 'default' or not set
-        if ($this->language === 'default' || empty($this->language)) {
-            $this->language = 'en';
+        // Default to 'default' if profile is not set
+        if (empty($this->profile)) {
+            $this->profile = 'default';
         }
         
-        // Construct the page ID for the prompt in the configured language
-        $promptPageId = 'dokullm:prompts:' . $this->language . ':' . $promptName;
+        // Construct the page ID for the prompt in the configured profile
+        $promptPageId = 'dokullm:profiles:' . $this->profile . ':' . $promptName;
         
-        // Try to get the content of the prompt page in the configured language
+        // Try to get the content of the prompt page in the configured profile
         $prompt = $this->getPageContent($promptPageId);
         
-        // If the language-specific prompt doesn't exist, try English as fallback
-        if ($prompt === false && $this->language !== 'en') {
-            $promptPageId = 'dokullm:prompts:en:' . $promptName;
+        // If the profile-specific prompt doesn't exist, try default as fallback
+        if ($prompt === false && $this->profile !== 'default') {
+            $promptPageId = 'dokullm:profile:default:' . $promptName;
             $prompt = $this->getPageContent($promptPageId);
         }
         
