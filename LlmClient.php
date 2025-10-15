@@ -62,8 +62,11 @@ class LlmClient
     /** @var float The min-p setting for minimum probability threshold */
     private $min_p;
     
-    /** @var bool Whether to enable thinking in the LLM responses */
+    /** @var bool Whether to enable thinking in LLM responses */
     private $think;
+    
+    /** @var object|null ChromaDB client instance */
+    private $chromaClient;
     
     /**
      * Initialize the LLM client with configuration settings
@@ -82,8 +85,9 @@ class LlmClient
      * - top_k: Top-k setting (integer >= 1)
      * - min_p: Minimum probability threshold (0.0-1.0)
      * - think: Whether to enable thinking in LLM responses (boolean)
+     * - chromaClient: ChromaDB client instance (optional)
      */
-    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null, $language = null)
+    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null, $language = null, $chromaClient = null)
     {
         $this->api_url = $api_url;
         $this->api_key = $api_key;
@@ -95,6 +99,7 @@ class LlmClient
         $this->min_p = $min_p;
         $this->think = $think;
         $this->language = $language;
+        $this->chromaClient = $chromaClient;
     }
     
 
@@ -874,54 +879,42 @@ class LlmClient
     /**
      * Get ChromaDB client with configuration
      * 
-     * Creates and returns a ChromaDB client with the appropriate configuration.
-     * Extracts modality from the current page ID to use as the collection name.
+     * Returns the ChromaDB client and collection name.
+     * If a client was passed in the constructor, use it. Otherwise, this method
+     * should not be called as it depends on getConf() which is not available.
      * 
      * @return array Array containing the ChromaDB client and collection name
+     * @throws Exception If no ChromaDB client is available
      */
     private function getChromaDBClient()
     {
-        // Get ChromaDB configuration from DokuWiki plugin configuration
-        $chromaHost = $this->getConf('chroma_host');
-        $chromaPort = $this->getConf('chroma_port');
-        $chromaTenant = $this->getConf('chroma_tenant');
-        $chromaDatabase = $this->getConf('chroma_database');
-        $chromaDefaultCollection = $this->getConf('chroma_collection');
-        $ollamaHost = $this->getConf('ollama_host');
-        $ollamaPort = $this->getConf('ollama_port');
-        $ollamaModel = $this->getConf('ollama_embeddings_model');
-        
-        // Use the first part of the current page ID as collection name, fallback to default
-        global $ID;
-        $chromaCollection = $chromaDefaultCollection; // Default collection name
-        
-        if (!empty($ID)) {
-            // Split the page ID by ':' and take the first part as collection name
-            $parts = explode(':', $ID);
-            if (isset($parts[0]) && !empty($parts[0])) {
-                // If the first part is 'playground', use the default collection
-                // Otherwise, use the first part as the collection name
-                if ($parts[0] === 'playground') {
-                    $chromaCollection = $chromaDefaultCollection;
-                } else {
-                    $chromaCollection = $parts[0];
+        // If we have a ChromaDB client passed in constructor, use it
+        if ($this->chromaClient !== null) {
+            // Get the collection name based on the current page ID
+            $chromaDefaultCollection = 'documents'; // Default fallback
+            global $ID;
+            $chromaCollection = $chromaDefaultCollection;
+            
+            if (!empty($ID)) {
+                // Split the page ID by ':' and take the first part as collection name
+                $parts = explode(':', $ID);
+                if (isset($parts[0]) && !empty($parts[0])) {
+                    // If the first part is 'playground', use the default collection
+                    // Otherwise, use the first part as the collection name
+                    if ($parts[0] === 'playground') {
+                        $chromaCollection = $chromaDefaultCollection;
+                    } else {
+                        $chromaCollection = $parts[0];
+                    }
                 }
             }
+            
+            return [$this->chromaClient, $chromaCollection];
         }
         
-        // Create ChromaDB client with all required parameters
-        $chromaClient = new \dokuwiki\plugin\dokullm\ChromaDBClient(
-            $chromaHost, 
-            $chromaPort, 
-            $chromaTenant, 
-            $chromaDatabase,
-            $ollamaHost,
-            $ollamaPort,
-            $ollamaModel
-        );
-        
-
-        return [$chromaClient, $chromaCollection];
+        // If we don't have a ChromaDB client, we can't create one here
+        // because getConf() is not available in this context
+        throw new Exception('No ChromaDB client available');
     }
     
     /**

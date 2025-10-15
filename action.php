@@ -188,6 +188,17 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         }
 
 
+        // Create ChromaDB client
+        $chromaClient = new \dokuwiki\plugin\dokullm\ChromaDBClient(
+            $this->getConf('chroma_host'),
+            $this->getConf('chroma_port'),
+            $this->getConf('chroma_tenant'),
+            $this->getConf('chroma_database'),
+            $this->getConf('ollama_host'),
+            $this->getConf('ollama_port'),
+            $this->getConf('ollama_embeddings_model')
+        );
+        
         $client = new \dokuwiki\plugin\dokullm\LlmClient(
             $this->getConf('api_url'),
             $this->getConf('api_key'),
@@ -198,7 +209,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $this->getConf('top_k'),
             $this->getConf('min_p'),
             $this->getConf('think', false),
-            $this->getConf('language', 'en')
+            $this->getConf('language', 'en'),
+            $chromaClient
         );
         try {
             switch ($action) {
@@ -300,7 +312,17 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      */
     private function findTemplate($text) {
         try {
-            // Get ChromaDB client through the LLM client
+            // Create ChromaDB client
+            $chromaClient = new \dokuwiki\plugin\dokullm\ChromaDBClient(
+                $this->getConf('chroma_host'),
+                $this->getConf('chroma_port'),
+                $this->getConf('chroma_tenant'),
+                $this->getConf('chroma_database'),
+                $this->getConf('ollama_host'),
+                $this->getConf('ollama_port'),
+                $this->getConf('ollama_embeddings_model')
+            );
+            
             $client = new \dokuwiki\plugin\dokullm\LlmClient(
                 $this->getConf('api_url'),
                 $this->getConf('api_key'),
@@ -311,7 +333,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $this->getConf('top_k'),
                 $this->getConf('min_p'),
                 $this->getConf('think', false),
-                $this->getConf('language', 'en')
+                $this->getConf('language', 'en'),
+                $chromaClient
             );
             
             // Query ChromaDB for the most relevant template
