@@ -19,10 +19,6 @@ class ChromaDBClient {
      * @param mixed $default Default value if key not found
      * @return mixed Configuration value
      */
-    private function getConf($key, $default = null) {
-        global $conf;
-        return isset($conf['plugin']['dokullm'][$key]) ? $conf['plugin']['dokullm'][$key] : $default;
-    }
     /**
      * Initialize the ChromaDB client
      * 
@@ -37,15 +33,15 @@ class ChromaDBClient {
      * @param int $ollamaPort Ollama server port
      * @param string $ollamaModel Ollama embeddings model
      */
-    public function __construct($host = null, $port = null, $tenant = null, $database = null, $ollamaHost = null, $ollamaPort = null, $ollamaModel = null) {
-        // Use provided parameters or fall back to configuration values
-        $chromaHost = $host ?? $this->getConf('chroma_host', '127.0.0.1');
-        $chromaPort = $port ?? $this->getConf('chroma_port', 8000);
-        $this->tenant = $tenant ?? $this->getConf('chroma_tenant', 'dokullm');
-        $this->database = $database ?? $this->getConf('chroma_database', 'dokullm');
-        $this->ollamaHost = $ollamaHost ?? $this->getConf('ollama_host', '127.0.0.1');
-        $this->ollamaPort = $ollamaPort ?? $this->getConf('ollama_port', 11434);
-        $this->ollamaModel = $ollamaModel ?? $this->getConf('ollama_embeddings_model', 'nomic-embed-text');
+    public function __construct($host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel) {
+        // Use provided parameters (no fallback since they're mandatory)
+        $chromaHost = $host;
+        $chromaPort = $port;
+        $this->tenant = $tenant;
+        $this->database = $database;
+        $this->ollamaHost = $ollamaHost;
+        $this->ollamaPort = $ollamaPort;
+        $this->ollamaModel = $ollamaModel;
         
         $this->baseUrl = "http://{$chromaHost}:{$chromaPort}";
         $this->client = curl_init();
@@ -675,7 +671,8 @@ class ChromaDBClient {
                     $baseMetadata['year'] = $parts[2];
                     
                     // Set default institution from config
-                    $baseMetadata['institution'] = $this->getConf('default_institution', 'default');
+                    global $conf;
+                    $baseMetadata['institution'] = isset($conf['plugin']['dokullm']['default_institution']) ? $conf['plugin']['dokullm']['default_institution'] : 'default';
                     
                     // Extract registration and name from the last part
                     // Registration should start with one letter or number and contain numbers before the '-' character

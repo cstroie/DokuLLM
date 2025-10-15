@@ -355,9 +355,25 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $filePath = wikiFN($pageId);
         
         try {
+            // Get configuration values
+            $chromaHost = $this->getConf('chroma_host', '127.0.0.1');
+            $chromaPort = $this->getConf('chroma_port', 8000);
+            $chromaTenant = $this->getConf('chroma_tenant', 'dokullm');
+            $chromaDatabase = $this->getConf('chroma_database', 'dokullm');
+            $ollamaHost = $this->getConf('ollama_host', '127.0.0.1');
+            $ollamaPort = $this->getConf('ollama_port', 11434);
+            $ollamaModel = $this->getConf('ollama_embeddings_model', 'nomic-embed-text');
+            
             // Use the existing ChromaDB client to process the file
-            // The ChromaDBClient now reads configuration from DokuWiki plugin settings
-            $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient();
+            $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient(
+                $chromaHost,
+                $chromaPort,
+                $chromaTenant,
+                $chromaDatabase,
+                $ollamaHost,
+                $ollamaPort,
+                $ollamaModel
+            );
             
             // Use the first part of the document ID as collection name, fallback to 'documents'
             $idParts = explode(':', $pageId);
