@@ -68,6 +68,9 @@ class LlmClient
     /** @var object|null ChromaDB client instance */
     private $chromaClient;
     
+    /** @var string|null Page ID */
+    private $pageId;
+    
     /**
      * Initialize the LLM client with configuration settings
      * 
@@ -86,8 +89,9 @@ class LlmClient
      * - min_p: Minimum probability threshold (0.0-1.0)
      * - think: Whether to enable thinking in LLM responses (boolean)
      * - chromaClient: ChromaDB client instance (optional)
+     * - pageId: Page ID (optional)
      */
-    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null, $language = null, $chromaClient = null)
+    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null, $language = null, $chromaClient = null, $pageId = null)
     {
         $this->api_url = $api_url;
         $this->api_key = $api_key;
@@ -100,6 +104,7 @@ class LlmClient
         $this->think = $think;
         $this->language = $language;
         $this->chromaClient = $chromaClient;
+        $this->pageId = $pageId;
     }
     
 
@@ -890,19 +895,18 @@ class LlmClient
     {
         // If we have a ChromaDB client passed in constructor, use it
         if ($this->chromaClient !== null) {
-            // Get the collection name based on the current page ID
-            global $ID;
+            // Get the collection name based on the page ID
             $chromaCollection = 'reports';
-            $chromaDefaultCollection = $ID;
+            $pageId = $this->pageId;
             
-            if (!empty($ID)) {
+            if (!empty($pageId)) {
                 // Split the page ID by ':' and take the first part as collection name
-                $parts = explode(':', $ID);
+                $parts = explode(':', $pageId);
                 if (isset($parts[0]) && !empty($parts[0])) {
                     // If the first part is 'playground', use the default collection
                     // Otherwise, use the first part as the collection name
                     if ($parts[0] === 'playground') {
-                        $chromaCollection = $chromaDefaultCollection;
+                        $chromaCollection = $pageId;
                     } else {
                         $chromaCollection = $parts[0];
                     }
