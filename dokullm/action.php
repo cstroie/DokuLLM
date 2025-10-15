@@ -55,6 +55,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
         $controller->register_hook('COMMON_PAGETPL_LOAD', 'BEFORE', $this, 'handleTemplate');
         $controller->register_hook('MENU_ITEMS_ASSEMBLY', 'AFTER', $this, 'addCopyPageButton', array());
+        $controller->register_hook('INDEXER_TASKS_RUN', 'AFTER', $this, 'handlePageSave');
     }
 
     /**
@@ -303,6 +304,103 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             return $template;
         } catch (Exception $e) {
             throw new Exception('Error finding template: ' . $e->getMessage());
+        }
+    }
+
+
+    /**
+     * Handle page save event and send page to ChromaDB
+     * 
+     * This method is triggered after a page is saved and sends the page content
+     * to ChromaDB for indexing.
+     * 
+     * @param Doku_Event $event The event object
+     * @param mixed $param Additional parameters
+     */
+    public function handlePageSave(Doku_Event $event, $param)
+    {
+        global $ID;
+        
+        // Only process if we have a valid page ID
+        if (empty($ID)) {
+            return;
+        }
+        
+        // Get the page content
+        $content = rawWiki($ID);
+        
+        // Skip empty pages
+        if (empty($content)) {
+            return;
+        }
+        
+        try {
+            // Send page to ChromaDB
+            $this->sendPageToChromaDB($ID, $content);
+        } catch (Exception $e) {
+            // Log error but don't stop execution
+            dbglog('dokullm: Error sending page to ChromaDB: ' . $e->getMessage());
+        }
+    }
+
+
+    /**
+     * Send page content to ChromaDB
+     * 
+     * @param string $pageId The page ID
+     * @param string $content The page content
+     * @return void
+     */
+    private function sendPageToChromaDB($pageId, $content)
+    {
+        // Convert page ID to file path format for ChromaDB
+        $filePath = wikiFN($pageId);
+        
+        // Create a temporary file with the content for processing
+        $tempFile = tempnam(sys_get_temp_dir(), 'dokullm_');
+        file_put_contents($tempFile, $content);
+        
+        try {
+            // Use the existing ChromaDB client to process the file
+            require_once DOKU_PLUGIN . 'dokullm/chromadb_client.php';
+            
+            // Get configuration from config.php
+            require_once DOKU_PLUGIN . 'dokullm/config.php';
+            
+            $chroma = new ChromaDBClient(
+                CHROMA_HOST, 
+                CHROMA_PORT, 
+                CHROMA_TENANT, 
+                CHROMA_DATABASE,
+                OLLAMA_HOST,
+                OLLAMA_PORT,
+                OLLAMA_EMBEDDINGS_MODEL
+            );
+            
+            // Use the first part of the document ID as collection name, fallback to 'documents'
+            $idParts = explode(':', $pageId);
+            $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
+            
+            // Process the file
+            $result = $chroma->processSingleFile($tempFile, $collectionName, false);
+            
+            // Clean up temporary file
+            unlink($tempFile);
+            
+            // Log success or failure
+            if ($result['status'] === 'success') {
+                dbglog('dokullm: Successfully sent page to ChromaDB: ' . $pageId);
+            } else if ($result['status'] === 'skipped') {
+                dbglog('dokullm: Skipped sending page to ChromaDB: ' . $pageId . ' - ' . $result['message']);
+            } else {
+                dbglog('dokullm: Error sending page to ChromaDB: ' . $pageId . ' - ' . $result['message']);
+            }
+        } catch (Exception $e) {
+            // Clean up temporary file
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+            throw $e;
         }
     }
 
