@@ -251,7 +251,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     private function getActions()
     {
         // Get the content of the profile page
-        $content = $this->getPageContent('dokullm:profiles:default');
+        $profile = $this->getConf('profile', 'default');
+        $content = $this->getPageContent('dokullm:profiles:' . $profile);
         
         if ($content === false) {
             // Return empty list if page doesn't exist
