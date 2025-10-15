@@ -179,7 +179,7 @@ class LlmClient
         $think = $this->think ? '/think' : '/no_think';
         $prompt = $this->loadPrompt('create', ['text' => $text, 'think' => $think]);
         
-        return $this->callAPI('create', $this->language, $prompt, $metadata, $useContext);
+        return $this->callAPI('create', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -221,7 +221,7 @@ class LlmClient
             'think' => $think
         ]);
         
-        return $this->callAPI('compare', $this->language, $prompt, $metadata, $useContext);
+        return $this->callAPI('compare', $prompt, $metadata, $useContext);
     }
     
     /**
@@ -243,7 +243,7 @@ class LlmClient
         // Format the prompt with the text and custom prompt
         $prompt = $metadata['prompt'] . "\n\nText to process:\n" . $text;
         
-        return $this->callAPI('custom', $this->language, $prompt, $metadata, $useContext);
+        return $this->callAPI('custom', $prompt, $metadata, $useContext);
     }
     
     /**
