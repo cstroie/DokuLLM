@@ -20,17 +20,6 @@ if (!defined('DOKU_INC')) {
     die();
 }
 
-/**
- * Get configuration value for the dokullm plugin
- * 
- * @param string $key Configuration key
- * @param mixed $default Default value if key not found
- * @return mixed Configuration value
- */
-function getConf($key, $default = null) {
-    global $conf;
-    return isset($conf['plugin']['dokullm'][$key]) ? $conf['plugin']['dokullm'][$key] : $default;
-}
 
 
 /**
@@ -107,6 +96,18 @@ class LlmClient
         $this->top_k = $top_k ?? $this->getConf('top_k');
         $this->min_p = $min_p ?? $this->getConf('min_p');
         $this->think = $think ?? $this->getConf('think', false);
+    }
+    
+    /**
+     * Get configuration value for the dokullm plugin
+     * 
+     * @param string $key Configuration key
+     * @param mixed $default Default value if key not found
+     * @return mixed Configuration value
+     */
+    private function getConf($key, $default = null) {
+        global $conf;
+        return isset($conf['plugin']['dokullm'][$key]) ? $conf['plugin']['dokullm'][$key] : $default;
     }
     
 
