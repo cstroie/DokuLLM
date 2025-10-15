@@ -1,3 +1,11 @@
+/**
+ * DokuWiki Plugin dokullm - CSS Styles
+ *
+ * This file contains all the CSS styles for the LLM integration plugin.
+ * It defines the styling for toolbar buttons, modal dialogs, and other
+ * UI elements used in the plugin's interface.
+ */
+
 .dokuwiki div.toolbar button.toolbutton {
     background-color: var(--background_alt, #eee);
 }
