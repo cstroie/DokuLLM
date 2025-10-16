@@ -201,6 +201,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $this->getConf('ollama_port'),
                 $this->getConf('ollama_embeddings_model')
             );
+        } else {
+            $chromaClient = null;
         }
         
         $client = new \dokuwiki\plugin\dokullm\LlmClient(
@@ -215,8 +217,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $this->getConf('think', false),
             $this->getConf('profile', 'default'),
             $chromaClient,
-            $ID,
-            $this->getConf('enable_chromadb')
+            $ID
         );
         try {
             switch ($action) {
@@ -360,8 +361,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $this->getConf('think', false),
                 $this->getConf('profile', 'default'),
                 $chromaClient,
-                $ID,
-                $this->getConf('enable_chromadb')
+                $ID
             );
             
             // Query ChromaDB for the most relevant template
