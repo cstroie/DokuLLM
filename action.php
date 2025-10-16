@@ -251,6 +251,12 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      * The parsing stops after the first table ends to avoid processing
      * additional tables that might contain disabled or work-in-progress commands.
      * 
+     * The ID can be either:
+     * - A simple word (e.g., "summary")
+     * - A link to a page in the profile namespace (e.g., "[[.:default:summarize]]")
+     * 
+     * For page links, the actual ID is extracted as the last part after the final ':'
+     * 
      * @return array Array of action definitions, each containing:
      *               - id: string, the action identifier
      *               - label: string, the button label
@@ -284,8 +290,21 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                     continue;
                 }
                 
+                // Extract ID from either simple text or page link
+                $rawId = trim($matches[1]);
+                $id = $rawId;
+                
+                // Check if ID is a page link in format [[namespace:page]] or [[.:namespace:page]]
+                if (preg_match('/\[\[\.?:?([^\]]+)\]\]/', $rawId, $linkMatches)) {
+                    // Extract the actual page path
+                    $pagePath = $linkMatches[1];
+                    // Get the last part after the final ':' as the ID
+                    $pathParts = explode(':', $pagePath);
+                    $id = end($pathParts);
+                }
+                
                 $actions[] = [
-                    'id' => trim($matches[1]),
+                    'id' => $id,
                     'label' => trim($matches[2]),
                     'description' => trim($matches[3]),
                     'icon' => trim($matches[4]),
