@@ -1,6 +1,8 @@
 <?php
 namespace dokuwiki\plugin\dokullm;
 
+use Exception;
+
 /**
  * LLM Client for the dokullm plugin
  * 
