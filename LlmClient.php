@@ -91,7 +91,7 @@ class LlmClient
      * - chromaClient: ChromaDB client instance (optional)
      * - pageId: Page ID (optional)
      */
-    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null, $profile = null, $chromaClient = null, $pageId = null)
+    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null, $profile = null, $chromaClient = null, $pageId = null, $enableChromaDB = null)
     {
         $this->api_url = $api_url;
         $this->api_key = $api_key;
@@ -105,6 +105,7 @@ class LlmClient
         $this->profile = $profile;
         $this->chromaClient = $chromaClient;
         $this->pageId = $pageId;
+        $this->enableChromaDB = $enableChromaDB ?? false;
     }
     
 
@@ -615,7 +616,7 @@ class LlmClient
                     break;
                     
                 case 'snippets':
-                    $variables[$placeholder] = $this->getSnippets(10);
+                    $variables[$placeholder] = $this->enableChromaDB ? $this->getSnippets(10) : '( no examples )';
                     break;
                     
                 case 'examples':
@@ -796,6 +797,11 @@ class LlmClient
             }
         }
         
+        // If ChromaDB is disabled, return empty template
+        if (!$this->enableChromaDB) {
+            return '( no template )';
+        }
+        
         // Otherwise, get template suggestion for the current text
         $pageId = $this->queryChromaDBTemplate($this->getCurrentText());
         if (!empty($pageId)) {
@@ -818,6 +824,11 @@ class LlmClient
      */
     private function getSnippets($count = 10)
     {
+        // If ChromaDB is disabled, return empty snippets
+        if (!$this->enableChromaDB) {
+            return '( no examples )';
+        }
+        
         // Get example snippets for the current text
         $snippets = $this->queryChromaDBSnippets($this->getCurrentText(), $count);
         if (!empty($snippets)) {

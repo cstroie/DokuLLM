@@ -135,6 +135,16 @@ $meta['think'] = array('onoff');
 $meta['use_tools'] = array('onoff');
 
 /**
+ * Metadata for the enable_chromadb configuration option
+ * 
+ * Defines whether ChromaDB integration is enabled.
+ * When enabled, ChromaDB features will be available; when disabled, they will be hidden.
+ * 
+ * @var array
+ */
+$meta['enable_chromadb'] = array('onoff');
+
+/**
  * Metadata for the ChromaDB host configuration option
  * 
  * Defines the ChromaDB host as a string input field in the configuration interface.

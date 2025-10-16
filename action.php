@@ -188,17 +188,20 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         }
 
 
-        // Create ChromaDB client
-        $chromaClient = new \dokuwiki\plugin\dokullm\ChromaDBClient(
-            $this->getConf('chroma_host'),
-            $this->getConf('chroma_port'),
-            $this->getConf('chroma_tenant'),
-            $this->getConf('chroma_database'),
-            $this->getConf('chroma_collection'),
-            $this->getConf('ollama_host'),
-            $this->getConf('ollama_port'),
-            $this->getConf('ollama_embeddings_model')
-        );
+        // Create ChromaDB client only if enabled
+        $chromaClient = null;
+        if ($this->getConf('enable_chromadb')) {
+            $chromaClient = new \dokuwiki\plugin\dokullm\ChromaDBClient(
+                $this->getConf('chroma_host'),
+                $this->getConf('chroma_port'),
+                $this->getConf('chroma_tenant'),
+                $this->getConf('chroma_database'),
+                $this->getConf('chroma_collection'),
+                $this->getConf('ollama_host'),
+                $this->getConf('ollama_port'),
+                $this->getConf('ollama_embeddings_model')
+            );
+        }
         
         $client = new \dokuwiki\plugin\dokullm\LlmClient(
             $this->getConf('api_url'),
@@ -212,7 +215,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $this->getConf('think', false),
             $this->getConf('profile', 'default'),
             $chromaClient,
-            $ID
+            $ID,
+            $this->getConf('enable_chromadb')
         );
         try {
             switch ($action) {
@@ -329,17 +333,20 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      */
     private function findTemplate($text) {
         try {
-            // Create ChromaDB client
-            $chromaClient = new \dokuwiki\plugin\dokullm\ChromaDBClient(
-                $this->getConf('chroma_host'),
-                $this->getConf('chroma_port'),
-                $this->getConf('chroma_tenant'),
-                $this->getConf('chroma_database'),
-                $this->getConf('chroma_collection'),
-                $this->getConf('ollama_host'),
-                $this->getConf('ollama_port'),
-                $this->getConf('ollama_embeddings_model')
-            );
+            // Create ChromaDB client only if enabled
+            $chromaClient = null;
+            if ($this->getConf('enable_chromadb')) {
+                $chromaClient = new \dokuwiki\plugin\dokullm\ChromaDBClient(
+                    $this->getConf('chroma_host'),
+                    $this->getConf('chroma_port'),
+                    $this->getConf('chroma_tenant'),
+                    $this->getConf('chroma_database'),
+                    $this->getConf('chroma_collection'),
+                    $this->getConf('ollama_host'),
+                    $this->getConf('ollama_port'),
+                    $this->getConf('ollama_embeddings_model')
+                );
+            }
             
             $client = new \dokuwiki\plugin\dokullm\LlmClient(
                 $this->getConf('api_url'),
@@ -353,7 +360,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $this->getConf('think', false),
                 $this->getConf('profile', 'default'),
                 $chromaClient,
-                $ID
+                $ID,
+                $this->getConf('enable_chromadb')
             );
             
             // Query ChromaDB for the most relevant template
@@ -411,6 +419,11 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      */
     private function sendPageToChromaDB($pageId, $content)
     {
+        // Skip if ChromaDB is disabled
+        if (!$this->getConf('enable_chromadb')) {
+            return;
+        }
+        
         // Convert page ID to file path format for ChromaDB
         $filePath = wikiFN($pageId);
         

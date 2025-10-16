@@ -143,6 +143,16 @@ $conf['think'] = false;
 $conf['use_tools'] = false;
 
 /**
+ * Enable ChromaDB integration
+ * 
+ * Controls whether ChromaDB integration is enabled for document storage and retrieval.
+ * When true, ChromaDB features will be available; when false, they will be disabled.
+ * 
+ * @var bool
+ */
+$conf['enable_chromadb'] = 0;
+
+/**
  * ChromaDB Host
  * 
  * The hostname or IP address of your ChromaDB server.

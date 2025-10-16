@@ -111,14 +111,18 @@
             templateBtn.addEventListener('click', () => insertTemplateContent(metadata.template));
             toolbar.appendChild(templateBtn);
         } else {
-            // Add "Find Template" button if no template is defined
-            console.log('DokuLLM: Adding find template button');
-            const findTemplateBtn = document.createElement('button');
-            findTemplateBtn.type = 'button';
-            findTemplateBtn.className = 'toolbutton';
-            findTemplateBtn.textContent = 'Find Template';
-            findTemplateBtn.addEventListener('click', findTemplate);
-            toolbar.appendChild(findTemplateBtn);
+            // Add "Find Template" button if no template is defined and ChromaDB is enabled
+            // Check if ChromaDB is enabled through JSINFO
+            const chromaDBEnabled = typeof JSINFO !== 'undefined' && JSINFO.dokullm && JSINFO.dokullm.enable_chromadb;
+            if (chromaDBEnabled) {
+                console.log('DokuLLM: Adding find template button');
+                const findTemplateBtn = document.createElement('button');
+                findTemplateBtn.type = 'button';
+                findTemplateBtn.className = 'toolbutton';
+                findTemplateBtn.textContent = 'Find Template';
+                findTemplateBtn.addEventListener('click', findTemplate);
+                toolbar.appendChild(findTemplateBtn);
+            }
         }
         
         // Add loading indicator while fetching actions
