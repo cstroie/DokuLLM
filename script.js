@@ -893,6 +893,29 @@
     }
     
     /**
+     * Insert metadata after the first title in the text
+     * 
+     * Checks if the first line is a title (starts with = in DokuWiki)
+     * and inserts the metadata line after it, otherwise inserts at the beginning.
+     * 
+     * @param {string} text - The text content
+     * @param {string} metadataLine - The metadata line to insert
+     * @returns {string} The text with metadata inserted
+     */
+    function insertMetadataAfterTitle(text, metadataLine) {
+        // Check if the first line is a title (starts with = in DokuWiki)
+        const lines = text.split('\n');
+        if (lines.length > 0 && lines[0].trim() !== '' && lines[0].trim()[0] === '=') {
+            // Insert after the first line (the title)
+            lines.splice(1, 0, metadataLine);
+            return lines.join('\n');
+        } else {
+            // Insert at the very beginning
+            return metadataLine + '\n' + text;
+        }
+    }
+
+    /**
      * Find and insert template metadata
      * 
      * Searches for an appropriate template based on the current content
