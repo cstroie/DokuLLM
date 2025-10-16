@@ -60,6 +60,29 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     }
 
     /**
+     * Insert metadata line after the first title in DokuWiki format
+     * 
+     * If the first line starts with '=', insert the metadata after it.
+     * Otherwise, insert at the very beginning.
+     * 
+     * @param string $text The text content
+     * @param string $metadataLine The metadata line to insert
+     * @return string The text with metadata inserted
+     */
+    private function insertMetadataAfterTitle($text, $metadataLine) {
+        // Check if the first line is a title (starts with = in DokuWiki)
+        $lines = explode("\n", $text);
+        if (count($lines) > 0 && trim($lines[0]) !== '' && trim($lines[0])[0] === '=') {
+            // Insert after the first line (the title)
+            array_splice($lines, 1, 0, $metadataLine);
+            return implode("\n", $lines);
+        } else {
+            // Insert at the very beginning
+            return $metadataLine . "\n" . $text;
+        }
+    }
+
+    /**
      * Add JavaScript to the page header for edit pages
      * 
      * This method checks if we're on an edit or preview page and adds
@@ -528,7 +551,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 }
                 // Add LLM_TEMPLATE metadata if the original page ID contains 'template'
                 if (strpos($template_id, 'template') !== false) {
-                    $tpl = insertMetadataAfterTitle($tpl, '~~LLM_TEMPLATE:' . $template_id . '~~');
+                    $tpl = $this->insertMetadataAfterTitle($tpl, '~~LLM_TEMPLATE:' . $template_id . '~~');
                 }
                 $event->data['tpl'] = $tpl;
                 $event->preventDefault();
