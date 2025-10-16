@@ -114,7 +114,7 @@
             // Add "Find Template" button if no template is defined and ChromaDB is enabled
             // Check if ChromaDB is enabled through JSINFO
 console.log(JSINFO);
-            const chromaDBEnabled = typeof JSINFO !== 'undefined' && JSINFO.dokullm && JSINFO.dokullm.enable_chromadb;
+            const chromaDBEnabled = typeof JSINFO !== 'undefined' && JSINFO.plugins && JSINFO.plugins.dokullm && JSINFO.plugins.dokullm.enable_chromadb;
             if (chromaDBEnabled) {
                 console.log('DokuLLM: Adding find template button');
                 const findTemplateBtn = document.createElement('button');
