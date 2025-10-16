@@ -92,7 +92,11 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     {
         global $JSINFO;
         
-        $JSINFO['dokullm'] = [
+        if (!isset($JSINFO['plugins'])) {
+            $JSINFO['plugins'] = [];
+        }
+        
+        $JSINFO['plugins']['dokullm'] = [
             'enable_chromadb' => $this->getConf('enable_chromadb')
         ];
     }
