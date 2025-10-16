@@ -713,8 +713,6 @@
             }
             
             console.log('DokuLLM: Custom prompt processing successful, result length:', data.result.length);
-            // Extract AI thinking parts (between <think> tags) from the result
-            let thinkingContent = '';
             // Remove some part
             const [thinkingContent, cleanedResult] = removeBetweenXmlTags(data.result, 'think');
             // Replace selected text or append to editor
