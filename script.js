@@ -365,7 +365,8 @@
             console.log('DokuLLM: Processing successful, result length:', data.result.length);
             
             // Remove some part
-            const [cleanedResult, thinkingContent] = cleanThinking(data.result);
+            const thinkingContent = extractThinkingContent(data.result);
+            const cleanedResult = removeBetweenXmlTags(data.result, 'think');
 
             // Determine how to handle the result based on button's dataset.result property
             const resultHandling = event.target.dataset.result || 'replace';
@@ -1130,6 +1131,17 @@
                 reject(error);
             });
         });
+    }
+
+    /**
+     * Extract content between think tags from text
+     * 
+     * @param {string} text - The text to extract thinking content from
+     * @returns {string} The content between think tags, or empty string if not found
+     */
+    function extractThinkingContent(text) {
+        const thinkingMatch = text.match(/<think>([\s\S]*?)<\/think>/);
+        return (thinkingMatch && thinkingMatch[1]) ? thinkingMatch[1].trim() : '';
     }
 
     function cleanThinking(text) {
