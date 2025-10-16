@@ -101,9 +101,9 @@
         const metadata = getMetadata();
         console.log('DokuLLM: Page metadata retrieved', metadata);
         
-        // Add template button if template is defined
+        // Add "Insert template" button if template is defined
         if (metadata.template) {
-            console.log('DokuLLM: Adding template button for', metadata.template);
+            console.log('DokuLLM: Adding insert template button for', metadata.template);
             const templateBtn = document.createElement('button');
             templateBtn.type = 'button';
             templateBtn.className = 'toolbutton';
@@ -113,6 +113,7 @@
         } else {
             // Add "Find Template" button if no template is defined and ChromaDB is enabled
             // Check if ChromaDB is enabled through JSINFO
+console.log(JSINFO);
             const chromaDBEnabled = typeof JSINFO !== 'undefined' && JSINFO.dokullm && JSINFO.dokullm.enable_chromadb;
             if (chromaDBEnabled) {
                 console.log('DokuLLM: Adding find template button');
