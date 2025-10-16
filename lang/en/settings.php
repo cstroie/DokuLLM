@@ -17,6 +17,7 @@ $lang['show_copy_button'] = 'Show Copy Page Button in the toolbar';
 $lang['replace_id'] = 'Replace Template ID When Copying';
 $lang['think'] = 'Enable Thinking in LLM Responses for deeper processing';
 $lang['use_tools'] = 'Enable Tool Usage in LLM Responses for enhanced capabilities';
+$lang['enable_chromadb'] = 'Enable ChromaDB Integration - When enabled, ChromaDB features will be available for document storage and retrieval';
 $lang['chroma_host'] = 'ChromaDB Host - The hostname or IP address of your ChromaDB server';
 $lang['chroma_port'] = 'ChromaDB Port - The port number on which ChromaDB is running';
 $lang['chroma_tenant'] = 'ChromaDB Tenant - The tenant name for ChromaDB organization';
