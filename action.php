@@ -51,6 +51,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
+        $controller->register_hook('DOKUWIKI_STARTED', 'AFTER', $this, 'handleDokuwikiStarted');
         $controller->register_hook('TPL_METAHEADER_OUTPUT', 'BEFORE', $this, 'handleMetaHeaders');
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
         $controller->register_hook('COMMON_PAGETPL_LOAD', 'BEFORE', $this, 'handleTemplate');
@@ -79,6 +80,21 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 '_data' => 'dokullm'
             );
         }
+    }
+
+    /**
+     * Add dokullm configuration to JSINFO
+     * 
+     * @param Doku_Event $event The event object
+     * @param mixed $param Additional parameters
+     */
+    public function handleDokuwikiStarted(Doku_Event $event, $param)
+    {
+        global $JSINFO;
+        
+        $JSINFO['dokullm'] = [
+            'enable_chromadb' => $this->getConf('enable_chromadb')
+        ];
     }
 
     /**
