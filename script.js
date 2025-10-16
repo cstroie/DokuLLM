@@ -1144,4 +1144,19 @@
         return [cleanedResult, thinkingContent];
     }
 
+    /**
+     * Remove everything between two XML tags from a text
+     * 
+     * This function removes all content between specified XML opening and closing tags,
+     * including the tags themselves.
+     * 
+     * @param {string} text - The text to process
+     * @param {string} tagName - The name of the XML tag to remove content from
+     * @returns {string} The text with content between the specified tags removed
+     */
+    function removeBetweenXmlTags(text, tagName) {
+        const regex = new RegExp(`<${tagName}[^>]*>[\\s\\S]*?<\/${tagName}>`, 'g');
+        return text.replace(regex, '').trim();
+    }
+
 })();
