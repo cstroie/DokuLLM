@@ -971,9 +971,9 @@
                 const metadataLine = `~~LLM_TEMPLATE:${data.result.template}~~\n`;
                 const existingText = editor.value;
                 
-                // Check if the first line is a title (starts with #)
+                // Check if the first line is a title (starts with = in DokuWiki)
                 const lines = existingText.split('\n');
-                if (lines.length > 0 && lines[0].trim().startsWith('#')) {
+                if (lines.length > 0 && lines[0].trim().startsWith('=')) {
                     // Insert after the first line (the title)
                     lines.splice(1, 0, metadataLine.trim());
                     editor.value = lines.join('\n');
