@@ -715,14 +715,8 @@
             console.log('DokuLLM: Custom prompt processing successful, result length:', data.result.length);
             // Extract AI thinking parts (between <think> tags) from the result
             let thinkingContent = '';
-            const thinkingMatch = data.result.match(/<think>([\s\S]*?)<\/think>/);
-            if (thinkingMatch && thinkingMatch[1]) {
-                thinkingContent = thinkingMatch[1].trim();
-            }
-            
-            // Remove AI thinking parts (between <think> tags) from the result
-            const cleanedResult = data.result.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-            
+            // Remove some part
+            const [thinkingContent, cleanedResult] = removeBetweenXmlTags(data.result, 'think');
             // Replace selected text or append to editor
             if (selectedText) {
                 console.log('DokuLLM: Replacing selected text for custom prompt');
@@ -1130,29 +1124,6 @@
                 reject(error);
             });
         });
-    }
-
-    /**
-     * Extract content between think tags from text
-     * 
-     * @param {string} text - The text to extract thinking content from
-     * @returns {string} The content between think tags, or empty string if not found
-     */
-    function extractThinkingContent(text) {
-        const thinkingMatch = text.match(/<think>([\s\S]*?)<\/think>/);
-        return (thinkingMatch && thinkingMatch[1]) ? thinkingMatch[1].trim() : '';
-    }
-
-    function cleanThinking(text) {
-        // Extract AI thinking parts (between 'think' tags) from the result
-        let thinkingContent = '';
-        const thinkingMatch = text.match(/<th_ink>([\s\S]*?)<\/th_ink>/);
-        if (thinkingMatch && thinkingMatch[1]) {
-            thinkingContent = thinkingMatch[1].trim();
-        }
-        // Remove AI thinking parts (between 'think' tags) from the result
-        const cleanedResult = text.replace(/<th_ink>[\s\S]*?<\/th_ink>/g, '').trim();
-        return [cleanedResult, thinkingContent];
     }
 
     /**
