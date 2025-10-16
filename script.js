@@ -365,8 +365,7 @@
             console.log('DokuLLM: Processing successful, result length:', data.result.length);
             
             // Remove some part
-            const thinkingContent = extractThinkingContent(data.result);
-            const cleanedResult = removeBetweenXmlTags(data.result, 'think');
+            const [thinkingContent, cleanedResult] = removeBetweenXmlTags(data.result, 'think');
 
             // Determine how to handle the result based on button's dataset.result property
             const resultHandling = event.target.dataset.result || 'replace';
@@ -1159,16 +1158,27 @@
     /**
      * Remove everything between two XML tags from a text
      * 
-     * This function removes all content between specified XML opening and closing tags,
-     * including the tags themselves.
+     * This function extracts content between specified XML opening and closing tags,
+     * and returns both the content between tags and the rest of the text without the tags.
      * 
      * @param {string} text - The text to process
-     * @param {string} tagName - The name of the XML tag to remove content from
-     * @returns {string} The text with content between the specified tags removed
+     * @param {string} tagName - The name of the XML tag to extract content from
+     * @returns {Array} An array with two elements: [contentBetweenTags, restOfText]
      */
     function removeBetweenXmlTags(text, tagName) {
-        const regex = new RegExp(`<${tagName}[^>]*>[\\s\\S]*?<\/${tagName}>`, 'g');
-        return text.replace(regex, '').trim();
+        const regex = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\/${tagName}>`, 'g');
+        let contentBetweenTags = '';
+        let match;
+        
+        // Extract content between tags
+        while ((match = regex.exec(text)) !== null) {
+            contentBetweenTags += match[1];
+        }
+        
+        // Remove all occurrences of the tags and their content
+        const restOfText = text.replace(regex, '').trim();
+        
+        return [contentBetweenTags, restOfText];
     }
 
 })();
