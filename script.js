@@ -968,20 +968,9 @@
             if (data.result && data.result.template) {
                 console.log('DokuLLM: Template found:', data.result.template);
                 // Insert template metadata at the top of the text, but after title if present
-                const metadataLine = `~~LLM_TEMPLATE:${data.result.template}~~\n`;
-                const existingText = editor.value;
-                
-                // Check if the first line is a title (starts with = in DokuWiki)
-                const lines = existingText.split('\n');
-                if (lines.length > 0 && lines[0].trim().startsWith('=')) {
-                    // Insert after the first line (the title)
-                    lines.splice(1, 0, metadataLine.trim());
-                    editor.value = lines.join('\n');
-                } else {
-                    // Insert at the very beginning
-                    editor.value = metadataLine + existingText;
-                }
-                
+                const metadataLine = `~~LLM_TEMPLATE:${data.result.template}~~`;
+                editor.value = insertMetadataAfterTitle(editor.value, metadataLine);
+                    
                 // Show success message
                 alert(`Template found and inserted: ${data.result.template}`);
             } else {

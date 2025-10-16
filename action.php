@@ -528,17 +528,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 }
                 // Add LLM_TEMPLATE metadata if the original page ID contains 'template'
                 if (strpos($template_id, 'template') !== false) {
-                    // Check if the first line is a title (starts with = in DokuWiki)
-                    $lines = explode("\n", $tpl);
-                    if (count($lines) > 0 && trim($lines[0]) !== '' && trim($lines[0])[0] === '=') {
-                        // Insert metadata after the first line (the title)
-                        $metadataLine = '~~LLM_TEMPLATE:' . $template_id . '~~' . "\n";
-                        array_splice($lines, 1, 0, $metadataLine);
-                        $tpl = implode("\n", $lines);
-                    } else {
-                        // Insert at the very beginning
-                        $tpl = '~~LLM_TEMPLATE:' . $template_id . '~~' . "\n" . $tpl;
-                    }
+                    $tpl = insertMetadataAfterTitle($tpl, '~~LLM_TEMPLATE:' . $template_id . '~~');
                 }
                 $event->data['tpl'] = $tpl;
                 $event->preventDefault();
