@@ -1135,12 +1135,12 @@
     function cleanThinking(text) {
         // Extract AI thinking parts (between 'think' tags) from the result
         let thinkingContent = '';
-        const thinkingMatch = text.match(/<think>([\s\S]*?)<\/think>/);
+        const thinkingMatch = text.match(/<th_ink>([\s\S]*?)<\/th_ink>/);
         if (thinkingMatch && thinkingMatch[1]) {
             thinkingContent = thinkingMatch[1].trim();
         }
         // Remove AI thinking parts (between 'think' tags) from the result
-        const cleanedResult = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+        const cleanedResult = text.replace(/<th_ink>[\s\S]*?<\/th_ink>/g, '').trim();
         return [cleanedResult, thinkingContent];
     }
 
