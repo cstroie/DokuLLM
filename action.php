@@ -266,6 +266,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             switch ($action) {
                 case 'custom':
                     $result = $client->processCustomPrompt($text, $metadata);
+                    break;
                 default:
                     $result = $client->process($action, $text, $metadata);
             }
