@@ -1,0 +1,134 @@
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Extending System Prompts in DokuLLM                                                                                 ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+DokuLLM supports a hierarchical system prompt architecture that allows for fine-grained control over LLM behavior for  
+specific actions. This extension mechanism enables you to provide additional context and instructions that are specific
+to individual operations.                                                                                              
+
+
+Extension Mechanism                                                                                                    
+
+The system works by automatically checking for command-specific system prompt extensions when processing any action.   
+The extension follows this naming convention:                                                                          
+
+                                                                                                                       
+dokullm:profiles:[PROFILE_NAME]:[ACTION_NAME]:system                                                                   
+                                                                                                                       
+
+For example:                                                                                                           
+
+ • dokullm:profiles:default:summarize:system                                                                           
+ • dokullm:profiles:default:create:system                                                                              
+ • dokullm:profiles:medical:analyze:system                                                                             
+
+
+How It Works                                                                                                           
+
+ 1 Base System Prompt Loading: When any action is initiated, the main system prompt is first loaded from:              
+                                                                                                                       
+   dokullm:profiles:[PROFILE_NAME]:system                                                                              
+                                                                                                                       
+ 2 Command-Specific Extension Check: The system then checks if a command-specific system prompt extension exists:      
+                                                                                                                       
+   dokullm:profiles:[PROFILE_NAME]:[ACTION_NAME]:system                                                                
+                                                                                                                       
+ 3 Automatic Appendage: If the extension exists, its content is automatically appended to the base system prompt with a
+   newline separator.                                                                                                  
+ 4 Fallback Behavior: If the extension doesn't exist, the system simply uses the base system prompt without any        
+   additional instructions.                                                                                            
+
+
+Use Cases                                                                                                              
+
+Action-Specific Guidelines                                                                                             
+
+Command extensions are ideal for providing action-specific guidance that supplements the general system instructions.  
+For example:                                                                                                           
+
+Base System Prompt (dokullm:profiles:default:system):                                                                  
+
+                                                                                                                       
+You are a medical report assistant specialized in MRI reporting...                                                     
+                                                                                                                       
+
+Summarize Extension (dokullm:profiles:default:summarize:system):                                                       
+
+                                                                                                                       
+When summarizing content, focus on the key findings and conclusions.                                                   
+Create a concise executive summary that captures the most important information.                                       
+Limit your summary to 3-5 bullet points.                                                                               
+                                                                                                                       
+
+Combined Result:                                                                                                       
+
+                                                                                                                       
+You are a medical report assistant specialized in MRI reporting...                                                     
+[...base instructions...]                                                                                              
+                                                                                                                       
+When summarizing content, focus on the key findings and conclusions.                                                   
+Create a concise executive summary that captures the most important information.                                       
+Limit your summary to 3-5 bullet points.                                                                               
+                                                                                                                       
+
+Specialized Processing Instructions                                                                                    
+
+Extensions can provide detailed processing instructions that are unique to each action:                                
+
+ • Analysis Extension: Specify analytical frameworks and evaluation criteria                                           
+ • Comparison Extension: Define comparison methodologies and focus areas                                               
+ • Rewrite Extension: Provide style guidelines and content restructuring rules                                         
+ • Create Extension: Outline content generation templates and required sections                                        
+
+
+Implementation Details                                                                                                 
+
+The extension mechanism is implemented in the LlmClient.php file in the loadSystemPrompt() method:                     
+
+                                                                                                                       
+private function loadSystemPrompt($action, $variables = [])                                                            
+{                                                                                                                      
+    // Load base system prompt                                                                                         
+    $systemPrompt = $this->loadPrompt('system', $variables);                                                           
+                                                                                                                       
+    // Check for command-specific extension                                                                            
+    if (!empty($action)) {                                                                                             
+        try {                                                                                                          
+            $commandSystemPrompt = $this->loadPrompt($action . ':system', $variables);                                 
+            if ($commandSystemPrompt !== false) {                                                                      
+                $systemPrompt .= "\n" . $commandSystemPrompt;                                                          
+            }                                                                                                          
+        } catch (Exception $e) {                                                                                       
+            // Silently ignore missing extensions                                                                      
+        }                                                                                                              
+    }                                                                                                                  
+                                                                                                                       
+    return $systemPrompt;                                                                                              
+}                                                                                                                      
+                                                                                                                       
+
+
+Best Practices                                                                                                         
+
+ 1 Complementary Content: Extensions should complement, not contradict, the base system prompt                         
+ 2 Concise Instructions: Keep extensions focused and specific to the action                                            
+ 3 Consistent Formatting: Maintain consistent style with the base system prompt                                        
+ 4 Profile Awareness: Create profile-specific extensions when using multiple profiles                                  
+ 5 Testing: Test extensions thoroughly to ensure they produce desired behavior                                         
+
+
+Example Structure                                                                                                      
+
+                                                                                                                       
+dokullm:profiles:default:                                                                                              
+├── system                    # Base system prompt                                                                     
+├── create                    # Create action prompt                                                                   
+├── create:system            # Create-specific system extension                                                        
+├── summarize                # Summarize action prompt                                                                 
+├── summarize:system         # Summarize-specific system extension                                                     
+├── analyze                  # Analyze action prompt                                                                   
+└── analyze:system           # Analyze-specific system extension                                                       
+                                                                                                                       
+
+This extension mechanism provides powerful flexibility in customizing LLM behavior for different actions while         
+maintaining a consistent foundational set of instructions.   
