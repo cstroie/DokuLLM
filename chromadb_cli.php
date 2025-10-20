@@ -153,6 +153,13 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
     // Use the first part of the document ID as collection name, fallback to 'documents'
     $idParts = explode(':', $id);
     $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
+    
+    // Clean the ID and check ACL
+    $cleanId = cleanID($id);
+    if (auth_quickaclcheck($cleanId) < AUTH_READ) {
+        echo "Error: You are not allowed to read this file: $id\n";
+        return;
+    }
         
     try {
         // Process the file using the class method

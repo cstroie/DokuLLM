@@ -687,11 +687,18 @@ class LlmClient
      * 
      * @param string $pageId The page ID to retrieve
      * @return string|false The page content or false if not found/readable
+     * @throws Exception If access is denied
      */
     public function getPageContent($pageId)
     {
+        // Clean the ID and check ACL
+        $cleanId = cleanID($pageId);
+        if (auth_quickaclcheck($cleanId) < AUTH_READ) {
+            throw new Exception('You are not allowed to read this file');
+        }
+        
         // Convert page ID to file path
-        $pageFile = wikiFN($pageId);
+        $pageFile = wikiFN($cleanId);
         
         // Check if file exists and is readable
         if (file_exists($pageFile) && is_readable($pageFile)) {
