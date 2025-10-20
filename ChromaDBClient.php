@@ -46,7 +46,14 @@ class ChromaDBClient {
         $this->defaultCollection = $defaultCollection;
         $this->ollamaHost = $ollamaHost;
         $this->ollamaPort = $ollamaPort;
-        $this->ollamaModel = $ollamaModel;
+        
+        // Ensure ollamaModel is a string with a default fallback
+        if (!is_string($ollamaModel) || empty($ollamaModel)) {
+            $this->ollamaModel = 'nomic-embed-text'; // Default embedding model
+        } else {
+            $this->ollamaModel = $ollamaModel;
+        }
+        
         $this->baseUrl = "http://{$chromaHost}:{$chromaPort}";
         $this->client = curl_init();
         curl_setopt($this->client, CURLOPT_RETURNTRANSFER, true);
