@@ -68,9 +68,6 @@ class cli_plugin_dokullm extends CLIPlugin {
         // Include the ChromaDBClient class
         require_once dirname(__FILE__) . '/ChromaDBClient.php';
 
-        $action = $options->getCmd();
-        $verbose = $options->getOpt('verbose');
-
         // Get global options with defaults
         $host = $options->getOpt('host', 'localhost');
         $port = (int)$options->getOpt('port', 8000);
@@ -79,6 +76,9 @@ class cli_plugin_dokullm extends CLIPlugin {
         $ollamaHost = $options->getOpt('ollama-host', 'localhost');
         $ollamaPort = (int)$options->getOpt('ollama-port', 11434);
         $ollamaModel = $options->getOpt('ollama-model', 'nomic-embed-text');
+        $verbose = $options->getOpt('verbose');
+        
+        $action = $options->getCmd();
 
         switch ($action) {
             case 'send':
