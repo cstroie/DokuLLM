@@ -41,7 +41,9 @@ The plugin consists of several key components:
 1. Clone or download the plugin to your DokuWiki plugins directory
 2. Configure the plugin settings in DokuWiki's configuration manager
 3. Set up ChromaDB and Ollama services
-4. Configure connection settings in `config.php`
+4. Configure connection settings through the DokuWiki admin interface
+
+Note: Configuration has been moved from the deprecated `config.php` to the standard DokuWiki configuration files (`conf/default.php` and `conf/metadata.php`).
 
 ## Configuration
 The plugin is configurable through multiple levels:
