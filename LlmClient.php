@@ -626,6 +626,11 @@ class LlmClient
                                                 '';
                     break;
                     
+                case 'prompt':
+                    // Add the custom prompt value
+                    $variables[$placeholder] = isset($variables['prompt']) ? $variables['prompt'] : '';
+                    break;
+                    
                 default:
                     // For other placeholders, leave them empty or set a default value
                     $variables[$placeholder] = '';
