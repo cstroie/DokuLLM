@@ -50,6 +50,7 @@ function showUsage() {
     echo "  --ollama-model MODEL Ollama embeddings model (default: nomic-embed-text)\n";
     echo "  --collection COLL  Collection name to query (default: documents)\n";
     echo "  --limit NUM        Number of results to return (default: 5)\n";
+    echo "  --verbose          Enable verbose output\n";
     echo "\n";
     echo "Send a file:\n";
     echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] send /path/to/file.txt\n";
@@ -87,13 +88,13 @@ function showUsage() {
  * @param string $database ChromaDB database name
  * @return void
  */
-function sendFile($path, $host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel) {
+function sendFile($path, $host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel, $verbose = false) {
     // Create ChromaDB client
     $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
     
     if (is_dir($path)) {
         // Process directory
-        processDirectory($path, $chroma, $host, $port, $tenant, $database);
+        processDirectory($path, $chroma, $host, $port, $tenant, $database, $verbose);
     } else {
         // Process single file
         if (!file_exists($path)) {
@@ -105,11 +106,13 @@ function sendFile($path, $host, $port, $tenant, $database, $ollamaHost, $ollamaP
         // Skip files that start with underscore
         $filename = basename($path);
         if ($filename[0] === '_') {
-            echo "Skipping file (starts with underscore): $path\n";
+            if ($verbose) {
+                echo "Skipping file (starts with underscore): $path\n";
+            }
             return;
         }
         
-        processSingleFile($path, $chroma, $host, $port, $tenant, $database);
+        processSingleFile($path, $chroma, $host, $port, $tenant, $database, false, $verbose);
     }
 }
 
@@ -143,7 +146,7 @@ function sendFile($path, $host, $port, $tenant, $database, $ollamaHost, $ollamaP
  * @param bool $collectionChecked Whether the collection has already been checked/created (optimization for batch processing)
  * @return void
  */
-function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database, $collectionChecked = false) {
+function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database, $collectionChecked = false, $verbose = false) {
     // Parse file path to extract metadata
     $id = \dokuwiki\plugin\dokullm\parseFilePath($filePath);
         
@@ -156,24 +159,30 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
         $result = $chroma->processSingleFile($filePath, $collectionName, $collectionChecked);
         
         // Handle the result with verbose output
-        if (!empty($result['collection_status'])) {
+        if ($verbose && !empty($result['collection_status'])) {
             echo $result['collection_status'] . "\n";
         }
         
         switch ($result['status']) {
             case 'success':
-                echo "Adding " . $result['details']['chunks'] . " chunks to ChromaDB...\n";
+                if ($verbose) {
+                    echo "Adding " . $result['details']['chunks'] . " chunks to ChromaDB...\n";
+                }
                 echo "Successfully sent file to ChromaDB:\n";
                 echo "  Document ID: " . $result['details']['document_id'] . "\n";
-                echo "  Chunks: " . $result['details']['chunks'] . "\n";
-                echo "  Host: $host:$port\n";
-                echo "  Tenant: $tenant\n";
-                echo "  Database: $database\n";
-                echo "  Collection: " . $result['details']['collection'] . "\n";
+                if ($verbose) {
+                    echo "  Chunks: " . $result['details']['chunks'] . "\n";
+                    echo "  Host: $host:$port\n";
+                    echo "  Tenant: $tenant\n";
+                    echo "  Database: $database\n";
+                    echo "  Collection: " . $result['details']['collection'] . "\n";
+                }
                 break;
                 
             case 'skipped':
-                echo $result['message'] . "\n";
+                if ($verbose) {
+                    echo $result['message'] . "\n";
+                }
                 break;
                 
             case 'error':
@@ -202,8 +211,10 @@ function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database,
  * @param string $database ChromaDB database name
  * @return void
  */
-function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
-    echo "Processing directory: $dirPath\n";
+function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database, $verbose = false) {
+    if ($verbose) {
+        echo "Processing directory: $dirPath\n";
+    }
     
     $result = $chroma->processDirectory($dirPath);
     
@@ -213,38 +224,50 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
             return;
             
         case 'skipped':
-            echo $result['message'] . "\n";
+            if ($verbose) {
+                echo $result['message'] . "\n";
+            }
             return;
             
         case 'success':
-            echo "Found " . $result['files_count'] . " files to process.\n";
+            if ($verbose) {
+                echo "Found " . $result['files_count'] . " files to process.\n";
+            }
             
             // Process each file result
             foreach ($result['results'] as $fileResult) {
                 $file = $fileResult['file'];
                 $resultData = $fileResult['result'];
                 
-                echo "\nProcessing file: $file\n";
+                if ($verbose) {
+                    echo "\nProcessing file: $file\n";
+                }
                 
                 // Handle the result with verbose output
-                if (!empty($resultData['collection_status'])) {
+                if ($verbose && !empty($resultData['collection_status'])) {
                     echo $resultData['collection_status'] . "\n";
                 }
                 
                 switch ($resultData['status']) {
                     case 'success':
-                        echo "Adding " . $resultData['details']['chunks'] . " chunks to ChromaDB...\n";
+                        if ($verbose) {
+                            echo "Adding " . $resultData['details']['chunks'] . " chunks to ChromaDB...\n";
+                        }
                         echo "Successfully sent file to ChromaDB:\n";
                         echo "  Document ID: " . $resultData['details']['document_id'] . "\n";
-                        echo "  Chunks: " . $resultData['details']['chunks'] . "\n";
-                        echo "  Host: $host:$port\n";
-                        echo "  Tenant: $tenant\n";
-                        echo "  Database: $database\n";
-                        echo "  Collection: " . $resultData['details']['collection'] . "\n";
+                        if ($verbose) {
+                            echo "  Chunks: " . $resultData['details']['chunks'] . "\n";
+                            echo "  Host: $host:$port\n";
+                            echo "  Tenant: $tenant\n";
+                            echo "  Database: $database\n";
+                            echo "  Collection: " . $resultData['details']['collection'] . "\n";
+                        }
                         break;
                         
                     case 'skipped':
-                        echo $resultData['message'] . "\n";
+                        if ($verbose) {
+                            echo $resultData['message'] . "\n";
+                        }
                         break;
                         
                     case 'error':
@@ -253,7 +276,9 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
                 }
             }
             
-            echo "\n" . $result['message'] . "\n";
+            if ($verbose) {
+                echo "\n" . $result['message'] . "\n";
+            }
             break;
     }
 }
@@ -464,7 +489,8 @@ function parseArgs($argv) {
         'database' => CHROMA_DATABASE,
         'ollama_host' => getenv('OLLAMA_HOST') ?: 'localhost',
         'ollama_port' => getenv('OLLAMA_PORT') ?: 11434,
-        'ollama_model' => getenv('OLLAMA_MODEL') ?: 'nomic-embed-text'
+        'ollama_model' => getenv('OLLAMA_MODEL') ?: 'nomic-embed-text',
+        'verbose' => false
     ];
     
     if (count($argv) < 2) {
@@ -546,6 +572,10 @@ function parseArgs($argv) {
                 } else {
                     $i++;
                 }
+                break;
+            case '--verbose':
+                $args['verbose'] = true;
+                $i++;
                 break;
             default:
                 // If it's not an option, it must be the action
