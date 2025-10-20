@@ -55,6 +55,20 @@ After installation, you need to configure the plugin:
 
 5. Save the configuration
 
+===== Prompt and Profile Setup =====
+
+The DokuLLM plugin uses DokuWiki pages to store prompts and profiles. These are located in the ''dokullm:'' namespace:
+
+  * Default prompts are stored in ''dokullm:profiles:default:'' namespace
+  * Custom profiles can be created under ''dokullm:profiles:[PROFILE_NAME]:'' 
+  * System prompts are stored in pages named ''system'' within each profile
+  * Action-specific prompt extensions are stored in ''[ACTION_NAME]:system'' pages
+
+To set up the default prompts:
+  1. Create the ''dokullm:profiles:default:system'' page with your base system prompt
+  2. Create action prompt pages like ''dokullm:profiles:default:summarize'', ''dokullm:profiles:default:expand'', etc.
+  3. Create action-specific system extensions like ''dokullm:profiles:default:summarize:system'' if needed
+
 ===== Verifying Installation =====
 
 To verify the plugin is correctly installed and configured:
@@ -74,5 +88,6 @@ If you encounter issues:
   * Verify network connectivity to your LLM API and ChromaDB servers
   * Confirm that file permissions allow the plugin to read its configuration files
   * Make sure your LLM API is accessible and responding to requests
+  * Verify that your prompt pages are correctly created in the ''dokullm:'' namespace
 
 For further assistance, consult the plugin's documentation or contact the plugin maintainer.

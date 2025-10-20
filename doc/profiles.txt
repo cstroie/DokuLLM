@@ -12,23 +12,23 @@ The following profiles are currently available:
 
 To create a new profile:
 
-  - Create a new directory at ''lib/plugins/dokullm/doc/profiles/PROFILE_NAME'' (replace PROFILE_NAME with your desired profile name)
-  - Create a profile definition file (similar to ''doc/default.txt'') that defines the actions available in this profile
-  - Add prompt files for each action in your profile
+  - Create a new namespace at ''dokullm:profiles:PROFILE_NAME'' (replace PROFILE_NAME with your desired profile name)
+  - Create a profile definition page (similar to ''dokullm:profiles:default'') that defines the actions available in this profile
+  - Add prompt pages for each action in your profile
   - Configure the plugin to use your new profile in the plugin settings
 
 ===== Profile Structure =====
 
-Each profile follows a specific directory structure:
+Each profile follows a specific namespace structure:
 
-  * ''doc/profiles/PROFILE_NAME/'' - Profile directory
-  * ''doc/profiles/PROFILE_NAME/system'' - Base system prompt for the profile
-  * ''doc/profiles/PROFILE_NAME/action_name.txt'' - Prompt file for each action
-  * ''doc/profiles/PROFILE_NAME/action_name/system'' - Action-specific system prompt extension
+  * ''dokullm:profiles:PROFILE_NAME:'' - Profile namespace
+  * ''dokullm:profiles:PROFILE_NAME:system'' - Base system prompt for the profile
+  * ''dokullm:profiles:PROFILE_NAME:action_name'' - Prompt page for each action
+  * ''dokullm:profiles:PROFILE_NAME:action_name:system'' - Action-specific system prompt extension
 
 ===== Profile Action Definition =====
 
-Each profile needs a definition file (like ''doc/default.txt'') that contains a table defining the available actions. The table must have the following columns:
+Each profile needs a definition page (like ''dokullm:profiles:default'') that contains a table defining the available actions. The table must have the following columns:
 
 ^ ID ^ Label ^ Description ^ Icon ^ Result ^
 | action_id | Button Text | Description of what the action does | icon_name | result_action_type |
@@ -65,9 +65,9 @@ The selected profile will be used for all LLM interactions until you change it.
 
 ===== Adding Custom Prompts =====
 
-Each action in your profile corresponds to a prompt file. To add a custom prompt:
-  - Create a new file at ''doc/profiles/PROFILE_NAME/PROMPT_NAME.txt'' (replace PROFILE_NAME with your profile and PROMPT_NAME with your action ID)
-  - Write your prompt in this file, using placeholders as needed:
+Each action in your profile corresponds to a prompt page. To add a custom prompt:
+  - Create a new page at ''dokullm:profiles:PROFILE_NAME:PROMPT_NAME'' (replace PROFILE_NAME with your profile and PROMPT_NAME with your action ID)
+  - Write your prompt in this page, using placeholders as needed:
     * ''{text}'' - The selected text from the editor or the entire text
     * ''{template}'' - The template associated with the request
     * The prompt will automatically be available through the action defined in your profile
@@ -76,8 +76,8 @@ Each action in your profile corresponds to a prompt file. To add a custom prompt
 
 Profiles support a hierarchical system prompt architecture:
 
-  * Base system prompt at ''doc/profiles/PROFILE_NAME/system''
-  * Action-specific extensions at ''doc/profiles/PROFILE_NAME/ACTION_NAME/system''
+  * Base system prompt at ''dokullm:profiles:PROFILE_NAME:system''
+  * Action-specific extensions at ''dokullm:profiles:PROFILE_NAME:ACTION_NAME:system''
   * Extensions are automatically appended to the base system prompt
 
 ===== Metadata Support =====

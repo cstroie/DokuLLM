@@ -1,132 +1,113 @@
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ DokuLLM Namespace Documentation                                                                                     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+====== DokuLLM Namespace Documentation ======
 
-The ''dokullm:'' namespace in DokuWiki serves as the central configuration and prompt management system for the DokuLLM
-plugin. This namespace contains all the prompt templates, profiles, and system configurations that control how the LLM 
-processes content.                                                                                                     
+The ''dokullm:'' namespace in DokuWiki serves as the central configuration and prompt management system for the DokuLLM plugin. This namespace contains all the prompt templates, profiles, and system configurations that control how the LLM processes content.
 
+===== Namespace Structure =====
 
-Namespace Structure                                                                                                    
+==== System Prompts =====
 
+===== Main System Prompt (''dokullm:profiles:default:system'') =====
 
+The system prompt is the foundational instruction set that defines the LLM's role, behavior, and capabilities. It establishes:
 
-System Prompts                                                                                                         
+  * Role Definition: The LLM acts as a helpful assistant specialized in text processing tasks
+  * Content Guidelines:
+    * Use clear and professional language
+    * Maintain proper DokuWiki formatting
+    * Follow structured content organization
+  * Capabilities:
+    * Access to templates, examples, and previous content
+    * Ability to retrieve relevant information
+    * Context-aware processing
+  * Safety Constraints:
+    * Focus on factual content
+    * No personal opinions
+    * Maintain professional tone
 
-Main System Prompt (''dokullm:profiles:default:system'')                                                               
+===== Command-Specific System Appendages =====
 
-The system prompt is the foundational instruction set that defines the LLM's role, behavior, and capabilities. It      
-establishes:                                                                                                           
+Each action can have an additional system prompt that extends the main system prompt:
 
- • Role Definition: The LLM acts as a medical report assistant specialized in MRI reporting                            
- • Content Guidelines:                                                                                                 
-    • Write in Romanian                                                                                                
-    • Use formal medical terminology                                                                                   
-    • Maintain professional tone                                                                                       
-    • Follow structured report format                                                                                  
- • Capabilities:                                                                                                       
-    • Access to templates, examples, and previous reports                                                              
-    • Ability to retrieve relevant information                                                                         
-    • Context-aware processing                                                                                         
- • Safety Constraints:                                                                                                 
-    • No medical advice or diagnosis                                                                                   
-    • No personal opinions                                                                                             
-    • Focus on factual reporting                                                                                       
+  * ''create:system'' - Additional instructions for content creation
+  * ''rewrite:system'' - Guidelines for text rewriting and improvement
+  * ''summarize:system'' - Focus areas for summarization
+  * ''analyze:system'' - Analysis framework and structure
+  * ''expand:system'' - Guidelines for content expansion
 
-Command-Specific System Appendages                                                                                     
+===== Prompt Placeholders =====
 
-Each action can have an additional system prompt that extends the main system prompt:                                  
+The system uses several special placeholders that are automatically populated:
 
- • ''create:system'' - Additional instructions for content creation                                                    
- • ''rewrite:system'' - Guidelines for text rewriting and improvement                                                  
- • ''summarize:system'' - Focus areas for summarization                                                                
- • ''analyze:system'' - Analysis framework and structure                                                               
- • ''conclude:system'' - Conclusion formatting and content rules                                                       
+===== Core Placeholders =====
 
+  * ''{text}'' - The main content being processed
+  * ''{template}'' - Template content for structure guidance
+  * ''{examples}'' - Style examples from previous content
+  * ''{snippets}'' - Relevant text snippets from similar content
+  * ''{previous}'' - Content from previous related documents
+  * ''{prompt}'' - Custom user prompts
 
-Prompt Placeholders                                                                                                    
+===== Metadata Placeholders =====
 
-The system uses several special placeholders that are automatically populated:                                         
+  * ''{current_date}'' - Current date
+  * ''{previous_date}'' - Date of previous document (if applicable)
+  * ''{action}'' - Current action being performed
+  * ''{think}'' - Thinking mode indicator (/think or /no_think)
 
-Core Placeholders                                                                                                      
+===== Profile System =====
 
- • ''{text}'' - The main content being processed                                                                       
- • ''{template}'' - Template content for structure guidance                                                            
- • ''{examples}'' - Style examples from previous reports                                                               
- • ''{snippets}'' - Relevant text snippets from similar reports                                                        
- • ''{previous}'' - Content from previous related reports                                                              
- • ''{prompt}'' - Custom user prompts                                                                                  
+===== Default Profile =====
 
-Metadata Placeholders                                                                                                  
+The ''default'' profile contains standard prompts for general use cases. Each prompt in this profile is designed for specific tasks:
 
- • ''{current_date}'' - Current report date                                                                            
- • ''{previous_date}'' - Date of previous report (if applicable)                                                       
- • ''{action}'' - Current action being performed                                                                       
- • ''{think}'' - Thinking mode indicator (/think or /no_think)                                                         
+  * create: Generate new content from scratch
+  * rewrite: Improve existing text clarity and grammar
+  * summarize: Create concise summaries
+  * expand: Add more details to topics
+  * analyze: Provide detailed analysis
+  * grammar: Check grammar and spelling
 
+===== Custom Profiles =====
 
-Profile System                                                                                                         
+Additional profiles can be created under ''dokullm:profiles/'' for specialized use cases:
 
-Default Profile                                                                                                        
+  * Different content types
+  * Various writing styles
+  * Organization-specific requirements
+  * Language variations
 
-The ''default'' profile contains standard prompts for general use cases. Each prompt in this profile is designed for   
-specific tasks:                                                                                                        
+===== Template Integration =====
 
- • create: Generate new content from scratch                                                                           
- • rewrite: Improve existing text clarity and grammar                                                                  
- • summarize: Create concise summaries                                                                                 
- • conclude: Generate conclusions from findings                                                                        
- • analyze: Provide detailed analysis                                                                                  
- • compare: Highlight differences between texts                                                                        
+===== Template Metadata =====
 
-Custom Profiles                                                                                                        
+Templates are referenced using metadata directives:
+  * ''~~LLM_TEMPLATE:template_id~~''
+  * ''~~LLM_EXAMPLES:example1,example2~~''
+  * ''~~LLM_PREVIOUS:previous_page_id~~''
 
-Additional profiles can be created under ''dokullm:profiles/'' for specialized use cases:                              
+===== Automatic Template Discovery =====
 
- • Different medical specialties                                                                                       
- • Various report types                                                                                                
- • Organization-specific requirements                                                                                  
- • Language variations                                                                                                 
+When no template is specified, the system can automatically find relevant templates based on content similarity using ChromaDB vector search.
 
+===== Context Management =====
 
-Template Integration                                                                                                   
+The system provides rich context through:
 
-Template Metadata                                                                                                      
+  1. Template Context: Structural guidance from template documents
+  2. Style Context: Examples showing preferred writing style
+  3. Content Context: Relevant snippets from similar documents
+  4. Historical Context: Previous related documents for continuity
 
+===== Thinking Process =====
 
+When enabled, the LLM can engage in deeper reasoning processes, with the thinking output optionally displayed to users. This is controlled by the ''{think}'' placeholder which resolves to ''/think'' or ''/no_think''.
 
-Templates are referenced using metadata directives:  LLM_TEMPLATE:namespace:template_id LLM_EXAMPLES:example1,example2 
-LLM_PREVIOUS:previous_report_id                                                                                        
+===== Best Practices =====
 
-Automatic Template Discovery                                                                                           
+  1. Prompt Design: Keep prompts clear and specific
+  2. Template Structure: Use consistent formatting in templates
+  3. Example Selection: Choose representative examples
+  4. Metadata Usage: Properly tag pages with relevant metadata
+  5. Profile Organization: Group related prompts in appropriate profiles
 
-When no template is specified, the system can automatically find relevant templates based on content similarity using  
-ChromaDB vector search.                                                                                                
-
-
-Context Management                                                                                                     
-
-The system provides rich context through:                                                                              
-
- 1 Template Context: Structural guidance from template documents                                                       
- 2 Style Context: Examples showing preferred writing style                                                             
- 3 Content Context: Relevant snippets from similar reports                                                             
- 4 Historical Context: Previous related reports for continuity                                                         
-
-
-Thinking Process                                                                                                       
-
-When enabled, the LLM can engage in deeper reasoning processes, with the thinking output optionally displayed to users.
-This is controlled by the ''{think}'' placeholder which resolves to ''/think'' or ''/no_think''.                       
-
-
-Best Practices                                                                                                         
-
- 1 Prompt Design: Keep prompts clear and specific                                                                      
- 2 Template Structure: Use consistent formatting in templates                                                          
- 3 Example Selection: Choose representative examples                                                                   
- 4 Metadata Usage: Properly tag pages with relevant metadata                                                           
- 5 Profile Organization: Group related prompts in appropriate profiles                                                 
-
-The ''dokullm:'' namespace provides a flexible, extensible framework for managing LLM interactions within DokuWiki,    
-enabling sophisticated AI-assisted content creation while maintaining consistency and quality control.                 
+The ''dokullm:'' namespace provides a flexible, extensible framework for managing LLM interactions within DokuWiki, enabling sophisticated AI-assisted content creation while maintaining consistency and quality control.

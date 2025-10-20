@@ -4,29 +4,29 @@ This document explains how the DokuLLM plugin's prompt system works, including p
 
 ===== Prompt Hierarchy =====
 
-The DokuLLM plugin uses a hierarchical prompt system that allows for flexible customization:
+The DokuLLM plugin uses a hierarchical prompt system that allows for flexible customization using DokuWiki pages:
 
 ==== 1. Default Prompts ====
-  * Located in ''lib/plugins/dokullm/doc/default/''
+  * Located in the ''dokullm:profiles:default:'' namespace
   * These are the base prompts that ship with the plugin
   * Used when no custom prompts are defined
-  * Named according to their function (e.g., ''summarize.txt'', ''expand.txt'')
+  * Named according to their function (e.g., ''summarize'', ''expand'')
 
 ==== 2. Profile Prompts ====
-  * Located in ''lib/plugins/dokullm/doc/profiles/[PROFILE_NAME]/''
+  * Located in the ''dokullm:profiles:[PROFILE_NAME]:'' namespace
   * Allow for different prompt configurations for different use cases
   * Can override default prompts selectively
   * Activated through plugin configuration
 
 ==== 3. Custom Prompts ====
-  * Can be placed in ''lib/plugins/dokullm/doc/custom/''
+  * Can be created in custom namespaces under ''dokullm:profiles:''
   * Completely override default and profile prompts
   * Allow for organization-specific customizations
   * Take precedence over all other prompt types
 
 ===== Prompt Structure =====
 
-Each prompt file follows a simple structure with placeholders:
+Each prompt page follows a simple structure with placeholders:
 
 ==== Simple Prompt Format ====
   * Contains direct instructions to the LLM
@@ -88,10 +88,10 @@ The plugin provides several placeholders that can be used in prompts:
 
 1. **Identify the Action**
    * Determine which action you want to customize
-   * Check existing prompt names in ''doc/default/''
+   * Check existing prompt names in the ''dokullm:profiles:default:'' namespace
 
-2. **Create Prompt File**
-   * Create a new file with the same name in your profile directory
+2. **Create Prompt Page**
+   * Create a new page with the same name in your profile namespace
    * Use the same structure as existing prompts
 
 3. **Add Placeholders**
@@ -104,7 +104,7 @@ The plugin provides several placeholders that can be used in prompts:
 
 ==== Example Prompt Structure ====
 
-A typical prompt file might look like this:
+A typical prompt page might look like this:
 
 Summarize the following text in a concise manner:
 
@@ -142,7 +142,7 @@ The plugin supports a hierarchical system prompt architecture:
 
 ==== Organization and Maintenance ====
 
-  * **Consistent Naming**: Use consistent naming conventions for prompt files
+  * **Consistent Naming**: Use consistent naming conventions for prompt pages
   * **Version Control**: Keep prompts under version control
   * **Documentation**: Document significant changes to prompts
   * **Backup**: Keep backups of working prompt configurations
