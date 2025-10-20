@@ -1,0 +1,183 @@
+====== DokuLLM Plugin - LLM Configuration and Workflow ======
+
+This document explains how to configure Large Language Model (LLM) interactions and describes the workflow of the DokuLLM plugin.
+
+===== LLM Configuration =====
+
+The DokuLLM plugin supports various LLM providers through API integration. Configuration is done through DokuWiki's configuration manager.
+
+==== Supported LLM Providers ====
+
+The plugin has been tested with:
+  * Ollama (local/self-hosted)
+  * OpenAI API
+  * Anthropic Claude API
+  * Other OpenAI-compatible APIs
+
+==== Configuration Settings ====
+
+===== Core LLM Settings =====
+
+**LLM API URL**
+  * The base URL for your LLM API
+  * Examples:
+    * Ollama: ''http://localhost:11434/v1''
+    * OpenAI: ''https://api.openai.com/v1''
+    * Anthropic Claude: ''https://api.anthropic.com/v1''
+
+**LLM API Key**
+  * Authentication key for your LLM provider
+  * Leave empty if using local/self-hosted models (like Ollama)
+
+**Default LLM Model**
+  * The model to use for text processing
+  * Examples:
+    * Ollama: ''llama3'', ''mistral'', ''phi3''
+    * OpenAI: ''gpt-3.5-turbo'', ''gpt-4''
+    * Anthropic: ''claude-3-haiku-20240307'', ''claude-3-sonnet-20240229''
+
+===== Advanced LLM Settings =====
+
+**Temperature**
+  * Controls randomness in responses (0.0 = deterministic, 1.0 = creative)
+  * Recommended values: 0.3-0.7 for most use cases
+
+**Max Tokens**
+  * Maximum number of tokens in the LLM response
+  * Adjust based on your needs and model capabilities
+
+**System Prompt**
+  * Base instructions that guide the LLM's behavior
+  * Can be customized for your specific use case
+
+===== ChromaDB Integration =====
+
+**Enable ChromaDB**
+  * Enable or disable ChromaDB integration for document retrieval
+
+**ChromaDB Settings**
+  * Host, port, tenant, and database configuration for ChromaDB
+  * Required for advanced features like document search and context-aware responses
+
+**Ollama Embeddings**
+  * Host and port for Ollama server used for generating text embeddings
+  * Required when using ChromaDB for document storage
+
+===== LLM Workflow =====
+
+The DokuLLM plugin follows a specific workflow to process requests:
+
+==== 1. User Interaction ====
+
+  * User selects an action from the LLM toolbar in the editor
+  * User can select text or work with the entire document
+  * User may provide custom prompts for specific tasks
+
+==== 2. Context Preparation ====
+
+  * The plugin gathers relevant context:
+    * Current page content
+    * Selected text (if any)
+    * Page metadata
+    * Template information (if applicable)
+    * Related documents from ChromaDB (if enabled)
+
+==== 3. Prompt Construction ====
+
+  * System prompt is loaded based on the selected action
+  * User content is formatted according to the action requirements
+  * Context information is included to provide background
+  * Metadata and instructions are added to guide the LLM
+
+==== 4. LLM API Call ====
+
+  * Request is sent to the configured LLM API
+  * Parameters (model, temperature, max tokens) are applied
+  * Authentication headers are included if an API key is configured
+
+==== 5. Response Processing ====
+
+  * LLM response is received and parsed
+  * Tool calls are detected and processed if applicable
+  * Response is formatted for display in the editor
+
+==== 6. Result Integration ====
+
+  * Results are inserted into the editor at the appropriate location
+  * Metadata may be added to track LLM processing
+  * User can review and edit the LLM-generated content
+
+===== Available Actions =====
+
+The plugin provides several predefined actions:
+
+==== Content Generation ====
+  * **Write**: Generate new content based on a prompt
+  * **Continue**: Extend existing content
+  * **Rewrite**: Rephrase selected text
+  * **Summarize**: Create a summary of the content
+
+==== Content Analysis ====
+  * **Analyze**: Provide insights about the content
+  * **Check**: Review for grammar, style, and clarity
+  * **Explain**: Provide explanations for complex topics
+
+==== Structure and Organization ====
+  * **Outline**: Create an outline from content
+  * **Structure**: Organize content into sections
+  * **Template**: Apply a template structure
+
+==== Research and Retrieval ====
+  * **Query**: Search for related information
+  * **Cite**: Add citations to content
+  * **Expand**: Add more details to topics
+
+===== Custom Prompts =====
+
+Users can create custom prompts for specific tasks:
+
+  * Use the "Custom Prompt" option in the toolbar
+  * Enter specific instructions for the LLM
+  * Save frequently used prompts for reuse
+  * Combine with selected text for targeted processing
+
+===== Metadata Handling =====
+
+The plugin uses metadata to track LLM processing:
+
+  * Metadata is stored in the format ''~~LLM_ACTION:timestamp~~''
+  * Used to prevent duplicate processing
+  * Can be used to track content evolution
+  * Metadata can be configured to be visible or hidden
+
+===== Best Practices =====
+
+==== For Better Results ====
+  * Provide clear, specific prompts
+  * Select relevant text for processing
+  * Use appropriate temperature settings for your task
+  * Review and edit LLM-generated content before publishing
+
+==== For Performance ====
+  * Configure appropriate token limits
+  * Use efficient prompts to reduce processing time
+  * Enable caching where appropriate
+  * Monitor API usage and costs
+
+==== For Security ====
+  * Store API keys securely
+  * Review LLM-generated content before publishing
+  * Limit access to LLM features as needed
+  * Regularly update the plugin for security fixes
+
+===== Troubleshooting LLM Issues =====
+
+Common issues and solutions:
+
+  * **Poor quality responses**: Check prompt clarity and model selection
+  * **API errors**: Verify API key and endpoint configuration
+  * **Timeouts**: Reduce max tokens or use a faster model
+  * **Context limits**: Break large documents into smaller sections
+  * **Repetitive responses**: Increase temperature setting
+
+For persistent issues, check the plugin's error logs and consult the LLM provider's documentation.
