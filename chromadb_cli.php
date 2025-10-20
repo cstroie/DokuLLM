@@ -85,8 +85,13 @@ function showUsage() {
  * @return void
  */
 function sendFile($path, $host, $port, $tenant, $database) {
+    // Get Ollama configuration from environment variables or use defaults
+    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
+    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
+    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
+    
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', 'localhost', 11434, 'nomic-embed-text');
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
     
     if (is_dir($path)) {
         // Process directory
@@ -273,8 +278,13 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
  * @return void
  */
 function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $collection = 'documents') {
+    // Get Ollama configuration from environment variables or use defaults
+    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
+    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
+    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
+    
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, $collection, 'localhost', 11434, 'nomic-embed-text');
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, $collection, $ollamaHost, $ollamaPort, $ollamaModel);
     
     try {
         // Query the specified collection by collection
@@ -323,8 +333,13 @@ function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $co
  * @return void
  */
 function checkHeartbeat($host, $port, $tenant, $database) {
+    // Get Ollama configuration from environment variables or use defaults
+    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
+    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
+    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
+    
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', 'localhost', 11434, 'nomic-embed-text');
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
     
     try {
         echo "Checking ChromaDB server status...\n";
@@ -357,8 +372,13 @@ function checkHeartbeat($host, $port, $tenant, $database) {
  * @return void
  */
 function checkIdentity($host, $port, $tenant, $database) {
+    // Get Ollama configuration from environment variables or use defaults
+    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
+    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
+    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
+    
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', 'localhost', 11434, 'nomic-embed-text');
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
     
     try {
         echo "Checking ChromaDB identity...\n";
@@ -391,8 +411,13 @@ function checkIdentity($host, $port, $tenant, $database) {
  * @return void
  */
 function listCollections($host, $port, $tenant, $database) {
+    // Get Ollama configuration from environment variables or use defaults
+    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
+    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
+    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
+    
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', 'localhost', 11434, 'nomic-embed-text');
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
     
     try {
         echo "Listing ChromaDB collections...\n";
@@ -542,8 +567,13 @@ function getDocument($documentId, $host, $port, $tenant, $database, $collection 
         $collection = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
     }
     
+    // Get Ollama configuration from environment variables or use defaults
+    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
+    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
+    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
+    
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, $collection, 'localhost', 11434, 'nomic-embed-text');
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, $collection, $ollamaHost, $ollamaPort, $ollamaModel);
     
     try {
         // Get the specified document by ID
