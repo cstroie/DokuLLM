@@ -1,0 +1,72 @@
+====== Profiles ======
+
+Profiles in DokuLLM allow you to organize and customize your AI interactions. Each profile can have its own set of actions, prompts, and configurations. By default, the plugin uses the [[.:default|default]] profile, but you can create and switch between multiple profiles as needed.
+
+===== Available Profiles =====
+
+The following profiles are currently available:                                                                        
+  * [[.:default|default]] - The standard profile with basic actions
+  * //Add your custom profiles here//
+
+===== Creating a New Profile =====
+
+To create a new profile:
+
+  - Create a new page at ''dokullm:profiles:PROFILE_NAME'' (replace PROFILE_NAME with your desired profile name)
+  - Add a table defining the actions available in this profile (see below for format)
+  - Configure the plugin to use your new profile in the plugin settings                                                 
+
+===== Profile Action Table Format =====
+
+Each profile page should contain a table defining the available actions. The table must have the following columns:
+
+^ ID ^ Label ^ Description ^ Icon ^ Result ^
+| action_id | Button Text | Description of what the action does | icon_name | result_action_type |
+
+Column details:
+  * **ID**: The action identifier, which corresponds to the prompt name
+  * **Label**: The text displayed on the button
+  * **Description**: A detailed description of the action, used as a tooltip
+  * **Icon**: The icon displayed on the button (can be empty)
+  * **Result**: The action to perform with the LLM result:
+    * ''show'': Display the result in a modal dialog
+    * ''append'': Add the result to the end of the current content
+    * ''replace'': Replace the selected content with the result
+    * ''insert'': Insert the result at the cursor position
+
+==== Example Profile Table ====
+
+Here's an example of how to structure your profile action table:
+
+^ ID ^ Label ^ Description ^ Icon ^ Result ^
+| summarize | Summarize | Create a summary of the selected text | file-icons:summary | show |
+| expand | Expand | Expand the selected text with more details | file-icons:expand | replace |
+| fix_grammar | Fix Grammar | Correct grammar and spelling errors | file-icons:spellcheck | replace |
+
+===== Using Profiles =====                                                                                             
+
+To use a specific profile:
+  - Go to the plugin configuration page
+  - Find the "Prompt Profile" setting
+  - Enter the name of the profile you want to use
+  - Save the configuration
+
+The selected profile will be used for all LLM interactions until you change it.
+
+===== Adding Custom User Prompts =====
+
+Each action in your profile corresponds to a prompt page. To add a custom prompt:
+  - Create a new page at ''dokullm:profiles:PROFILE_NAME:PROMPT_NAME'' (replace PROFILE_NAME with your new profile and PROMPT_NAME with your action ID)
+  - Write your prompt in this page, using placeholders as needed:
+    * ''{text}'' - The selected text from the editor or the entire text
+    * ''{template}'' - The template associated with the request
+    * The prompt will automatically be available through the action defined in your profile
+
+===== Metadata Support =====
+
+DokuLLM supports metadata in your wiki pages, which can be used to provide additional context to the LLM (spaces inserted to prevent processing, remove them):
+  * ''~ ~LLM_TEMPLATE:template_id~~'' - Specifies a template to use as context
+  * ''~ ~LLM_EXAMPLES:example1,example2~~'' - Specifies example pages to use as context
+  * ''~ ~LLM_PREVIOUS:previous_page~~'' - Specifies a previous document to use as context
+
+These metadata tags should be placed at the beginning of your wiki page.

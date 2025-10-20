@@ -1,0 +1,21 @@
+====== Default Profile Action Table ======
+
+^ ID ^ Label ^ Description ^ Icon ^ Result ^
+| [[.:default:summarize]] | Summarize | Create a summary of the selected text | file-icons:summary | show |
+| [[.:default:expand]] | Expand | Expand the selected text with more details | file-icons:expand | replace |
+| [[.:default:grammar]] | Fix Grammar | Correct grammar and spelling errors | file-icons:spellcheck | replace |
+
+**Remember:** you can add a second table, if you want, with disabled actions, since only the first table will be processed.
+
+
+===== Column details =====
+
+  * **ID**: The action identifier, which corresponds to the prompt name. Can also be an internal link to the corresponding prompt page.
+  * **Label**: The text displayed on the button
+  * **Description**: A detailed description of the action, used as a tooltip
+  * **Icon**: The icon displayed on the button (can be empty)
+  * **Result**: The action to perform with the LLM result:
+    * ''show'': Display the result in a modal dialog
+    * ''append'': Add the result to the end of the current content
+    * ''replace'': Replace the selected content with the result
+    * ''insert'': Insert the result at the cursor position

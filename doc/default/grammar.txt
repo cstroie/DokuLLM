@@ -1,0 +1,10 @@
+Review this report section for consistency with my established writing style.
+Check:
+  - Terminology alignment with previous reports
+  - Tone and formality level
+  - Section structure and formatting
+  - Data presentation style
+
+Suggest specific improvements to maintain consistency.
+
+{text}
