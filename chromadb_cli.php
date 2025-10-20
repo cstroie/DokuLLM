@@ -699,7 +699,16 @@ switch ($args['action']) {
             echo "Error: Missing file path for send action\n";
             showUsage();
         }
-        sendFile($args['filepath'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['ollama_host'], $args['ollama_port'], $args['ollama_model']);
+        if ($args['verbose']) {
+            echo "Sending file(s) to ChromaDB...\n";
+            echo "Host: {$args['host']}:{$args['port']}\n";
+            echo "Tenant: {$args['tenant']}\n";
+            echo "Database: {$args['database']}\n";
+            echo "Ollama Host: {$args['ollama_host']}:{$args['ollama_port']}\n";
+            echo "Ollama Model: {$args['ollama_model']}\n";
+            echo "==========================================\n";
+        }
+        sendFile($args['filepath'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['ollama_host'], $args['ollama_port'], $args['ollama_model'], $args['verbose']);
         break;
         
     case 'query':
@@ -707,18 +716,48 @@ switch ($args['action']) {
             echo "Error: Missing search terms for query action\n";
             showUsage();
         }
+        if ($args['verbose']) {
+            echo "Querying ChromaDB...\n";
+            echo "Host: {$args['host']}:{$args['port']}\n";
+            echo "Tenant: {$args['tenant']}\n";
+            echo "Database: {$args['database']}\n";
+            echo "Collection: {$args['collection']}\n";
+            echo "Limit: {$args['limit']}\n";
+            echo "==========================================\n";
+        }
         queryChroma($args['query'], $args['limit'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['collection']);
         break;
         
     case 'heartbeat':
+        if ($args['verbose']) {
+            echo "Checking ChromaDB heartbeat...\n";
+            echo "Host: {$args['host']}:{$args['port']}\n";
+            echo "Tenant: {$args['tenant']}\n";
+            echo "Database: {$args['database']}\n";
+            echo "==========================================\n";
+        }
         checkHeartbeat($args['host'], $args['port'], $args['tenant'], $args['database']);
         break;
         
     case 'identity':
+        if ($args['verbose']) {
+            echo "Checking ChromaDB identity...\n";
+            echo "Host: {$args['host']}:{$args['port']}\n";
+            echo "Tenant: {$args['tenant']}\n";
+            echo "Database: {$args['database']}\n";
+            echo "==========================================\n";
+        }
         checkIdentity($args['host'], $args['port'], $args['tenant'], $args['database']);
         break;
         
     case 'list':
+        if ($args['verbose']) {
+            echo "Listing ChromaDB collections...\n";
+            echo "Host: {$args['host']}:{$args['port']}\n";
+            echo "Tenant: {$args['tenant']}\n";
+            echo "Database: {$args['database']}\n";
+            echo "==========================================\n";
+        }
         listCollections($args['host'], $args['port'], $args['tenant'], $args['database']);
         break;
         
@@ -726,6 +765,14 @@ switch ($args['action']) {
         if (!$args['query']) {
             echo "Error: Missing document ID for get action\n";
             showUsage();
+        }
+        if ($args['verbose']) {
+            echo "Retrieving document from ChromaDB...\n";
+            echo "Host: {$args['host']}:{$args['port']}\n";
+            echo "Tenant: {$args['tenant']}\n";
+            echo "Database: {$args['database']}\n";
+            echo "Document ID: {$args['query']}\n";
+            echo "==========================================\n";
         }
         getDocument($args['query'], $args['host'], $args['port'], $args['tenant'], $args['database']);
         break;
