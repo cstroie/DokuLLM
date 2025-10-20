@@ -299,7 +299,12 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     {
         // Get the content of the profile page
         $profile = $this->getConf('profile', 'default');
-        $content = $this->getPageContent('dokullm:profiles:' . $profile);
+        try {
+            $content = $this->getPageContent('dokullm:profiles:' . $profile);
+        } catch (Exception $e) {
+            // If access is denied or page doesn't exist, return empty list
+            return [];
+        }
         // Return empty list if page doesn't exist
         if ($content === false) {
             return [];
