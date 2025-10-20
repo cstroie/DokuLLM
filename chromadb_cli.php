@@ -644,7 +644,7 @@ switch ($args['action']) {
             echo "Error: Missing file path for send action\n";
             showUsage();
         }
-        sendFile($args['filepath'], $args['host'], $args['port'], $args['tenant'], $args['database']);
+        sendFile($args['filepath'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['ollama_host'], $args['ollama_port'], $args['ollama_model']);
         break;
         
     case 'query':
