@@ -45,6 +45,9 @@ function showUsage() {
     echo "  --port PORT        ChromaDB server port (default: " . CHROMA_PORT . ")\n";
     echo "  --tenant TENANT    ChromaDB tenant (default: " . CHROMA_TENANT . ")\n";
     echo "  --database DB      ChromaDB database (default: " . CHROMA_DATABASE . ")\n";
+    echo "  --ollama-host HOST Ollama server host (default: localhost)\n";
+    echo "  --ollama-port PORT Ollama server port (default: 11434)\n";
+    echo "  --ollama-model MODEL Ollama embeddings model (default: nomic-embed-text)\n";
     echo "  --collection COLL  Collection name to query (default: documents)\n";
     echo "  --limit NUM        Number of results to return (default: 5)\n";
     echo "\n";
@@ -84,12 +87,7 @@ function showUsage() {
  * @param string $database ChromaDB database name
  * @return void
  */
-function sendFile($path, $host, $port, $tenant, $database) {
-    // Get Ollama configuration from environment variables or use defaults
-    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
-    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
-    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
-    
+function sendFile($path, $host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel) {
     // Create ChromaDB client
     $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
     
@@ -463,7 +461,10 @@ function parseArgs($argv) {
         'host' => CHROMA_HOST,
         'port' => CHROMA_PORT,
         'tenant' => CHROMA_TENANT,
-        'database' => CHROMA_DATABASE
+        'database' => CHROMA_DATABASE,
+        'ollama_host' => getenv('OLLAMA_HOST') ?: 'localhost',
+        'ollama_port' => getenv('OLLAMA_PORT') ?: 11434,
+        'ollama_model' => getenv('OLLAMA_MODEL') ?: 'nomic-embed-text'
     ];
     
     if (count($argv) < 2) {
@@ -517,6 +518,30 @@ function parseArgs($argv) {
             case '--database':
                 if (isset($argv[$i + 1])) {
                     $args['database'] = $argv[$i + 1];
+                    $i += 2;
+                } else {
+                    $i++;
+                }
+                break;
+            case '--ollama-host':
+                if (isset($argv[$i + 1])) {
+                    $args['ollama_host'] = $argv[$i + 1];
+                    $i += 2;
+                } else {
+                    $i++;
+                }
+                break;
+            case '--ollama-port':
+                if (isset($argv[$i + 1])) {
+                    $args['ollama_port'] = (int)$argv[$i + 1];
+                    $i += 2;
+                } else {
+                    $i++;
+                }
+                break;
+            case '--ollama-model':
+                if (isset($argv[$i + 1])) {
+                    $args['ollama_model'] = $argv[$i + 1];
                     $i += 2;
                 } else {
                     $i++;
