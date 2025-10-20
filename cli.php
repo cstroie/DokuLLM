@@ -30,13 +30,13 @@ class cli_plugin_dokullm extends CLIPlugin {
         );
 
         // Global options
-        $options->registerOption('host', 'ChromaDB server host', 'h', 'host', 'localhost');
-        $options->registerOption('port', 'ChromaDB server port', 'p', 'port', '8000');
-        $options->registerOption('tenant', 'ChromaDB tenant', null, 'tenant', 'default_tenant');
-        $options->registerOption('database', 'ChromaDB database', null, 'database', 'default_database');
-        $options->registerOption('ollama-host', 'Ollama server host', null, 'ollama-host', 'localhost');
-        $options->registerOption('ollama-port', 'Ollama server port', null, 'ollama-port', '11434');
-        $options->registerOption('ollama-model', 'Ollama embeddings model', null, 'ollama-model', 'nomic-embed-text');
+        $options->registerOption('host', 'ChromaDB server host', 'h', 'host');
+        $options->registerOption('port', 'ChromaDB server port', 'p', 'port');
+        $options->registerOption('tenant', 'ChromaDB tenant', null, 'tenant');
+        $options->registerOption('database', 'ChromaDB database', null, 'database');
+        $options->registerOption('ollama-host', 'Ollama server host', null, 'ollama-host');
+        $options->registerOption('ollama-port', 'Ollama server port', null, 'ollama-port');
+        $options->registerOption('ollama-model', 'Ollama embeddings model', null, 'ollama-model');
         $options->registerOption('verbose', 'Enable verbose output', 'v');
 
         // Action-specific options
