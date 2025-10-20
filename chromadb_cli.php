@@ -324,12 +324,7 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database, $
  * @param string $collection The collection to query (default: 'documents')
  * @return void
  */
-function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $collection = 'documents') {
-    // Get Ollama configuration from environment variables or use defaults
-    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
-    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
-    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
-    
+function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $collection = 'documents', $ollamaHost = 'localhost', $ollamaPort = 11434, $ollamaModel = 'nomic-embed-text') {
     // Create ChromaDB client
     $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, $collection, $ollamaHost, $ollamaPort, $ollamaModel);
     
@@ -725,7 +720,7 @@ switch ($args['action']) {
             echo "Limit: {$args['limit']}\n";
             echo "==========================================\n";
         }
-        queryChroma($args['query'], $args['limit'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['collection']);
+        queryChroma($args['query'], $args['limit'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['collection'], $args['ollama_host'], $args['ollama_port'], $args['ollama_model']);
         break;
         
     case 'heartbeat':
