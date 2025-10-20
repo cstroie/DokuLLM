@@ -44,7 +44,6 @@ class ChromaDBClient {
         $this->ollamaHost = $ollamaHost;
         $this->ollamaPort = $ollamaPort;
         $this->ollamaModel = $ollamaModel;
-        
         $this->baseUrl = "http://{$chromaHost}:{$chromaPort}";
         $this->client = curl_init();
         curl_setopt($this->client, CURLOPT_RETURNTRANSFER, true);
@@ -52,14 +51,12 @@ class ChromaDBClient {
             'Content-Type: application/json',
             'Accept: application/json'
         ]);
-        
         // Initialize Ollama client
         $this->ollamaClient = curl_init();
         curl_setopt($this->ollamaClient, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->ollamaClient, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json'
         ]);
-        
         // Check if tenant and database exist, create them if they don't
         $this->ensureTenantAndDatabase();
     }
@@ -92,30 +89,28 @@ class ChromaDBClient {
             'Content-Type: application/json',
             'Accept: application/json'
         ];
-        
+        // Version 2
         $url = $this->baseUrl . '/api/v2' . $endpoint;
-        
         curl_setopt($this->client, CURLOPT_URL, $url);
         curl_setopt($this->client, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($this->client, CURLOPT_HTTPHEADER, $headers);
-        
+        // POST JSON data
         if ($data) {
             curl_setopt($this->client, CURLOPT_POSTFIELDS, json_encode($data));
         } else {
             curl_setopt($this->client, CURLOPT_POSTFIELDS, null);
         }
-
+        // Call
         $response = curl_exec($this->client);
         $httpCode = curl_getinfo($this->client, CURLINFO_HTTP_CODE);
-        
+        // Check the result
         if (curl_error($this->client)) {
             throw new \Exception('Curl error: ' . curl_error($this->client));
         }
-        
         if ($httpCode >= 400) {
             throw new \Exception("HTTP Error: $httpCode, Response: $response");
         }
-        
+        // Return the decoded response
         return json_decode($response, true);
     }
 
@@ -127,34 +122,25 @@ class ChromaDBClient {
      */
     public function generateEmbeddings($text) {
         $ollamaUrl = "http://{$this->ollamaHost}:{$this->ollamaPort}/api/embeddings";
-        
         curl_setopt($this->ollamaClient, CURLOPT_URL, $ollamaUrl);
-        
         $data = [
             'model' => $this->ollamaModel,
             'prompt' => $text,
             'keep_alive' => '30m'
         ];
-        
         curl_setopt($this->ollamaClient, CURLOPT_POSTFIELDS, json_encode($data));
-        
         $response = curl_exec($this->ollamaClient);
         $httpCode = curl_getinfo($this->ollamaClient, CURLINFO_HTTP_CODE);
-        
         if (curl_error($this->ollamaClient)) {
             throw new \Exception('Ollama Curl error: ' . curl_error($this->ollamaClient));
         }
-        
         if ($httpCode >= 400) {
             throw new \Exception("Ollama HTTP Error: $httpCode, Response: $response");
         }
-        
         $result = json_decode($response, true);
-        
         if (!isset($result['embedding'])) {
             throw new \Exception("Ollama response missing embedding: " . $response);
         }
-        
         return $result['embedding'];
     }
 
@@ -184,18 +170,15 @@ class ChromaDBClient {
         if (empty($name)) {
             $name = 'documents';
         }
-        
         // First try to get collection by name
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
         $collections = $this->makeRequest($endpoint);
-        
         // Find collection by name
         foreach ($collections as $collection) {
             if (isset($collection['name']) && $collection['name'] === $name) {
                 return $collection;
             }
         }
-        
         // If not found, throw exception
         throw new \Exception("Collection '{$name}' not found");
     }
@@ -214,7 +197,6 @@ class ChromaDBClient {
         if (empty($name)) {
             $name = 'documents';
         }
-        
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections";
         $data = ['name' => $name];
         if ($metadata) {
@@ -237,13 +219,11 @@ class ChromaDBClient {
         if (empty($name)) {
             $name = 'documents';
         }
-        
         // First get the collection to find its ID
         $collection = $this->getCollection($name);
         if (!isset($collection['id'])) {
             throw new \Exception("Collection ID not found for '{$name}'");
         }
-        
         $collectionId = $collection['id'];
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}";
         return $this->makeRequest($endpoint, 'DELETE');
@@ -265,20 +245,18 @@ class ChromaDBClient {
         if (empty($collectionName)) {
             $collectionName = 'documents';
         }
-        
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
         if (!isset($collection['id'])) {
             throw new \Exception("Collection ID not found for '{$collectionName}'");
         }
-        
         $collectionId = $collection['id'];
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/get";
         $data = [
             'ids' => [$documentId],
             'include' => $include
         ];
-        
+        // Return the document
         return $this->makeRequest($endpoint, 'POST', $data);
     }
 
@@ -301,28 +279,26 @@ class ChromaDBClient {
         if (empty($collectionName)) {
             $collectionName = 'documents';
         }
-        
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
         if (!isset($collection['id'])) {
             throw new \Exception("Collection ID not found for '{$collectionName}'");
         }
-        
         $collectionId = $collection['id'];
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/upsert";
         $data = [
             'ids' => $ids,
             'documents' => $documents
         ];
-        
+        // Get also the metadata
         if ($metadatas) {
             $data['metadatas'] = $metadatas;
         }
-        
+        // Get the embeddings
         if ($embeddings) {
             $data['embeddings'] = $embeddings;
         }
-        
+        // Return the respnse
         return $this->makeRequest($endpoint, 'POST', $data);
     }
 
@@ -343,14 +319,12 @@ class ChromaDBClient {
     public function needsUpdate($collectionId, $documentId, $fileModifiedTime) {
         try {
             $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/get";
-            
             // Check first 3 chunk numbers (@1, @2, @3) since first chunks might be titles and skipped
             $chunkIdsToCheck = [
                 $documentId . '@1',
                 $documentId . '@2', 
                 $documentId . '@3'
             ];
-            
             $data = [
                 'ids' => $chunkIdsToCheck,
                 'include' => [
@@ -358,34 +332,27 @@ class ChromaDBClient {
                 ],
                 'limit' => 1
             ];
-            
             // Check if document exists
             $result = $this->makeRequest($endpoint, 'POST', $data);
-            
             // If no documents found, return true (needs to be added)
             if (empty($result['ids'])) {
                 return true;
             }
-            
             // Check if any document has a processed_at timestamp
             if (!empty($result['metadatas']) && is_array($result['metadatas'])) {
                 // Check the first metadata entry directly
                 $metadata = $result['metadatas'][0];
-                
                 // If processed_at is not set, return true (needs update)
                 if (!isset($metadata['processed_at'])) {
                     return true;
                 }
-                
                 // Parse the processed_at timestamp
                 $processedTimestamp = strtotime($metadata['processed_at']);
-                
                 // If file is newer than processed time, return true (needs update)
                 if ($fileModifiedTime > $processedTimestamp) {
                     return true;
                 }
             }
-            
             // Document exists and is up to date
             return false;
         } catch (\Exception $e) {
@@ -413,32 +380,27 @@ class ChromaDBClient {
         if (empty($collectionName)) {
             $collectionName = 'documents';
         }
-        
         // First get the collection to find its ID
         $collection = $this->getCollection($collectionName);
         if (!isset($collection['id'])) {
             throw new \Exception("Collection ID not found for '{$collectionName}'");
         }
-        
         $collectionId = $collection['id'];
         $endpoint = "/tenants/{$this->tenant}/databases/{$this->database}/collections/{$collectionId}/query";
-        
         // Generate embeddings for query texts
         $queryEmbeddings = [];
         foreach ($queryTexts as $text) {
             $queryEmbeddings[] = $this->generateEmbeddings($text);
         }
-        
         $data = [
             'query_embeddings' => $queryEmbeddings,
             'n_results' => $nResults
         ];
-        
         // Add where clause for metadata filtering if provided
         if ($where && is_array($where)) {
             $data['where'] = $where;
         }
-        
+        // Return the response
         return $this->makeRequest($endpoint, 'POST', $data);
     }
 
@@ -481,7 +443,6 @@ class ChromaDBClient {
             // Tenant doesn't exist, create it
             $this->createTenant($this->tenant);
         }
-        
         // Check if database exists, create if it doesn't
         try {
             $this->getDatabase($this->database, $this->tenant);
@@ -595,14 +556,12 @@ class ChromaDBClient {
     public function processSingleFile($filePath, $collectionName, $collectionChecked = false) {
         // Parse file path to extract metadata
         $id = parseFilePath($filePath);
-        
         try {
             // Create collection if it doesn't exist (only if not already checked)
             $collectionStatus = '';
             if (!$collectionChecked) {
                 $collectionStatus = $this->ensureCollectionExists($collectionName);
             }
-        
             // Get collection ID
             $collection = $this->getCollection($collectionName);
             if (!isset($collection['id'])) {
@@ -612,13 +571,10 @@ class ChromaDBClient {
                 ];
             }
             $collectionId = $collection['id'];
-            
             // Get file modification time
             $fileModifiedTime = filemtime($filePath);
-            
             // Check if document needs update
             $needsUpdate = $this->needsUpdate($collectionId, $id, $fileModifiedTime);
-            
             // If document is up to date, skip processing
             if (!$needsUpdate) {
                 return [
@@ -626,28 +582,21 @@ class ChromaDBClient {
                     'message' => "Document '$id' is up to date in collection '$collectionName'. Skipping..."
                 ];
             }
-            
             // Read file content
             $content = file_get_contents($filePath);
-            
             // Split document into chunks (paragraphs separated by two newlines)
             $paragraphs = preg_split('/\n\s*\n/', $content);
             $chunks = [];
             $chunkMetadata = [];
-            
             // Parse the DokuWiki ID to extract base metadata
             $parts = explode(':', $id);
-            
             // Extract metadata from the last part of the ID
             $lastPart = end($parts);
             $baseMetadata = [];
-            
             // Add the document ID as metadata
             $baseMetadata['document_id'] = $id;
-            
             // Add current timestamp
             $baseMetadata['processed_at'] = date('Y-m-d H:i:s');
-            
             // Check if any part of the ID is 'templates' and set template metadata
             $isTemplate = in_array('templates', $parts);
             if ($isTemplate) {
@@ -655,12 +604,10 @@ class ChromaDBClient {
             } else {
                 $baseMetadata['type'] = 'report';
             }
-            
             // Extract modality from the second part
             if (isset($parts[1])) {
                 $baseMetadata['modality'] = $parts[1];
             }
-            
             // Handle different ID formats based on the third part: word (institution) or numeric (year)
             // Format 1: reports:mri:institution:250620-name-surname (third part is institution name)
             // Format 2: reports:mri:2024:g287-name-surname (third part is year)
@@ -671,11 +618,9 @@ class ChromaDBClient {
                     // Format: reports:mri:2024:g287-name-surname (year format)
                     // Extract year from the third part
                     $baseMetadata['year'] = $parts[2];
-                    
                     // Set default institution from config
                     global $conf;
                     $baseMetadata['institution'] = isset($conf['plugin']['dokullm']['default_institution']) ? $conf['plugin']['dokullm']['default_institution'] : 'default';
-                    
                     // Extract registration and name from the last part
                     // Registration should start with one letter or number and contain numbers before the '-' character
                     if (preg_match('/^([a-zA-Z0-9]+[0-9]*)-(.+)$/', $lastPart, $matches)) {
@@ -695,12 +640,10 @@ class ChromaDBClient {
                     // Format: reports:mri:institution:250620-name-surname (institution format)
                     // Extract institution from the third part
                     $baseMetadata['institution'] = $parts[2];
-                    
                     // Extract date and name from the last part
                     if (preg_match('/^(\d{6})-(.+)$/', $lastPart, $matches)) {
                         $dateStr = $matches[1];
                         $name = $matches[2];
-                        
                         // Convert date format (250620 -> 2025-06-20)
                         $day = substr($dateStr, 0, 2);
                         $month = substr($dateStr, 2, 2);
@@ -708,13 +651,11 @@ class ChromaDBClient {
                         // Assuming 20xx for years 00-69 and 19xx for years 70-99
                         $fullYear = (int)$year <= 70 ? '20' . $year : '19' . $year;
                         $formattedDate = $fullYear . '-' . $month . '-' . $day;
-                        
                         $baseMetadata['date'] = $formattedDate;
                         $baseMetadata['name'] = str_replace('-', ' ', $name);
                     }
                 }
             }
-            
             // For templates, always extract name from the last part
             if ($isTemplate && isset($lastPart)) {
                 // Extract name from the last part (everything after the last colon)
@@ -732,67 +673,55 @@ class ChromaDBClient {
                     $baseMetadata['name'] = str_replace('-', ' ', $lastPart);
                 }
             }
-            
             // Process each paragraph as a chunk with intelligent metadata handling
             $chunkIds = [];
             $chunkContents = [];
             $chunkMetadatas = [];
             $chunkEmbeddings = [];
             $currentTags = [];
-            
             foreach ($paragraphs as $index => $paragraph) {
                 // Skip empty paragraphs to avoid processing whitespace-only content
                 $paragraph = trim($paragraph);
                 if (empty($paragraph)) {
                     continue;
                 }
-                
                 // Check if this is a DokuWiki title (starts and ends with =)
                 // Titles are converted to tags for better searchability but not stored as content chunks
                 if (preg_match('/^=+(.*?)=+$/', $paragraph, $matches)) {
                     // Extract title content and clean it
                     $titleContent = trim($matches[1]);
-                    
                     // Split into words and create searchable tags
                     $words = preg_split('/\s+/', $titleContent);
                     $tags = [];
-                    
                     foreach ($words as $word) {
                         // Only use words longer than 3 characters to reduce noise
                         if (strlen($word) >= 3) {
                             $tags[] = strtolower($word);
                         }
                     }
-                    
                     // Remove duplicate tags and store for use in subsequent chunks
                     $currentTags = array_unique($tags);
                     continue; // Skip storing title chunks as content
                 }
-                
                 // Create chunk ID
                 $chunkId = $id . '@' . ($index + 1);
-                
                 // Generate embeddings for the chunk
                 $embeddings = $this->generateEmbeddings($paragraph);
-                
                 // Add chunk-specific metadata
                 $metadata = $baseMetadata;
                 $metadata['chunk_id'] = $chunkId;
                 $metadata['chunk_number'] = $index + 1;
                 $metadata['total_chunks'] = count($paragraphs);
-                
                 // Add current tags to metadata if any exist
                 if (!empty($currentTags)) {
                     $metadata['tags'] = implode(',', $currentTags);
                 }
-                
                 // Store chunk data
                 $chunkIds[] = $chunkId;
                 $chunkContents[] = $paragraph;
                 $chunkMetadatas[] = $metadata;
                 $chunkEmbeddings[] = $embeddings;
             }
-            
             // If no chunks were created, skip this file
             if (empty($chunkIds)) {
                 return [
@@ -800,10 +729,8 @@ class ChromaDBClient {
                     'message' => "No valid chunks found in file '$id'. Skipping..."
                 ];
             }
-            
             // Send all chunks to ChromaDB
             $result = $this->addDocuments($collectionName, $chunkContents, $chunkIds, $chunkMetadatas, $chunkEmbeddings);
-            
             return [
                 'status' => 'success',
                 'message' => "Successfully sent file to ChromaDB",
@@ -840,13 +767,11 @@ class ChromaDBClient {
                 'message' => "Directory does not exist: $dirPath"
             ];
         }
-        
         // Create RecursiveIteratorIterator to process directories recursively
         $iterator = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($dirPath, RecursiveDirectoryIterator::SKIP_DOTS),
             RecursiveIteratorIterator::LEAVES_ONLY
         );
-        
         $files = [];
         foreach ($iterator as $file) {
             // Process only .txt files that don't start with underscore
@@ -854,27 +779,25 @@ class ChromaDBClient {
                 $files[] = $file->getPathname();
             }
         }
-        
+        // Skip if no files
         if (empty($files)) {
             return [
                 'status' => 'skipped',
                 'message' => "No .txt files found in directory: $dirPath"
             ];
         }
-        
         // Use the first part of the document ID as collection name, fallback to 'documents'
         $sampleFile = $files[0];
         $id = parseFilePath($sampleFile);
         $idParts = explode(':', $id);
         $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
-        
         try {
             $this->ensureCollectionExists($collectionName);
             $collectionChecked = true;
         } catch (Exception $e) {
             $collectionChecked = true;
         }
-        
+        // Send each file
         $results = [];
         foreach ($files as $file) {
             $result = $this->processSingleFile($file, $collectionName, $collectionChecked);
@@ -883,7 +806,7 @@ class ChromaDBClient {
                 'result' => $result
             ];
         }
-        
+        // Return the result
         return [
             'status' => 'success',
             'message' => "Finished processing directory.",
@@ -915,16 +838,12 @@ function parseFilePath($filePath) {
         // Fallback to common DokuWiki installation path
         $pagesDir = '/var/www/html/dokuwiki/data/pages/';
     }
-        
     // Remove the base path
     $relativePath = str_replace($pagesDir, '', $filePath);
-        
     // Remove .txt extension
     $relativePath = preg_replace('/\.txt$/', '', $relativePath);
-        
     // Split path into parts and filter out empty parts
     $parts = array_filter(explode('/', $relativePath));
-        
     // Build DokuWiki ID (use first part as namespace)
     $idParts = [];
     foreach ($parts as $part) {
@@ -932,7 +851,6 @@ function parseFilePath($filePath) {
             $idParts[] = $part;
         }
     }
-        
+    // Reurn the ID
     return implode(':', $idParts);
 }
-
