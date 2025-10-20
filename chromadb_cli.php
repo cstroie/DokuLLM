@@ -1,817 +1,524 @@
 <?php
-// Load DokuWiki's autoloader
-if (!defined('DOKU_INC')) {
-    define('DOKU_INC', realpath(dirname(__FILE__) . '/../../../') . '/');
-}
-//require_once DOKU_INC . 'inc/init.php';
 
-// Define default constants if not already defined
-if (!defined('CHROMA_HOST')) {
-    define('CHROMA_HOST', 'localhost');
-}
-if (!defined('CHROMA_PORT')) {
-    define('CHROMA_PORT', 8000);
-}
-if (!defined('CHROMA_TENANT')) {
-    define('CHROMA_TENANT', 'default_tenant');
-}
-if (!defined('CHROMA_DATABASE')) {
-    define('CHROMA_DATABASE', 'default_database');
-}
+use dokuwiki\Extension\CLIPlugin;
+use splitbrain\phpcli\Options;
 
-// Include the ChromaDBClient class
-require_once dirname(__FILE__) . '/ChromaDBClient.php';
+if(!defined('DOKU_INC')) define('DOKU_INC', realpath(dirname(__FILE__) . '/../../../') . '/');
 
 /**
- * Display usage information for the CLI tool
- * 
- * Shows all available actions, options, and examples of how to use the tool.
- * This function is called when no arguments are provided or when invalid arguments are given.
- * 
- * @return void
+ * DokuWiki CLI plugin for ChromaDB operations
  */
-function showUsage() {
-    echo "Usage: php dokuwiki_chroma_cli.php [options] [action]\n";
-    echo "Actions:\n";
-    echo "  send       Send a file or directory to ChromaDB\n";
-    echo "  query      Query ChromaDB\n";
-    echo "  heartbeat  Check if ChromaDB server is alive\n";
-    echo "  identity   Get authentication and identity information\n";
-    echo "  list       List all collections\n";
-    echo "  get        Get a document by its ID\n";
-    echo "\n";
-    echo "Options:\n";
-    echo "  --host HOST        ChromaDB server host (default: " . CHROMA_HOST . ")\n";
-    echo "  --port PORT        ChromaDB server port (default: " . CHROMA_PORT . ")\n";
-    echo "  --tenant TENANT    ChromaDB tenant (default: " . CHROMA_TENANT . ")\n";
-    echo "  --database DB      ChromaDB database (default: " . CHROMA_DATABASE . ")\n";
-    echo "  --ollama-host HOST Ollama server host (default: localhost)\n";
-    echo "  --ollama-port PORT Ollama server port (default: 11434)\n";
-    echo "  --ollama-model MODEL Ollama embeddings model (default: nomic-embed-text)\n";
-    echo "  --collection COLL  Collection name to query (default: documents)\n";
-    echo "  --limit NUM        Number of results to return (default: 5)\n";
-    echo "  --verbose          Enable verbose output\n";
-    echo "\n";
-    echo "Send a file:\n";
-    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] send /path/to/file.txt\n";
-    echo "\n";
-    echo "Send all files in a directory:\n";
-    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] send /path/to/directory\n";
-    echo "\n";
-    echo "Query ChromaDB:\n";
-    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] [--collection COLL] [--limit 10] query \"search terms\"\n";
-    echo "\n";
-    echo "Check server status:\n";
-    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] heartbeat\n";
-    echo "\n";
-    echo "Check identity:\n";
-    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] identity\n";
-    echo "\n";
-    echo "List collections:\n";
-    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] list\n";
-    echo "\n";
-    echo "Get a document:\n";
-    echo "  php dokuwiki_chroma_cli.php [--host HOST] [--port PORT] [--tenant TENANT] [--database DB] [--collection COLL] get \"document_id\"\n";
-    exit(1);
-}
+class cli_plugin_dokullm_chromadb extends CLIPlugin {
 
-/**
- * Send a file or directory of files to ChromaDB
- * 
- * This function determines if the provided path is a file or directory and processes
- * it accordingly. For directories, it processes all .txt files recursively.
- * 
- * @param string $path The file or directory path to process
- * @param string $host ChromaDB server host
- * @param int $port ChromaDB server port
- * @param string $tenant ChromaDB tenant name
- * @param string $database ChromaDB database name
- * @return void
- */
-function sendFile($path, $host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel, $verbose = false) {
-    // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
-    
-    if (is_dir($path)) {
-        // Process directory
-        processDirectory($path, $chroma, $host, $port, $tenant, $database, $verbose);
-    } else {
-        // Process single file
-        if (!file_exists($path)) {
-            echo "Error: File does not exist: $path\n";
-            // Don't exit, just return to continue if called from other contexts
-            return;
+    /**
+     * Register options and arguments
+     * 
+     * @param Options $options
+     */
+    protected function setup(Options $options) {
+        // Set help text
+        $options->setHelp(
+            "ChromaDB CLI plugin for DokuWiki\n\n" .
+            "Usage: ./bin/plugin.php dokullm_chromadb [action] [options]\n\n" .
+            "Actions:\n" .
+            "  send       Send a file or directory to ChromaDB\n" .
+            "  query      Query ChromaDB\n" .
+            "  heartbeat  Check if ChromaDB server is alive\n" .
+            "  identity   Get authentication and identity information\n" .
+            "  list       List all collections\n" .
+            "  get        Get a document by its ID\n"
+        );
+
+        // Global options
+        $options->registerOption('host', 'ChromaDB server host', 'h', 'host', 'localhost');
+        $options->registerOption('port', 'ChromaDB server port', 'p', 'port', '8000');
+        $options->registerOption('tenant', 'ChromaDB tenant', null, 'tenant', 'default_tenant');
+        $options->registerOption('database', 'ChromaDB database', null, 'database', 'default_database');
+        $options->registerOption('ollama-host', 'Ollama server host', null, 'ollama-host', 'localhost');
+        $options->registerOption('ollama-port', 'Ollama server port', null, 'ollama-port', '11434');
+        $options->registerOption('ollama-model', 'Ollama embeddings model', null, 'ollama-model', 'nomic-embed-text');
+        $options->registerOption('verbose', 'Enable verbose output', 'v');
+
+        // Action-specific options
+        $options->registerCommand('send', 'Send a file or directory to ChromaDB');
+        $options->registerArgument('path', 'File or directory path', true, 'send');
+
+        $options->registerCommand('query', 'Query ChromaDB');
+        $options->registerOption('collection', 'Collection name to query', 'c', 'collection', 'documents', 'query');
+        $options->registerOption('limit', 'Number of results to return', 'l', 'limit', '5', 'query');
+        $options->registerArgument('search', 'Search terms', true, 'query');
+
+        $options->registerCommand('heartbeat', 'Check if ChromaDB server is alive');
+
+        $options->registerCommand('identity', 'Get authentication and identity information');
+
+        $options->registerCommand('list', 'List all collections');
+
+        $options->registerCommand('get', 'Get a document by its ID');
+        $options->registerOption('collection', 'Collection name', 'c', 'collection', 'documents', 'get');
+        $options->registerArgument('id', 'Document ID', true, 'get');
+    }
+
+    /**
+     * Main plugin logic
+     * 
+     * @param Options $options
+     */
+    protected function main(Options $options) {
+        // Include the ChromaDBClient class
+        require_once dirname(__FILE__) . '/ChromaDBClient.php';
+
+        $action = $options->getCmd();
+        $verbose = $options->getOpt('verbose');
+
+        // Get global options with defaults
+        $host = $options->getOpt('host', 'localhost');
+        $port = (int)$options->getOpt('port', 8000);
+        $tenant = $options->getOpt('tenant', 'default_tenant');
+        $database = $options->getOpt('database', 'default_database');
+        $ollamaHost = $options->getOpt('ollama-host', 'localhost');
+        $ollamaPort = (int)$options->getOpt('ollama-port', 11434);
+        $ollamaModel = $options->getOpt('ollama-model', 'nomic-embed-text');
+
+        switch ($action) {
+            case 'send':
+                $path = $options->getArgs()[0] ?? null;
+                if (!$path) {
+                    $this->fatal('Missing file path for send action');
+                }
+                $this->sendFile($path, $host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel, $verbose);
+                break;
+
+            case 'query':
+                $searchTerms = $options->getArgs()[0] ?? null;
+                if (!$searchTerms) {
+                    $this->fatal('Missing search terms for query action');
+                }
+                $collection = $options->getOpt('collection', 'documents');
+                $limit = (int)$options->getOpt('limit', 5);
+                $this->queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $collection, $ollamaHost, $ollamaPort, $ollamaModel, $verbose);
+                break;
+
+            case 'heartbeat':
+                $this->checkHeartbeat($host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel, $verbose);
+                break;
+
+            case 'identity':
+                $this->checkIdentity($host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel, $verbose);
+                break;
+
+            case 'list':
+                $this->listCollections($host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel, $verbose);
+                break;
+
+            case 'get':
+                $documentId = $options->getArgs()[0] ?? null;
+                if (!$documentId) {
+                    $this->fatal('Missing document ID for get action');
+                }
+                $collection = $options->getOpt('collection', null);
+                $this->getDocument($documentId, $host, $port, $tenant, $database, $collection, $ollamaHost, $ollamaPort, $ollamaModel, $verbose);
+                break;
+
+            default:
+                echo $options->help();
+                exit(1);
         }
+    }
+
+    /**
+     * Send a file or directory of files to ChromaDB
+     */
+    private function sendFile($path, $host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel, $verbose = false) {
+        // Create ChromaDB client
+        $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
         
-        // Skip files that start with underscore
-        $filename = basename($path);
-        if ($filename[0] === '_') {
-            if ($verbose) {
-                echo "Skipping file (starts with underscore): $path\n";
+        if (is_dir($path)) {
+            // Process directory
+            $this->processDirectory($path, $chroma, $host, $port, $tenant, $database, $verbose);
+        } else {
+            // Process single file
+            if (!file_exists($path)) {
+                $this->error("File does not exist: $path");
+                return;
             }
+            
+            // Skip files that start with underscore
+            $filename = basename($path);
+            if ($filename[0] === '_') {
+                if ($verbose) {
+                    $this->info("Skipping file (starts with underscore): $path");
+                }
+                return;
+            }
+            
+            $this->processSingleFile($path, $chroma, $host, $port, $tenant, $database, false, $verbose);
+        }
+    }
+
+    /**
+     * Process a single DokuWiki file and send it to ChromaDB
+     */
+    private function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database, $collectionChecked = false, $verbose = false) {
+        // Parse file path to extract metadata
+        $id = \dokuwiki\plugin\dokullm\parseFilePath($filePath);
+            
+        // Use the first part of the document ID as collection name, fallback to 'documents'
+        $idParts = explode(':', $id);
+        $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
+        
+        // Clean the ID and check ACL
+        $cleanId = cleanID($id);
+        if (auth_quickaclcheck($cleanId) < AUTH_READ) {
+            $this->error("You are not allowed to read this file: $id");
             return;
         }
-        
-        processSingleFile($path, $chroma, $host, $port, $tenant, $database, false, $verbose);
-    }
-}
-
-/**
- * Process a single DokuWiki file and send it to ChromaDB with intelligent update checking
- * 
- * This function handles the complete processing of a single DokuWiki file:
- * 1. Parses the file path to extract metadata and document ID
- * 2. Determines the appropriate collection based on document ID
- * 3. Checks if the document needs updating using timestamp comparison
- * 4. Reads and processes file content only if update is needed
- * 5. Splits the document into chunks (paragraphs)
- * 6. Extracts rich metadata from the DokuWiki ID format
- * 7. Generates embeddings for each chunk
- * 8. Sends all chunks to ChromaDB with metadata
- * 
- * Supported ID formats:
- * - Format 1: reports:mri:institution:250620-name-surname (third part is institution name)
- * - Format 2: reports:mri:2024:g287-name-surname (third part is year)
- * - Templates: reports:mri:templates:name-surname (contains 'templates' part)
- * 
- * The function implements smart update checking by comparing file modification time
- * with the 'processed_at' timestamp in document metadata to avoid reprocessing unchanged files.
- * 
- * @param string $filePath The path to the file to process
- * @param ChromaDBClient $chroma The ChromaDB client instance
- * @param string $host ChromaDB server host
- * @param int $port ChromaDB server port
- * @param string $tenant ChromaDB tenant name
- * @param string $database ChromaDB database name
- * @param bool $collectionChecked Whether the collection has already been checked/created (optimization for batch processing)
- * @return void
- */
-function processSingleFile($filePath, $chroma, $host, $port, $tenant, $database, $collectionChecked = false, $verbose = false) {
-    // Parse file path to extract metadata
-    $id = \dokuwiki\plugin\dokullm\parseFilePath($filePath);
-        
-    // Use the first part of the document ID as collection name, fallback to 'documents'
-    $idParts = explode(':', $id);
-    $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
-    
-    // Clean the ID and check ACL
-    $cleanId = cleanID($id);
-    if (auth_quickaclcheck($cleanId) < AUTH_READ) {
-        echo "Error: You are not allowed to read this file: $id\n";
-        return;
-    }
-        
-    try {
-        // Process the file using the class method
-        $result = $chroma->processSingleFile($filePath, $collectionName, $collectionChecked);
-        
-        // Handle the result with verbose output
-        if ($verbose && !empty($result['collection_status'])) {
-            echo $result['collection_status'] . "\n";
-        }
-        
-        switch ($result['status']) {
-            case 'success':
-                if ($verbose) {
-                    echo "Adding " . $result['details']['chunks'] . " chunks to ChromaDB...\n";
-                }
-                echo "Successfully sent file to ChromaDB:\n";
-                echo "  Document ID: " . $result['details']['document_id'] . "\n";
-                if ($verbose) {
-                    echo "  Chunks: " . $result['details']['chunks'] . "\n";
-                    echo "  Host: $host:$port\n";
-                    echo "  Tenant: $tenant\n";
-                    echo "  Database: $database\n";
-                    echo "  Collection: " . $result['details']['collection'] . "\n";
-                }
-                break;
-                
-            case 'skipped':
-                if ($verbose) {
-                    echo $result['message'] . "\n";
-                }
-                break;
-                
-            case 'error':
-                echo $result['message'] . "\n";
-                break;
-        }
-    } catch (Exception $e) {
-        echo "Error sending file to ChromaDB: " . $e->getMessage() . "\n";
-        // Don't exit, just return to continue processing other files
-        return;
-    }
-}
-
-/**
- * Process all DokuWiki files in a directory and send them to ChromaDB
- * 
- * This function recursively processes all .txt files in a directory and its subdirectories.
- * It first checks if the appropriate collection exists and creates it if needed.
- * Then it processes each file individually.
- * 
- * @param string $dirPath The directory path to process
- * @param ChromaDBClient $chroma The ChromaDB client instance
- * @param string $host ChromaDB server host
- * @param int $port ChromaDB server port
- * @param string $tenant ChromaDB tenant name
- * @param string $database ChromaDB database name
- * @return void
- */
-function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database, $verbose = false) {
-    if ($verbose) {
-        echo "Processing directory: $dirPath\n";
-    }
-    
-    // Check if directory exists
-    if (!is_dir($dirPath)) {
-        echo "Error: Directory does not exist: $dirPath\n";
-        return;
-    }
-    
-    // Create RecursiveIteratorIterator to process directories recursively
-    $iterator = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($dirPath, RecursiveDirectoryIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::LEAVES_ONLY
-    );
-    
-    $files = [];
-    foreach ($iterator as $file) {
-        // Process only .txt files that don't start with underscore
-        if ($file->isFile() && $file->getExtension() === 'txt' && $file->getFilename()[0] !== '_') {
-            $files[] = $file->getPathname();
-        }
-    }
-    
-    // Skip if no files
-    if (empty($files)) {
-        if ($verbose) {
-            echo "No .txt files found in directory: $dirPath\n";
-        }
-        return;
-    }
-    
-    if ($verbose) {
-        echo "Found " . count($files) . " files to process.\n";
-    }
-    
-    // Use the first part of the document ID as collection name, fallback to 'documents'
-    $sampleFile = $files[0];
-    $id = \dokuwiki\plugin\dokullm\parseFilePath($sampleFile);
-    $idParts = explode(':', $id);
-    $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
-    
-    try {
-        $collectionStatus = $chroma->ensureCollectionExists($collectionName);
-        if ($verbose) {
-            echo $collectionStatus . "\n";
-        }
-        $collectionChecked = true;
-    } catch (Exception $e) {
-        $collectionChecked = true;
-    }
-    
-    // Process each file
-    $processedCount = 0;
-    $skippedCount = 0;
-    $errorCount = 0;
-    
-    foreach ($files as $file) {
-        if ($verbose) {
-            echo "\nProcessing file: $file\n";
-        }
-        
+            
         try {
-            $result = $chroma->processSingleFile($file, $collectionName, $collectionChecked);
+            // Process the file using the class method
+            $result = $chroma->processSingleFile($filePath, $collectionName, $collectionChecked);
             
             // Handle the result with verbose output
             if ($verbose && !empty($result['collection_status'])) {
-                echo $result['collection_status'] . "\n";
+                $this->info($result['collection_status']);
             }
             
             switch ($result['status']) {
                 case 'success':
-                    $processedCount++;
                     if ($verbose) {
-                        echo "Adding " . $result['details']['chunks'] . " chunks to ChromaDB...\n";
+                        $this->info("Adding " . $result['details']['chunks'] . " chunks to ChromaDB...");
                     }
-                    echo "Successfully sent file to ChromaDB:\n";
-                    echo "  Document ID: " . $result['details']['document_id'] . "\n";
+                    $this->success("Successfully sent file to ChromaDB:");
+                    $this->info("  Document ID: " . $result['details']['document_id']);
                     if ($verbose) {
-                        echo "  Chunks: " . $result['details']['chunks'] . "\n";
-                        echo "  Host: $host:$port\n";
-                        echo "  Tenant: $tenant\n";
-                        echo "  Database: $database\n";
-                        echo "  Collection: " . $result['details']['collection'] . "\n";
+                        $this->info("  Chunks: " . $result['details']['chunks']);
+                        $this->info("  Host: $host:$port");
+                        $this->info("  Tenant: $tenant");
+                        $this->info("  Database: $database");
+                        $this->info("  Collection: " . $result['details']['collection']);
                     }
                     break;
                     
                 case 'skipped':
-                    $skippedCount++;
                     if ($verbose) {
-                        echo $result['message'] . "\n";
+                        $this->info($result['message']);
                     }
                     break;
                     
                 case 'error':
-                    $errorCount++;
-                    echo $result['message'] . "\n";
+                    $this->error($result['message']);
                     break;
             }
         } catch (Exception $e) {
-            $errorCount++;
-            echo "Error processing file $file: " . $e->getMessage() . "\n";
+            $this->error("Error sending file to ChromaDB: " . $e->getMessage());
+            return;
         }
     }
-    
-    if ($verbose) {
-        echo "\nFinished processing directory.\n";
-        echo "Processing summary:\n";
-        echo "  Processed: $processedCount files\n";
-        echo "  Skipped: $skippedCount files\n";
-        echo "  Errors: $errorCount files\n";
-    } else {
-        // Even in non-verbose mode, show summary stats if there were processed files
-        if ($processedCount > 0 || $skippedCount > 0 || $errorCount > 0) {
-            echo "Processing summary:\n";
-            if ($processedCount > 0) {
-                echo "  Processed: $processedCount files\n";
-            }
-            if ($skippedCount > 0) {
-                echo "  Skipped: $skippedCount files\n";
-            }
-            if ($errorCount > 0) {
-                echo "  Errors: $errorCount files\n";
-            }
-        }
-    }
-}
 
-/**
- * Query ChromaDB for similar documents
- * 
- * This function queries the specified collection in ChromaDB for documents
- * similar to the provided search terms. It displays the results including
- * document IDs, distances, and metadata.
- * 
- * @param string $searchTerms The search terms to query for
- * @param int $limit The maximum number of results to return
- * @param string $host ChromaDB server host
- * @param int $port ChromaDB server port
- * @param string $tenant ChromaDB tenant name
- * @param string $database ChromaDB database name
- * @param string $collection The collection to query (default: 'documents')
- * @return void
- */
-function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $collection = 'documents', $ollamaHost = 'localhost', $ollamaPort = 11434, $ollamaModel = 'nomic-embed-text') {
-    // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, $collection, $ollamaHost, $ollamaPort, $ollamaModel);
-    
-    try {
-        // Query the specified collection by collection
-        $results = $chroma->queryCollection($collection, [$searchTerms], $limit);
+    /**
+     * Process all DokuWiki files in a directory and send them to ChromaDB
+     */
+    private function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database, $verbose = false) {
+        if ($verbose) {
+            $this->info("Processing directory: $dirPath");
+        }
         
-        echo "Query results for: \"$searchTerms\"\n";
-        echo "Host: $host:$port\n";
-        echo "Tenant: $tenant\n";
-        echo "Database: $database\n";
-        echo "Collection: $collection\n";
-        echo "==========================================\n";
-        
-        if (empty($results['ids'][0])) {
-            echo "No results found.\n";
+        // Check if directory exists
+        if (!is_dir($dirPath)) {
+            $this->error("Directory does not exist: $dirPath");
             return;
         }
         
-        for ($i = 0; $i < count($results['ids'][0]); $i++) {
-            echo "Result " . ($i + 1) . ":\n";
-            echo "  ID: " . $results['ids'][0][$i] . "\n";
-            echo "  Distance: " . $results['distances'][0][$i] . "\n";
-            echo "  Document: " . substr($results['documents'][0][$i], 0, 255) . "...\n";
-            
-            if (isset($results['metadatas'][0][$i])) {
-                echo "  Metadata: " . json_encode($results['metadatas'][0][$i]) . "\n";
+        // Create RecursiveIteratorIterator to process directories recursively
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dirPath, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::LEAVES_ONLY
+        );
+        
+        $files = [];
+        foreach ($iterator as $file) {
+            // Process only .txt files that don't start with underscore
+            if ($file->isFile() && $file->getExtension() === 'txt' && $file->getFilename()[0] !== '_') {
+                $files[] = $file->getPathname();
             }
-            echo "\n";
         }
-    } catch (Exception $e) {
-        echo "Error querying ChromaDB: " . $e->getMessage() . "\n";
-        // Don't exit, just return to continue if called from other contexts
-        return;
-    }
-}
-
-/**
- * Check if the ChromaDB server is alive
- * 
- * This function sends a heartbeat request to the ChromaDB server to verify
- * that it's running and accessible.
- * 
- * @param string $host ChromaDB server host
- * @param int $port ChromaDB server port
- * @param string $tenant ChromaDB tenant name
- * @param string $database ChromaDB database name
- * @return void
- */
-function checkHeartbeat($host, $port, $tenant, $database) {
-    // Get Ollama configuration from environment variables or use defaults
-    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
-    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
-    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
-    
-    // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
-    
-    try {
-        echo "Checking ChromaDB server status...\n";
-        echo "Host: $host:$port\n";
-        echo "Tenant: $tenant\n";
-        echo "Database: $database\n";
-        echo "==========================================\n";
         
-        $result = $chroma->heartbeat();
-        
-        echo "Server is alive!\n";
-        echo "Response: " . json_encode($result) . "\n";
-    } catch (Exception $e) {
-        echo "Error checking ChromaDB server status: " . $e->getMessage() . "\n";
-        // Don't exit, just return to continue if called from other contexts
-        return;
-    }
-}
-
-/**
- * Get authentication and identity information from ChromaDB
- * 
- * This function retrieves authentication and identity information from the
- * ChromaDB server, which can be useful for debugging connection issues.
- * 
- * @param string $host ChromaDB server host
- * @param int $port ChromaDB server port
- * @param string $tenant ChromaDB tenant name
- * @param string $database ChromaDB database name
- * @return void
- */
-function checkIdentity($host, $port, $tenant, $database) {
-    // Get Ollama configuration from environment variables or use defaults
-    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
-    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
-    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
-    
-    // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
-    
-    try {
-        echo "Checking ChromaDB identity...\n";
-        echo "Host: $host:$port\n";
-        echo "Tenant: $tenant\n";
-        echo "Database: $database\n";
-        echo "==========================================\n";
-        
-        $result = $chroma->getIdentity();
-        
-        echo "Identity information:\n";
-        echo "Response: " . json_encode($result, JSON_PRETTY_PRINT) . "\n";
-    } catch (Exception $e) {
-        echo "Error checking ChromaDB identity: " . $e->getMessage() . "\n";
-        // Don't exit, just return to continue if called from other contexts
-        return;
-    }
-}
-
-/**
- * List all collections in the ChromaDB database
- * 
- * This function retrieves and displays a list of all collections in the
- * specified ChromaDB database.
- * 
- * @param string $host ChromaDB server host
- * @param int $port ChromaDB server port
- * @param string $tenant ChromaDB tenant name
- * @param string $database ChromaDB database name
- * @return void
- */
-function listCollections($host, $port, $tenant, $database) {
-    // Get Ollama configuration from environment variables or use defaults
-    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
-    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
-    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
-    
-    // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
-    
-    try {
-        echo "Listing ChromaDB collections...\n";
-        echo "Host: $host:$port\n";
-        echo "Tenant: $tenant\n";
-        echo "Database: $database\n";
-        echo "==========================================\n";
-        
-        $result = $chroma->listCollections();
-        
-        if (empty($result)) {
-            echo "No collections found.\n";
+        // Skip if no files
+        if (empty($files)) {
+            if ($verbose) {
+                $this->info("No .txt files found in directory: $dirPath");
+            }
             return;
         }
         
-        echo "Collections:\n";
-        foreach ($result as $collection) {
-            echo "  - " . (isset($collection['name']) ? $collection['name'] : json_encode($collection)) . "\n";
+        if ($verbose) {
+            $this->info("Found " . count($files) . " files to process.");
         }
-    } catch (Exception $e) {
-        echo "Error listing ChromaDB collections: " . $e->getMessage() . "\n";
-        // Don't exit, just return to continue if called from other contexts
-        return;
-    }
-}
-
-/**
- * Parse command line arguments
- * 
- * This function parses the command line arguments provided to the script,
- * extracting options and action parameters. It handles both global options
- * (like host, port, tenant, database) and action-specific arguments.
- * 
- * @param array $argv The command line arguments array
- * @return array The parsed arguments
- */
-function parseArgs($argv) {
-    $args = [
-        'action' => null,
-        'filepath' => null,
-        'query' => null,
-        'limit' => 5,
-        'collection' => 'documents',
-        'host' => CHROMA_HOST,
-        'port' => CHROMA_PORT,
-        'tenant' => CHROMA_TENANT,
-        'database' => CHROMA_DATABASE,
-        'ollama_host' => getenv('OLLAMA_HOST') ?: 'localhost',
-        'ollama_port' => getenv('OLLAMA_PORT') ?: 11434,
-        'ollama_model' => getenv('OLLAMA_MODEL') ?: 'nomic-embed-text',
-        'verbose' => false
-    ];
-    
-    if (count($argv) < 2) {
-        showUsage();
-    }
-    
-    // Parse options first (before action)
-    $i = 1;
-    while ($i < count($argv)) {
-        switch ($argv[$i]) {
-            case '--limit':
-                if (isset($argv[$i + 1])) {
-                    $args['limit'] = (int)$argv[$i + 1];
-                    $i += 2;
-                } else {
-                    $i++;
-                }
-                break;
-            case '--collection':
-                if (isset($argv[$i + 1])) {
-                    $args['collection'] = $argv[$i + 1];
-                    $i += 2;
-                } else {
-                    $i++;
-                }
-                break;
-            case '--host':
-                if (isset($argv[$i + 1])) {
-                    $args['host'] = $argv[$i + 1];
-                    $i += 2;
-                } else {
-                    $i++;
-                }
-                break;
-            case '--port':
-                if (isset($argv[$i + 1])) {
-                    $args['port'] = (int)$argv[$i + 1];
-                    $i += 2;
-                } else {
-                    $i++;
-                }
-                break;
-            case '--tenant':
-                if (isset($argv[$i + 1])) {
-                    $args['tenant'] = $argv[$i + 1];
-                    $i += 2;
-                } else {
-                    $i++;
-                }
-                break;
-            case '--database':
-                if (isset($argv[$i + 1])) {
-                    $args['database'] = $argv[$i + 1];
-                    $i += 2;
-                } else {
-                    $i++;
-                }
-                break;
-            case '--ollama-host':
-                if (isset($argv[$i + 1])) {
-                    $args['ollama_host'] = $argv[$i + 1];
-                    $i += 2;
-                } else {
-                    $i++;
-                }
-                break;
-            case '--ollama-port':
-                if (isset($argv[$i + 1])) {
-                    $args['ollama_port'] = (int)$argv[$i + 1];
-                    $i += 2;
-                } else {
-                    $i++;
-                }
-                break;
-            case '--ollama-model':
-                if (isset($argv[$i + 1])) {
-                    $args['ollama_model'] = $argv[$i + 1];
-                    $i += 2;
-                } else {
-                    $i++;
-                }
-                break;
-            case '--verbose':
-                $args['verbose'] = true;
-                $i++;
-                break;
-            default:
-                // If it's not an option, it must be the action
-                $args['action'] = $argv[$i];
-                $i++;
-                break 2; // Break out of the while loop
-        }
-    }
-    
-    // Parse remaining arguments based on action
-    for (; $i < count($argv); $i++) {
-        // Handle positional arguments based on action
-        if ($args['action'] === 'send' && !$args['filepath']) {
-            $args['filepath'] = $argv[$i];
-        } else if ($args['action'] === 'query' && !$args['query']) {
-            $args['query'] = $argv[$i];
-        } else if ($args['action'] === 'get' && !$args['query']) {
-            $args['query'] = $argv[$i];
-        }
-    }
-    
-    return $args;
-}
-
-/**
- * Get a document by its ID from ChromaDB
- * 
- * This function retrieves a document from the specified collection in ChromaDB
- * using its ID. It displays the document content and metadata.
- * 
- * @param string $documentId The document ID to retrieve
- * @param string $host ChromaDB server host
- * @param int $port ChromaDB server port
- * @param string $tenant ChromaDB tenant name
- * @param string $database ChromaDB database name
- * @param string $collection The collection to query (default: 'documents')
- * @return void
- */
-function getDocument($documentId, $host, $port, $tenant, $database, $collection = null) {
-    // If no collection specified, derive it from the first part of the document ID
-    if (empty($collection)) {
-        $idParts = explode(':', $documentId);
-        $collection = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
-    }
-    
-    // Get Ollama configuration from environment variables or use defaults
-    $ollamaHost = getenv('OLLAMA_HOST') ?: 'localhost';
-    $ollamaPort = getenv('OLLAMA_PORT') ?: 11434;
-    $ollamaModel = getenv('OLLAMA_MODEL') ?: 'nomic-embed-text';
-    
-    // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, $collection, $ollamaHost, $ollamaPort, $ollamaModel);
-    
-    try {
-        // Get the specified document by ID
-        $results = $chroma->getDocument($collection, $documentId);
         
-        echo "Document retrieval results for: \"$documentId\"\n";
-        echo "Host: $host:$port\n";
-        echo "Tenant: $tenant\n";
-        echo "Database: $database\n";
-        echo "Collection: $collection\n";
-        echo "==========================================\n";
+        // Use the first part of the document ID as collection name, fallback to 'documents'
+        $sampleFile = $files[0];
+        $id = \dokuwiki\plugin\dokullm\parseFilePath($sampleFile);
+        $idParts = explode(':', $id);
+        $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
         
-        if (empty($results['ids'])) {
-            echo "No document found with ID: $documentId\n";
+        try {
+            $collectionStatus = $chroma->ensureCollectionExists($collectionName);
+            if ($verbose) {
+                $this->info($collectionStatus);
+            }
+            $collectionChecked = true;
+        } catch (Exception $e) {
+            $collectionChecked = true;
+        }
+        
+        // Process each file
+        $processedCount = 0;
+        $skippedCount = 0;
+        $errorCount = 0;
+        
+        foreach ($files as $file) {
+            if ($verbose) {
+                $this->info("\nProcessing file: $file");
+            }
+            
+            try {
+                $result = $chroma->processSingleFile($file, $collectionName, $collectionChecked);
+                
+                // Handle the result with verbose output
+                if ($verbose && !empty($result['collection_status'])) {
+                    $this->info($result['collection_status']);
+                }
+                
+                switch ($result['status']) {
+                    case 'success':
+                        $processedCount++;
+                        if ($verbose) {
+                            $this->info("Adding " . $result['details']['chunks'] . " chunks to ChromaDB...");
+                        }
+                        $this->success("Successfully sent file to ChromaDB:");
+                        $this->info("  Document ID: " . $result['details']['document_id']);
+                        if ($verbose) {
+                            $this->info("  Chunks: " . $result['details']['chunks']);
+                            $this->info("  Host: $host:$port");
+                            $this->info("  Tenant: $tenant");
+                            $this->info("  Database: $database");
+                            $this->info("  Collection: " . $result['details']['collection']);
+                        }
+                        break;
+                        
+                    case 'skipped':
+                        $skippedCount++;
+                        if ($verbose) {
+                            $this->info($result['message']);
+                        }
+                        break;
+                        
+                    case 'error':
+                        $errorCount++;
+                        $this->error($result['message']);
+                        break;
+                }
+            } catch (Exception $e) {
+                $errorCount++;
+                $this->error("Error processing file $file: " . $e->getMessage());
+            }
+        }
+        
+        if ($verbose) {
+            $this->info("\nFinished processing directory.");
+            $this->info("Processing summary:");
+            $this->info("  Processed: $processedCount files");
+            $this->info("  Skipped: $skippedCount files");
+            $this->info("  Errors: $errorCount files");
+        } else {
+            // Even in non-verbose mode, show summary stats if there were processed files
+            if ($processedCount > 0 || $skippedCount > 0 || $errorCount > 0) {
+                $this->info("Processing summary:");
+                if ($processedCount > 0) {
+                    $this->info("  Processed: $processedCount files");
+                }
+                if ($skippedCount > 0) {
+                    $this->info("  Skipped: $skippedCount files");
+                }
+                if ($errorCount > 0) {
+                    $this->info("  Errors: $errorCount files");
+                }
+            }
+        }
+    }
+
+    /**
+     * Query ChromaDB for similar documents
+     */
+    private function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $collection, $ollamaHost, $ollamaPort, $ollamaModel, $verbose = false) {
+        // Create ChromaDB client
+        $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, $collection, $ollamaHost, $ollamaPort, $ollamaModel);
+        
+        try {
+            // Query the specified collection by collection
+            $results = $chroma->queryCollection($collection, [$searchTerms], $limit);
+            
+            $this->info("Query results for: \"$searchTerms\"");
+            $this->info("Host: $host:$port");
+            $this->info("Tenant: $tenant");
+            $this->info("Database: $database");
+            $this->info("Collection: $collection");
+            $this->info("==========================================");
+            
+            if (empty($results['ids'][0])) {
+                $this->info("No results found.");
+                return;
+            }
+            
+            for ($i = 0; $i < count($results['ids'][0]); $i++) {
+                $this->info("Result " . ($i + 1) . ":");
+                $this->info("  ID: " . $results['ids'][0][$i]);
+                $this->info("  Distance: " . $results['distances'][0][$i]);
+                $this->info("  Document: " . substr($results['documents'][0][$i], 0, 255) . "...");
+                
+                if (isset($results['metadatas'][0][$i])) {
+                    $this->info("  Metadata: " . json_encode($results['metadatas'][0][$i]));
+                }
+                $this->info("");
+            }
+        } catch (Exception $e) {
+            $this->error("Error querying ChromaDB: " . $e->getMessage());
             return;
         }
-        
-        for ($i = 0; $i < count($results['ids']); $i++) {
-            echo "Document " . ($i + 1) . ":\n";
-            echo "  ID: " . $results['ids'][$i] . "\n";
-            
-            if (isset($results['documents'][$i])) {
-                echo "  Content: " . $results['documents'][$i] . "\n";
-            }
-            
-            if (isset($results['metadatas'][$i])) {
-                echo "  Metadata: " . json_encode($results['metadatas'][$i], JSON_PRETTY_PRINT) . "\n";
-            }
-            echo "\n";
-        }
-    } catch (Exception $e) {
-        echo "Error retrieving document from ChromaDB: " . $e->getMessage() . "\n";
-        // Don't exit, just return to continue if called from other contexts
-        return;
     }
-}
 
-// Main script logic
-$args = parseArgs($argv);
+    /**
+     * Check if the ChromaDB server is alive
+     */
+    private function checkHeartbeat($host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel, $verbose = false) {
+        // Create ChromaDB client
+        $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
+        
+        try {
+            if ($verbose) {
+                $this->info("Checking ChromaDB server status...");
+                $this->info("Host: $host:$port");
+                $this->info("Tenant: $tenant");
+                $this->info("Database: $database");
+                $this->info("==========================================");
+            }
+            
+            $result = $chroma->heartbeat();
+            
+            $this->success("Server is alive!");
+            $this->info("Response: " . json_encode($result));
+        } catch (Exception $e) {
+            $this->error("Error checking ChromaDB server status: " . $e->getMessage());
+            return;
+        }
+    }
 
-switch ($args['action']) {
-    case 'send':
-        if (!$args['filepath']) {
-            echo "Error: Missing file path for send action\n";
-            showUsage();
-        }
-        if ($args['verbose']) {
-            echo "Sending file(s) to ChromaDB...\n";
-            echo "Host: {$args['host']}:{$args['port']}\n";
-            echo "Tenant: {$args['tenant']}\n";
-            echo "Database: {$args['database']}\n";
-            echo "Ollama Host: {$args['ollama_host']}:{$args['ollama_port']}\n";
-            echo "Ollama Model: {$args['ollama_model']}\n";
-            echo "==========================================\n";
-        }
-        sendFile($args['filepath'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['ollama_host'], $args['ollama_port'], $args['ollama_model'], $args['verbose']);
-        break;
+    /**
+     * Get authentication and identity information from ChromaDB
+     */
+    private function checkIdentity($host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel, $verbose = false) {
+        // Create ChromaDB client
+        $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
         
-    case 'query':
-        if (!$args['query']) {
-            echo "Error: Missing search terms for query action\n";
-            showUsage();
+        try {
+            if ($verbose) {
+                $this->info("Checking ChromaDB identity...");
+                $this->info("Host: $host:$port");
+                $this->info("Tenant: $tenant");
+                $this->info("Database: $database");
+                $this->info("==========================================");
+            }
+            
+            $result = $chroma->getIdentity();
+            
+            $this->info("Identity information:");
+            $this->info("Response: " . json_encode($result, JSON_PRETTY_PRINT));
+        } catch (Exception $e) {
+            $this->error("Error checking ChromaDB identity: " . $e->getMessage());
+            return;
         }
-        if ($args['verbose']) {
-            echo "Querying ChromaDB...\n";
-            echo "Host: {$args['host']}:{$args['port']}\n";
-            echo "Tenant: {$args['tenant']}\n";
-            echo "Database: {$args['database']}\n";
-            echo "Collection: {$args['collection']}\n";
-            echo "Limit: {$args['limit']}\n";
-            echo "==========================================\n";
-        }
-        queryChroma($args['query'], $args['limit'], $args['host'], $args['port'], $args['tenant'], $args['database'], $args['collection'], $args['ollama_host'], $args['ollama_port'], $args['ollama_model']);
-        break;
+    }
+
+    /**
+     * List all collections in the ChromaDB database
+     */
+    private function listCollections($host, $port, $tenant, $database, $ollamaHost, $ollamaPort, $ollamaModel, $verbose = false) {
+        // Create ChromaDB client
+        $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', $ollamaHost, $ollamaPort, $ollamaModel);
         
-    case 'heartbeat':
-        if ($args['verbose']) {
-            echo "Checking ChromaDB heartbeat...\n";
-            echo "Host: {$args['host']}:{$args['port']}\n";
-            echo "Tenant: {$args['tenant']}\n";
-            echo "Database: {$args['database']}\n";
-            echo "==========================================\n";
+        try {
+            if ($verbose) {
+                $this->info("Listing ChromaDB collections...");
+                $this->info("Host: $host:$port");
+                $this->info("Tenant: $tenant");
+                $this->info("Database: $database");
+                $this->info("==========================================");
+            }
+            
+            $result = $chroma->listCollections();
+            
+            if (empty($result)) {
+                $this->info("No collections found.");
+                return;
+            }
+            
+            $this->info("Collections:");
+            foreach ($result as $collection) {
+                $this->info("  - " . (isset($collection['name']) ? $collection['name'] : json_encode($collection)));
+            }
+        } catch (Exception $e) {
+            $this->error("Error listing ChromaDB collections: " . $e->getMessage());
+            return;
         }
-        checkHeartbeat($args['host'], $args['port'], $args['tenant'], $args['database']);
-        break;
+    }
+
+    /**
+     * Get a document by its ID from ChromaDB
+     */
+    private function getDocument($documentId, $host, $port, $tenant, $database, $collection, $ollamaHost, $ollamaPort, $ollamaModel, $verbose = false) {
+        // If no collection specified, derive it from the first part of the document ID
+        if (empty($collection)) {
+            $idParts = explode(':', $documentId);
+            $collection = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
+        }
         
-    case 'identity':
-        if ($args['verbose']) {
-            echo "Checking ChromaDB identity...\n";
-            echo "Host: {$args['host']}:{$args['port']}\n";
-            echo "Tenant: {$args['tenant']}\n";
-            echo "Database: {$args['database']}\n";
-            echo "==========================================\n";
-        }
-        checkIdentity($args['host'], $args['port'], $args['tenant'], $args['database']);
-        break;
+        // Create ChromaDB client
+        $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, $collection, $ollamaHost, $ollamaPort, $ollamaModel);
         
-    case 'list':
-        if ($args['verbose']) {
-            echo "Listing ChromaDB collections...\n";
-            echo "Host: {$args['host']}:{$args['port']}\n";
-            echo "Tenant: {$args['tenant']}\n";
-            echo "Database: {$args['database']}\n";
-            echo "==========================================\n";
+        try {
+            // Get the specified document by ID
+            $results = $chroma->getDocument($collection, $documentId);
+            
+            if ($verbose) {
+                $this->info("Document retrieval results for: \"$documentId\"");
+                $this->info("Host: $host:$port");
+                $this->info("Tenant: $tenant");
+                $this->info("Database: $database");
+                $this->info("Collection: $collection");
+                $this->info("==========================================");
+            }
+            
+            if (empty($results['ids'])) {
+                $this->info("No document found with ID: $documentId");
+                return;
+            }
+            
+            for ($i = 0; $i < count($results['ids']); $i++) {
+                $this->info("Document " . ($i + 1) . ":");
+                $this->info("  ID: " . $results['ids'][$i]);
+                
+                if (isset($results['documents'][$i])) {
+                    $this->info("  Content: " . $results['documents'][$i]);
+                }
+                
+                if (isset($results['metadatas'][$i])) {
+                    $this->info("  Metadata: " . json_encode($results['metadatas'][$i], JSON_PRETTY_PRINT));
+                }
+                $this->info("");
+            }
+        } catch (Exception $e) {
+            $this->error("Error retrieving document from ChromaDB: " . $e->getMessage());
+            return;
         }
-        listCollections($args['host'], $args['port'], $args['tenant'], $args['database']);
-        break;
-        
-    case 'get':
-        if (!$args['query']) {
-            echo "Error: Missing document ID for get action\n";
-            showUsage();
-        }
-        if ($args['verbose']) {
-            echo "Retrieving document from ChromaDB...\n";
-            echo "Host: {$args['host']}:{$args['port']}\n";
-            echo "Tenant: {$args['tenant']}\n";
-            echo "Database: {$args['database']}\n";
-            echo "Document ID: {$args['query']}\n";
-            echo "==========================================\n";
-        }
-        getDocument($args['query'], $args['host'], $args['port'], $args['tenant'], $args['database']);
-        break;
-        
-    default:
-        echo "Error: Unknown action '{$args['action']}'\n";
-        showUsage();
+    }
 }
