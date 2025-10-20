@@ -126,8 +126,15 @@ class ChromaDBClient {
     public function generateEmbeddings($text) {
         $ollamaUrl = "http://{$this->ollamaHost}:{$this->ollamaPort}/api/embeddings";
         curl_setopt($this->ollamaClient, CURLOPT_URL, $ollamaUrl);
+        
+        // Ensure model is a string
+        $model = $this->ollamaModel;
+        if (!is_string($model)) {
+            throw new \Exception("Ollama model must be a string, got: " . gettype($model));
+        }
+        
         $data = [
-            'model' => $this->ollamaModel,
+            'model' => $model,
             'prompt' => $text,
             'keep_alive' => '30m'
         ];
