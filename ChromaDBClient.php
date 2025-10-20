@@ -2,6 +2,9 @@
 
 namespace dokuwiki\plugin\dokullm;
 
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
+
 class ChromaDBClient {
     private $baseUrl;
     private $client;
