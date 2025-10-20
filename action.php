@@ -436,6 +436,14 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         if (empty($ID)) {
             return;
         }
+        
+        // Check ACL before accessing page content
+        if (auth_quickaclcheck($ID) < AUTH_READ) {
+            // Log error but don't stop execution
+            \dokuwiki\Logger::error('dokullm: Access denied for page: ' . $ID);
+            return;
+        }
+        
         // Get the page content
         $content = rawWiki($ID);
         // Skip empty pages
