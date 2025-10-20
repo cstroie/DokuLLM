@@ -1,0 +1,78 @@
+====== DokuLLM Plugin Installation Guide ======
+
+This guide will walk you through the process of installing and configuring the DokuLLM plugin for DokuWiki.
+
+===== Prerequisites =====
+
+Before installing the DokuLLM plugin, ensure you have:
+  * A working DokuWiki installation (version 2020-07-29 "Hogfather" or newer recommended)
+  * PHP 7.4 or higher with cURL support
+  * Access to your DokuWiki server's file system
+  * (Optional) Access to an Ollama server for embeddings generation
+  * (Optional) Access to a ChromaDB server for document storage and retrieval
+
+===== Installation Methods =====
+
+==== Method 1: Extension Manager (Recommended) ====
+
+The easiest way to install the DokuLLM plugin is using DokuWiki's Extension Manager:
+
+1. Log in to your DokuWiki as an administrator
+2. Navigate to **Admin** → **Extension Manager**
+3. In the "Install from URL" field, enter the plugin's repository URL
+4. Click **Install**
+5. The plugin should now be installed and ready for configuration
+
+==== Method 2: Manual Installation ====
+
+If the Extension Manager is not available or you prefer manual installation:
+
+1. Download the latest release from the plugin's repository
+2. Extract the downloaded archive
+3. Rename the extracted folder to ''dokullm''
+4. Upload the ''dokullm'' folder to your DokuWiki's ''lib/plugins/'' directory
+5. The final path should be ''lib/plugins/dokullm/''
+
+===== Configuration =====
+
+After installation, you need to configure the plugin:
+
+1. Navigate to **Admin** → **Configuration Settings**
+2. Find the "DokuLLM" section in the configuration manager
+3. Configure the following required settings:
+   * **LLM API URL**: The base URL of your LLM API (e.g., Ollama API)
+   * **LLM API Key**: Your API key if authentication is required
+   * **Default LLM Model**: The model to use for text processing (e.g., llama3, mistral)
+
+4. (Optional) Configure ChromaDB integration:
+   * **Enable ChromaDB**: Enable or disable ChromaDB integration
+   * **ChromaDB Host**: Hostname of your ChromaDB server
+   * **ChromaDB Port**: Port number of your ChromaDB server
+   * **ChromaDB Tenant**: Tenant name for ChromaDB
+   * **ChromaDB Database**: Database name for ChromaDB
+   * **Ollama Host**: Hostname of your Ollama server (for embeddings)
+   * **Ollama Port**: Port number of your Ollama server
+
+5. Save the configuration
+
+===== Verifying Installation =====
+
+To verify the plugin is correctly installed and configured:
+
+1. Edit any page in your wiki
+2. You should see LLM tools in the editor toolbar
+3. Try using one of the LLM functions to ensure everything is working
+4. Check the plugin's CLI commands if you have command-line access:
+   ''php lib/plugins/dokullm/cli.php --help''
+
+===== Troubleshooting =====
+
+If you encounter issues:
+
+  * Ensure all required PHP extensions (especially cURL) are installed and enabled
+  * Check DokuWiki's error log for any plugin-related errors
+  * Verify network connectivity to your LLM API and ChromaDB servers
+  * Confirm that file permissions allow the plugin to read its configuration files
+  * Make sure your LLM API is accessible and responding to requests
+
+For further assistance, consult the plugin's documentation or contact the plugin maintainer.
