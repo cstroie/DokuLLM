@@ -235,6 +235,10 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database, $
             }
             
             // Process each file result
+            $processedCount = 0;
+            $skippedCount = 0;
+            $errorCount = 0;
+            
             foreach ($result['results'] as $fileResult) {
                 $file = $fileResult['file'];
                 $resultData = $fileResult['result'];
@@ -250,6 +254,7 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database, $
                 
                 switch ($resultData['status']) {
                     case 'success':
+                        $processedCount++;
                         if ($verbose) {
                             echo "Adding " . $resultData['details']['chunks'] . " chunks to ChromaDB...\n";
                         }
@@ -265,12 +270,14 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database, $
                         break;
                         
                     case 'skipped':
+                        $skippedCount++;
                         if ($verbose) {
                             echo $resultData['message'] . "\n";
                         }
                         break;
                         
                     case 'error':
+                        $errorCount++;
                         echo $resultData['message'] . "\n";
                         break;
                 }
@@ -278,6 +285,24 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database, $
             
             if ($verbose) {
                 echo "\n" . $result['message'] . "\n";
+                echo "Processing summary:\n";
+                echo "  Processed: $processedCount files\n";
+                echo "  Skipped: $skippedCount files\n";
+                echo "  Errors: $errorCount files\n";
+            } else {
+                // Even in non-verbose mode, show summary stats if there were processed files
+                if ($processedCount > 0 || $skippedCount > 0 || $errorCount > 0) {
+                    echo "Processing summary:\n";
+                    if ($processedCount > 0) {
+                        echo "  Processed: $processedCount files\n";
+                    }
+                    if ($skippedCount > 0) {
+                        echo "  Skipped: $skippedCount files\n";
+                    }
+                    if ($errorCount > 0) {
+                        echo "  Errors: $errorCount files\n";
+                    }
+                }
             }
             break;
     }
