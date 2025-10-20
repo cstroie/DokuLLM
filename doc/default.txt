@@ -1,16 +1,16 @@
 ====== Default Profile Action Table ======
 
 ^ ID ^ Label ^ Description ^ Icon ^ Result ^
-| [[.:default:summarize]] | Summarize | Create a summary of the selected text | file-icons:summary | show |
-| [[.:default:expand]] | Expand | Expand the selected text with more details | file-icons:expand | replace |
-| [[.:default:grammar]] | Fix Grammar | Correct grammar and spelling errors | file-icons:spellcheck | replace |
+| summarize | Summarize | Create a summary of the selected text | file-icons:summary | show |
+| expand | Expand | Expand the selected text with more details | file-icons:expand | replace |
+| grammar | Fix Grammar | Correct grammar and spelling errors | file-icons:spellcheck | replace |
 
 **Remember:** you can add a second table, if you want, with disabled actions, since only the first table will be processed.
 
 
 ===== Column details =====
 
-  * **ID**: The action identifier, which corresponds to the prompt name. Can also be an internal link to the corresponding prompt page.
+  * **ID**: The action identifier, which corresponds to the prompt name
   * **Label**: The text displayed on the button
   * **Description**: A detailed description of the action, used as a tooltip
   * **Icon**: The icon displayed on the button (can be empty)

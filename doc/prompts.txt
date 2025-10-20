@@ -10,10 +10,10 @@ The DokuLLM plugin uses a hierarchical prompt system that allows for flexible cu
   * Located in ''lib/plugins/dokullm/doc/default/''
   * These are the base prompts that ship with the plugin
   * Used when no custom prompts are defined
-  * Named according to their function (e.g., ''write.txt'', ''analyze.txt'')
+  * Named according to their function (e.g., ''summarize.txt'', ''expand.txt'')
 
 ==== 2. Profile Prompts ====
-  * Located in ''lib/plugins/dokullm/doc/profiles/''
+  * Located in ''lib/plugins/dokullm/doc/profiles/[PROFILE_NAME]/''
   * Allow for different prompt configurations for different use cases
   * Can override default prompts selectively
   * Activated through plugin configuration
@@ -26,22 +26,12 @@ The DokuLLM plugin uses a hierarchical prompt system that allows for flexible cu
 
 ===== Prompt Structure =====
 
-Each prompt file follows a specific structure:
+Each prompt file follows a simple structure with placeholders:
 
-==== System Section ====
-  * Defines the role and behavior of the LLM
-  * Provides context about the task
-  * Sets expectations for the response format
-
-==== User Section ====
-  * Contains the actual instruction
-  * Incorporates user content and context
-  * Uses placeholders for dynamic content
-
-==== Output Format ====
-  * Specifies how the response should be structured
-  * May include examples of expected output
-  * Helps ensure consistent results
+==== Simple Prompt Format ====
+  * Contains direct instructions to the LLM
+  * Uses placeholders for dynamic content insertion
+  * Does not require complex sectioning
 
 ===== Available Placeholders =====
 
@@ -49,57 +39,48 @@ The plugin provides several placeholders that can be used in prompts:
 
 ==== Content Placeholders ====
 
-**{{content}}**
+**{text}**
   * The main content being processed
   * Could be the entire document or selected text
   * Automatically populated by the plugin
 
-**{{selected_text}}**
-  * Specifically the text selected by the user
-  * Empty if no text was selected
-  * Useful for targeted operations
-
-==== Context Placeholders ====
-
-**{{page_title}}**
-  * The title of the current wiki page
-  * Helps provide context to the LLM
-
-**{{page_id}}**
-  * The internal ID of the current page
-  * Useful for referencing or tracking
-
-**{{namespace}}**
-  * The namespace/category of the current page
-  * Can be used for domain-specific processing
-
-==== Metadata Placeholders ====
-
-**{{template}}**
+**{template}**
   * Content of the template associated with this page
   * Used when applying template-based structures
 
-**{{examples}}**
+**{examples}**
   * Example content related to the current task
   * Helps guide the LLM with specific examples
 
-**{{previous_content}}**
+**{snippets}**
+  * Relevant text snippets from similar documents
+  * Provides context from related content
+
+**{previous}**
   * Content from a previous version or related page
   * Useful for continuation or comparison tasks
 
-==== Configuration Placeholders ====
+**{prompt}**
+  * Custom instructions provided by the user
+  * Allows for dynamic user input
 
-**{{model}}**
-  * The LLM model being used
-  * Can be referenced in model-specific instructions
+==== Context Placeholders ====
 
-**{{language}}**
-  * The language setting of the wiki
-  * Useful for language-specific processing
-
-**{{date}}**
+**{current_date}**
   * Current date in ISO format
   * Useful for time-sensitive operations
+
+**{previous_date}**
+  * Date of previous related document
+  * Useful for tracking changes over time
+
+**{action}**
+  * The current action being performed
+  * Can be used for action-specific instructions
+
+**{think}**
+  * Thinking mode indicator (/think or /no_think)
+  * Controls whether reasoning process is shown
 
 ===== Creating Custom Prompts =====
 
@@ -110,7 +91,7 @@ The plugin provides several placeholders that can be used in prompts:
    * Check existing prompt names in ''doc/default/''
 
 2. **Create Prompt File**
-   * Create a new file with the same name in your custom directory
+   * Create a new file with the same name in your profile directory
    * Use the same structure as existing prompts
 
 3. **Add Placeholders**
@@ -125,36 +106,22 @@ The plugin provides several placeholders that can be used in prompts:
 
 A typical prompt file might look like this:
 
-```
-You are an expert content assistant helping with {{page_title}}.
+Summarize the following text in a concise manner:
 
-Your task is to {{action_description}}.
+{text}
 
-Use the following content as your source:
-{{content}}
+===== System Prompt Extensions =====
 
-When responding:
-1. Be concise but thorough
-2. Use clear, professional language
-3. Format your response in DokuWiki syntax
-4. Focus specifically on the selected text if provided
+The plugin supports a hierarchical system prompt architecture:
 
-Provide your response below:
-```
+==== Base System Prompt ====
+  * Located at ''dokullm:profiles:[PROFILE_NAME]:system''
+  * Provides the foundational instructions for the LLM
 
-===== Prompt Variables =====
-
-The plugin supports dynamic variables in prompts:
-
-==== Action-Specific Variables ====
-  * **{{action}}** - The current action being performed
-  * **{{action_description}}** - Description of the action
-  * **{{expected_output}}** - Description of expected output format
-
-==== User Variables ====
-  * **{{user_prompt}}** - Custom instructions provided by the user
-  * **{{user_role}}** - Role of the user (if configured)
-  * **{{user_preferences}}** - User-specific preferences
+==== Action-Specific Extensions ====
+  * Located at ''dokullm:profiles:[PROFILE_NAME]:[ACTION_NAME]:system''
+  * Automatically appended to the base system prompt
+  * Provides action-specific guidance
 
 ===== Prompt Best Practices =====
 
