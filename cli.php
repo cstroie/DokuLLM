@@ -37,8 +37,8 @@ class cli_plugin_dokullm extends CLIPlugin {
         $options->registerArgument('path', 'File or directory path', true, 'send');
 
         $options->registerCommand('query', 'Query ChromaDB');
-        $options->registerOption('collection', 'Collection name to query', 'c', 'collection', 'documents', 'query');
-        $options->registerOption('limit', 'Number of results to return', 'l', 'limit', '5', 'query');
+        //$options->registerOption('collection', 'Collection name to query', 'c', 'collection', 'documents', 'query');
+        //$options->registerOption('limit', 'Number of results to return', 'l', 'limit', '5', 'query');
         $options->registerArgument('search', 'Search terms', true, 'query');
 
         $options->registerCommand('heartbeat', 'Check if ChromaDB server is alive');
@@ -48,7 +48,7 @@ class cli_plugin_dokullm extends CLIPlugin {
         $options->registerCommand('list', 'List all collections');
 
         $options->registerCommand('get', 'Get a document by its ID');
-        $options->registerOption('collection', 'Collection name', 'c', 'collection', 'documents', 'get');
+        //$options->registerOption('collection', 'Collection name', 'c', 'collection', 'documents', 'get');
         $options->registerArgument('id', 'Document ID', true, 'get');
     }
 
@@ -162,10 +162,10 @@ class cli_plugin_dokullm extends CLIPlugin {
         
         // Clean the ID and check ACL
         $cleanId = cleanID($id);
-        if (auth_quickaclcheck($cleanId) < AUTH_READ) {
-            $this->error("You are not allowed to read this file: $id");
-            return;
-        }
+        //if (auth_quickaclcheck($cleanId) < AUTH_READ) {
+        //    $this->error("You are not allowed to read this file: $id");
+        //    return;
+        //}
             
         try {
             // Process the file using the class method
