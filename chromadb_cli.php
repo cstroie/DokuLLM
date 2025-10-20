@@ -95,7 +95,6 @@ function sendFile($path, $host, $port, $tenant, $database) {
     
     if (is_dir($path)) {
         // Process directory
-        echo "Processing directory: $path\n";
         processDirectory($path, $chroma, $host, $port, $tenant, $database);
     } else {
         // Process single file
