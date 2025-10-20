@@ -142,7 +142,7 @@
         
         const promptInput = document.createElement('input');
         promptInput.type = 'text';
-        promptInput.placeholder = 'Enter custom prompt...';
+        promptInput.placeholder = 'Enter your prompt...';
         promptInput.className = 'llm-prompt-input';
         
         // Add event listener for Enter key
