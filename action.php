@@ -59,6 +59,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $controller->register_hook('INDEXER_TASKS_RUN', 'AFTER', $this, 'handlePageSave');
     }
 
+
     /**
      * Insert metadata line after the first title in DokuWiki format
      * 
@@ -82,6 +83,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         }
     }
 
+
     /**
      * Add JavaScript to the page header for edit pages
      * 
@@ -94,7 +96,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     public function handleMetaHeaders(Doku_Event $event, $param)
     {
         global $INFO;
-        
         // Only add JS to edit pages
         if ($INFO['act'] == 'edit' || $INFO['act'] == 'preview') {
             $event->data['script'][] = array(
@@ -104,6 +105,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             );
         }
     }
+
 
     /**
      * Add dokullm configuration to JSINFO
@@ -123,6 +125,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             'enable_chromadb' => $this->getConf('enable_chromadb')
         ];
     }
+
 
     /**
      * Handle AJAX requests for the plugin
@@ -146,6 +149,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $this->processRequest();
     }
 
+
     /**
      * Process the AJAX request and return JSON response
      * 
@@ -158,7 +162,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     private function processRequest()
     {
         global $INPUT;
-        
         // Get form data
         $action = $INPUT->str('action');
         $text = $INPUT->str('text');
@@ -166,10 +169,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         $template = $INPUT->str('template', '');
         $examples = $INPUT->str('examples', '');
         $previous = $INPUT->str('previous', '');
-        
         // Parse examples - split by newline and filter out empty lines
         $examplesList = array_filter(array_map('trim', explode("\n", $examples)));
-        
         // Create metadata object with prompt, template, examples, and previous
         $metadata = [
             'prompt' => $prompt,
@@ -177,7 +178,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             'examples' => $examplesList,
             'previous' => $previous
         ];
-        
         // Handle the special case of get_actions action
         if ($action === 'get_actions') {
             try {
@@ -189,7 +189,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             }
             return;
         }
-        
         // Handle the special case of get_template action
         if ($action === 'get_template') {
             try {
@@ -205,7 +204,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             }
             return;
         }
-        
         // Handle the special case of find_template action
         if ($action === 'find_template') {
             try {
@@ -222,15 +220,12 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             }
             return;
         }
-        
         // Validate input
         if (empty($text)) {
             http_status(400);
             echo json_encode(['error' => 'No text provided']);
             return;
         }
-
-
         // Create ChromaDB client only if enabled
         $chromaClient = null;
         if ($this->getConf('enable_chromadb')) {
@@ -244,10 +239,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $this->getConf('ollama_port'),
                 $this->getConf('ollama_embeddings_model')
             );
-        } else {
-            $chromaClient = null;
         }
-        
         $client = new \dokuwiki\plugin\dokullm\LlmClient(
             $this->getConf('api_url'),
             $this->getConf('api_key'),
@@ -270,6 +262,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             echo json_encode(['error' => $e->getMessage()]);
         }
     }
+
 
     /**
      * Get action definitions from the DokuWiki table at dokullm:profiles:PROFILE
@@ -307,31 +300,25 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         // Get the content of the profile page
         $profile = $this->getConf('profile', 'default');
         $content = $this->getPageContent('dokullm:profiles:' . $profile);
-        
+        // Return empty list if page doesn't exist
         if ($content === false) {
-            // Return empty list if page doesn't exist
             return [];
         }
-        
         // Parse the table from the page content
         $actions = [];
         $lines = explode("\n", $content);
         $inTable = false;
-        
         foreach ($lines as $line) {
             // Check if this is a table row
             if (preg_match('/^\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|\s*([^\|]+)\s*\|$/', $line, $matches)) {
                 $inTable = true;
-                
                 // Skip header row
                 if (trim($matches[1]) === 'ID' || trim($matches[1]) === 'id') {
                     continue;
                 }
-                
                 // Extract ID from either simple text or page link
                 $rawId = trim($matches[1]);
                 $id = $rawId;
-                
                 // Check if ID is a page link in format [[namespace:page]] or [[.:namespace:page]]
                 if (preg_match('/\[\[\.?:?([^\]]+)\]\]/', $rawId, $linkMatches)) {
                     // Extract the actual page path
@@ -340,7 +327,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                     $pathParts = explode(':', $pagePath);
                     $id = end($pathParts);
                 }
-                
+                // Append the action definition
                 $actions[] = [
                     'id' => $id,
                     'label' => trim($matches[2]),
@@ -353,9 +340,10 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 break;
             }
         }
-        
+        // Return the actions definitions
         return $actions;
     }
+
 
     /**
      * Get the content of a DokuWiki page
@@ -370,15 +358,12 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     {
         // Convert page ID to file path
         $pageFile = wikiFN($pageId);
-        
         // Check if file exists and is readable
         if (file_exists($pageFile) && is_readable($pageFile)) {
             return file_get_contents($pageFile);
         }
-        
         return false;
     }
-
 
     /**
      * Find an appropriate template based on the provided text
@@ -405,7 +390,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                     $this->getConf('ollama_embeddings_model')
                 );
             }
-            
             $client = new \dokuwiki\plugin\dokullm\LlmClient(
                 $this->getConf('api_url'),
                 $this->getConf('api_key'),
@@ -420,10 +404,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $chromaClient,
                 $ID
             );
-            
             // Query ChromaDB for the most relevant template
             $template = $client->queryChromaDBTemplate($text);
-            
             return $template;
         } catch (Exception $e) {
             throw new Exception('Error finding template: ' . $e->getMessage());
@@ -443,20 +425,16 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
     public function handlePageSave(Doku_Event $event, $param)
     {
         global $ID;
-        
         // Only process if we have a valid page ID
         if (empty($ID)) {
             return;
         }
-        
         // Get the page content
         $content = rawWiki($ID);
-        
         // Skip empty pages
         if (empty($content)) {
             return;
         }
-        
         try {
             // Send page to ChromaDB
             $this->sendPageToChromaDB($ID, $content);
@@ -480,10 +458,8 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         if (!$this->getConf('enable_chromadb')) {
             return;
         }
-        
         // Convert page ID to file path format for ChromaDB
         $filePath = wikiFN($pageId);
-        
         try {
             // Get configuration values
             $chromaHost = $this->getConf('chroma_host');
@@ -493,7 +469,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $ollamaHost = $this->getConf('ollama_host');
             $ollamaPort = $this->getConf('ollama_port');
             $ollamaModel = $this->getConf('ollama_embeddings_model');
-            
             // Use the existing ChromaDB client to process the file
             $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient(
                 $chromaHost,
@@ -505,14 +480,11 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $ollamaPort,
                 $ollamaModel
             );
-            
             // Use the first part of the document ID as collection name, fallback to 'documents'
             $idParts = explode(':', $pageId);
             $collectionName = isset($idParts[0]) && !empty($idParts[0]) ? $idParts[0] : 'documents';
-            
             // Process the file directly
             $result = $chroma->processSingleFile($filePath, $collectionName, false);
-            
             // Log success or failure
             if ($result['status'] === 'success') {
                 \dokuwiki\Logger::debug('dokullm: Successfully sent page to ChromaDB: ' . $pageId);
