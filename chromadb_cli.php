@@ -5,6 +5,23 @@ if (!defined('DOKU_INC')) {
 }
 //require_once DOKU_INC . 'inc/init.php';
 
+// Define default constants if not already defined
+if (!defined('CHROMA_HOST')) {
+    define('CHROMA_HOST', 'localhost');
+}
+if (!defined('CHROMA_PORT')) {
+    define('CHROMA_PORT', 8000);
+}
+if (!defined('CHROMA_TENANT')) {
+    define('CHROMA_TENANT', 'default_tenant');
+}
+if (!defined('CHROMA_DATABASE')) {
+    define('CHROMA_DATABASE', 'default_database');
+}
+
+// Include the ChromaDBClient class
+require_once dirname(__FILE__) . '/ChromaDBClient.php';
+
 /**
  * Display usage information for the CLI tool
  * 
@@ -69,7 +86,7 @@ function showUsage() {
  */
 function sendFile($path, $host, $port, $tenant, $database) {
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', 'localhost', 11434, 'nomic-embed-text');
     
     if (is_dir($path)) {
         // Process directory
@@ -257,7 +274,7 @@ function processDirectory($dirPath, $chroma, $host, $port, $tenant, $database) {
  */
 function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $collection = 'documents') {
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, $collection, 'localhost', 11434, 'nomic-embed-text');
     
     try {
         // Query the specified collection by collection
@@ -307,7 +324,7 @@ function queryChroma($searchTerms, $limit, $host, $port, $tenant, $database, $co
  */
 function checkHeartbeat($host, $port, $tenant, $database) {
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', 'localhost', 11434, 'nomic-embed-text');
     
     try {
         echo "Checking ChromaDB server status...\n";
@@ -341,7 +358,7 @@ function checkHeartbeat($host, $port, $tenant, $database) {
  */
 function checkIdentity($host, $port, $tenant, $database) {
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', 'localhost', 11434, 'nomic-embed-text');
     
     try {
         echo "Checking ChromaDB identity...\n";
@@ -375,7 +392,7 @@ function checkIdentity($host, $port, $tenant, $database) {
  */
 function listCollections($host, $port, $tenant, $database) {
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, 'documents', 'localhost', 11434, 'nomic-embed-text');
     
     try {
         echo "Listing ChromaDB collections...\n";
@@ -526,7 +543,7 @@ function getDocument($documentId, $host, $port, $tenant, $database, $collection 
     }
     
     // Create ChromaDB client
-    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database);
+    $chroma = new \dokuwiki\plugin\dokullm\ChromaDBClient($host, $port, $tenant, $database, $collection, 'localhost', 11434, 'nomic-embed-text');
     
     try {
         // Get the specified document by ID
