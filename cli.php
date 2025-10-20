@@ -8,7 +8,7 @@ if(!defined('DOKU_INC')) define('DOKU_INC', realpath(dirname(__FILE__) . '/../..
 /**
  * DokuWiki CLI plugin for ChromaDB operations
  */
-class cli_plugin_dokullm_chromadb extends CLIPlugin {
+class cli_plugin_dokullm extends CLIPlugin {
 
     /**
      * Register options and arguments
@@ -18,8 +18,8 @@ class cli_plugin_dokullm_chromadb extends CLIPlugin {
     protected function setup(Options $options) {
         // Set help text
         $options->setHelp(
-            "ChromaDB CLI plugin for DokuWiki\n\n" .
-            "Usage: ./bin/plugin.php dokullm_chromadb [action] [options]\n\n" .
+            "ChromaDB CLI plugin for DokuLLM\n\n" .
+            "Usage: ./bin/plugin.php dokullm [action] [options]\n\n" .
             "Actions:\n" .
             "  send       Send a file or directory to ChromaDB\n" .
             "  query      Query ChromaDB\n" .
