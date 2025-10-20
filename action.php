@@ -263,13 +263,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $ID
         );
         try {
-            switch ($action) {
-                case 'custom':
-                    $result = $client->processCustomPrompt($text, $metadata);
-                    break;
-                default:
-                    $result = $client->process($action, $text, $metadata);
-            }
+            $result = $client->process($action, $text, $metadata);
             echo json_encode(['result' => $result]);
         } catch (Exception $e) {
             http_status(500);

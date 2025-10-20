@@ -155,16 +155,6 @@ class LlmClient
      * @param bool $useContext Whether to include template and examples in the context (default: true)
      * @return string The processed text
      */
-    public function processCustomPrompt($text, $metadata = [], $useContext = true)
-    {
-        // Store the current text for tool usage
-        $this->currentText = $text;
-        
-        // Format the prompt with the text and custom prompt
-        $prompt = $metadata['prompt'] . "\n\nText to process:\n" . $text;
-        
-        return $this->callAPI('custom', $prompt, $metadata, $useContext);
-    }
     
     /**
      * Get the list of available tools for the LLM
