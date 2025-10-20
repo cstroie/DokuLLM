@@ -68,14 +68,14 @@ class cli_plugin_dokullm extends CLIPlugin {
         // Include the ChromaDBClient class
         require_once dirname(__FILE__) . '/ChromaDBClient.php';
 
-        // Get global options with defaults
-        $host = $options->getOpt('host', 'localhost');
-        $port = (int)$options->getOpt('port', 8000);
-        $tenant = $options->getOpt('tenant', 'default_tenant');
-        $database = $options->getOpt('database', 'default_database');
-        $ollamaHost = $options->getOpt('ollama-host', 'localhost');
-        $ollamaPort = (int)$options->getOpt('ollama-port', 11434);
-        $ollamaModel = $options->getOpt('ollama-model', 'nomic-embed-text');
+        // Get global options with defaults from DokuWiki settings
+        $host = $options->getOpt('host', $this->getConf('chroma_host'));
+        $port = (int)$options->getOpt('port', $this->getConf('chroma_port'));
+        $tenant = $options->getOpt('tenant', $this->getConf('chroma_tenant'));
+        $database = $options->getOpt('database', $this->getConf('chroma_database'));
+        $ollamaHost = $options->getOpt('ollama-host', $this->getConf('ollama_host'));
+        $ollamaPort = (int)$options->getOpt('ollama-port', $this->getConf('ollama_port'));
+        $ollamaModel = $options->getOpt('ollama-model', $this->getConf('ollama_model'));
         $verbose = $options->getOpt('verbose');
         
         $action = $options->getCmd();
