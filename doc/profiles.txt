@@ -4,7 +4,7 @@ Profiles in DokuLLM allow you to organize and customize your AI interactions. Ea
 
 ===== Available Profiles =====
 
-The following profiles are currently available:                                                                        
+The following profiles are currently available:
   * [[default|default]] - The standard profile with basic actions
   * //Add your custom profiles here//
 

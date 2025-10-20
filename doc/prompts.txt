@@ -8,7 +8,7 @@ The ''dokullm:'' namespace in DokuWiki serves as the central configuration and p
 
 ==== System Prompts =====
 
-===== Main System Prompt (''dokullm:profiles:default:system'') =====
+=== Main System Prompt (''dokullm:profiles:default:system'') ===
 
 The system prompt is the foundational instruction set that defines the LLM's role, behavior, and capabilities. It establishes:
 
@@ -26,7 +26,7 @@ The system prompt is the foundational instruction set that defines the LLM's rol
     * No personal opinions
     * Maintain professional tone
 
-===== Command-Specific System Appendages =====
+=== Command-Specific System Appendages ===
 
 Each action can have an additional system prompt that extends the main system prompt:
 
@@ -38,34 +38,34 @@ Each action can have an additional system prompt that extends the main system pr
 
 ===== Prompt Placeholders =====
 
-The system uses several special placeholders that are automatically populated:
+The prompts use several special placeholders that are automatically populated:
 
-===== Core Placeholders =====
+==== Core Placeholders ====
 
   * ''{text}'' - The main content being processed
   * ''{template}'' - Template content for structure guidance
   * ''{examples}'' - Style examples from previous content
   * ''{snippets}'' - Relevant text snippets from similar content
   * ''{previous}'' - Content from previous related documents
-  * ''{prompt}'' - Custom user prompts
+  * ''{prompt}'' - Custom user prompt
 
-===== Metadata Placeholders =====
+==== Metadata Placeholders ====
 
   * ''{current_date}'' - Current date
   * ''{previous_date}'' - Date of previous document (if applicable)
   * ''{action}'' - Current action being performed
-  * ''{think}'' - Thinking mode indicator (/think or /no_think)
+  * ''{think}'' - Thinking mode switch (/think or /no_think)
 
 ===== Template Integration =====
 
-===== Template Metadata =====
+==== Template Metadata ====
 
 Templates are referenced using metadata directives:
   * ''~~LLM_TEMPLATE:template_id~~''
   * ''~~LLM_EXAMPLES:example1,example2~~''
   * ''~~LLM_PREVIOUS:previous_page_id~~''
 
-===== Automatic Template Discovery =====
+==== Automatic Template Discovery ====
 
 When no template is specified, the system can automatically find relevant templates based on content similarity using ChromaDB vector search.
 
@@ -186,9 +186,11 @@ The plugin provides several placeholders that can be used in prompts:
 
 A typical prompt page might look like this:
 
+<code>
 Summarize the following text in a concise manner:
 
 {text}
+</code>
 
 ===== System Prompt Extensions =====
 
@@ -219,7 +221,7 @@ For example:
 
 ==== Use Cases ====
 
-===== Action-Specific Guidelines =====
+=== Action-Specific Guidelines ===
 
 Command extensions are ideal for providing action-specific guidance that supplements the general system instructions. For example:
 
@@ -239,7 +241,7 @@ Combined Result:
   Create a concise executive summary that captures the most important information.
   Limit your summary to 3-5 bullet points.
 
-===== Specialized Processing Instructions =====
+=== Specialized Processing Instructions ===
 
 Extensions can provide detailed processing instructions that are unique to each action:
   * Analysis Extension: Specify analytical frameworks and evaluation criteria
@@ -306,7 +308,7 @@ For debugging prompt issues, enable debug logging in the plugin configuration to
 
 ===== Profile System =====
 
-===== Default Profile =====
+==== Default Profile ====
 
 The ''default'' profile contains standard prompts for general use cases. Each prompt in this profile is designed for specific tasks:
 
@@ -317,9 +319,9 @@ The ''default'' profile contains standard prompts for general use cases. Each pr
   * analyze: Provide detailed analysis
   * grammar: Check grammar and spelling
 
-===== Custom Profiles =====
+==== Custom Profiles ====
 
-Additional profiles can be created under ''dokullm:profiles/'' for specialized use cases:
+Additional profiles can be created under ''dokullm:profiles:'' for specialized use cases:
 
   * Different content types
   * Various writing styles
