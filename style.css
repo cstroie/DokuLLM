@@ -1,7 +1,7 @@
 /**
- * DokuWiki Plugin dokullm - CSS Styles
+ * DokuWiki Plugin DokuLLM - CSS Styles
  *
- * This file contains all the CSS styles for the LLM integration plugin.
+ * This file contains all the CSS styles for the DokuLLM integration plugin.
  * It defines the styling for toolbar buttons, modal dialogs, and other
  * UI elements used in the plugin's interface.
  */
@@ -10,17 +10,17 @@
     background-color: var(--background_alt, #eee);
 }
 
-#llm-toolbar {
+#dokullm-toolbar {
     margin-bottom: 0.5em;
 }
 
-.llm-custom-prompt {
+.dokullm-custom-prompt {
     margin-bottom: 0.5em;
     display: flex;
     align-items: center;
 }
 
-.llm-prompt-input {
+.dokullm-prompt-input {
     flex: 1;
     margin-right: 5px;
     padding: 5px;
@@ -28,7 +28,7 @@
     border-radius: 3px;
 }
 
-.llm-modal {
+.dokullm-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -41,7 +41,7 @@
     align-items: center;
 }
 
-.llm-modal-content {
+.dokullm-modal-content {
     background: var(--background_site, #fff);
     color: var(--text_neu, #000);
     word-wrap: break-word;
@@ -53,7 +53,7 @@
     position: relative;
 }
 
-.llm-modal-close {
+.dokullm-modal-close {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -66,7 +66,7 @@
     z-index: 1001;
 }
 
-.llm-modal-append {
+.dokullm-modal-append {
     position: absolute;
     top: 10px;
     right: 80px;

@@ -23,7 +23,6 @@ $lang['chroma_port'] = 'ChromaDB Port - The port number on which ChromaDB is run
 $lang['chroma_tenant'] = 'ChromaDB Tenant - The tenant name for ChromaDB organization';
 $lang['chroma_database'] = 'ChromaDB Database - The database name within the ChromaDB tenant';
 $lang['chroma_collection'] = 'ChromaDB Collection - The default collection name for document storage';
-$lang['default_institution'] = 'Default Institution - The default institution identifier for templates';
 $lang['ollama_host'] = 'Ollama Host - The hostname or IP address of your Ollama server';
 $lang['ollama_port'] = 'Ollama Port - The port number on which Ollama is running';
 $lang['ollama_embeddings_model'] = 'Ollama Embeddings Model - The model name used for generating text embeddings';

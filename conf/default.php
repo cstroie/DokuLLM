@@ -203,16 +203,6 @@ $conf['chroma_database'] = 'dokullm';
 $conf['chroma_collection'] = 'documents';
 
 /**
- * Default Institution
- * 
- * The default institution identifier for templates.
- * Used to determine which templates to use by default.
- * 
- * @var string
- */
-$conf['default_institution'] = 'default';
-
-/**
  * Ollama Host
  * 
  * The hostname or IP address of your Ollama server.

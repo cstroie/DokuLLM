@@ -16,7 +16,7 @@ class ChromaDBClient {
     private $ollamaModel;
     
     /**
-     * Get configuration value for the dokullm plugin
+     * Get configuration value for the DokuLLM plugin
      * 
      * @param string $key Configuration key
      * @param mixed $default Default value if key not found
@@ -635,9 +635,8 @@ class ChromaDBClient {
                     // Format: reports:mri:2024:g287-name-surname (year format)
                     // Extract year from the third part
                     $baseMetadata['year'] = $parts[2];
-                    // Set default institution from config
-                    global $conf;
-                    $baseMetadata['institution'] = isset($conf['plugin']['dokullm']['default_institution']) ? $conf['plugin']['dokullm']['default_institution'] : 'default';
+                    // Set default institution
+                    $baseMetadata['institution'] = 'default';
                     // Extract registration and name from the last part
                     // Registration should start with one letter or number and contain numbers before the '-' character
                     if (preg_match('/^([a-zA-Z0-9]+[0-9]*)-(.+)$/', $lastPart, $matches)) {

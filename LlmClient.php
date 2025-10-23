@@ -4,7 +4,7 @@ namespace dokuwiki\plugin\dokullm;
 use Exception;
 
 /**
- * LLM Client for the dokullm plugin
+ * LLM Client for the DokuLLM plugin
  * 
  * This class provides methods to interact with an LLM API for various
  * text processing tasks such as completion, rewriting, grammar correction,

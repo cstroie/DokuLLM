@@ -1,5 +1,5 @@
 /**
- * JavaScript for LLM Integration Plugin
+ * JavaScript for DokuLLM Plugin
  * 
  * This script adds LLM processing capabilities to DokuWiki's edit interface.
  * It creates a toolbar with buttons for various text processing operations
@@ -21,22 +21,22 @@
      * Initialize the plugin when the DOM is ready
      * 
      * This is the main initialization function that runs when the DOM is fully loaded.
-     * It checks if we're on an edit page and adds the LLM tools if so.
+     * It checks if we're on an edit page and adds the DokuLLM tools if so.
      * Only runs on pages with the wiki text editor.
      * Also sets up the copy page button event listener.
      * 
      * Complex logic includes:
      * 1. Checking for the presence of the wiki text editor element
-     * 2. Conditionally adding LLM tools based on page context
+     * 2. Conditionally adding DokuLLM tools based on page context
      * 3. Setting up event listeners for the copy page functionality
      */
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DokuLLM: DOM loaded, initializing plugin');
         // Only run on edit pages
         if (document.getElementById('wiki__text')) {
-            // Add LLM tools to the editor
-            console.log('DokuLLM: Adding LLM tools to editor');
-            addLLMTools();
+            // Add DokuLLM tools to the editor
+            console.log('DokuLLM: Adding DokuLLM tools to editor');
+            addDokuLLMTools();
         }
         
         // Add event listener for copy button
@@ -68,9 +68,9 @@
     });
     
     /**
-     * Add the LLM toolbar to the editor interface
+     * Add the DokuLLM toolbar to the editor interface
      * 
-     * Creates a toolbar with buttons for each LLM operation and inserts
+     * Creates a toolbar with buttons for each DokuLLM operation and inserts
      * it before the wiki text editor. Also adds a custom prompt input
      * below the editor.
      * 
@@ -79,22 +79,22 @@
      * Complex logic includes:
      * 1. Creating and positioning the main toolbar container
      * 2. Dynamically adding a template button based on metadata presence
-     * 3. Creating standard LLM operation buttons with event handlers
+     * 3. Creating standard DokuLLM operation buttons with event handlers
      * 4. Adding a custom prompt input field with Enter key handling
      * 5. Inserting all UI elements at appropriate positions in the DOM
      * 6. Applying CSS styles for consistent appearance
      */
-    function addLLMTools() {
+    function addDokuLLMTools() {
         const editor = document.getElementById('wiki__text');
         if (!editor) {
             console.log('DokuLLM: Editor div not found');
             return;
         }
         
-        console.log('DokuLLM: Creating LLM toolbar');
+        console.log('DokuLLM: Creating DokuLLM toolbar');
         // Create toolbar container
         const toolbar = document.createElement('div');
-        toolbar.id = 'llm-toolbar';
+        toolbar.id = 'dokullm-toolbar';
         toolbar.className = 'toolbar';
         
         // Get metadata to check if template exists
@@ -127,8 +127,8 @@
         
         // Add loading indicator while fetching actions
         const loadingIndicator = document.createElement('span');
-        loadingIndicator.textContent = 'Loading LLM actions...';
-        loadingIndicator.id = 'llm-loading';
+        loadingIndicator.textContent = 'Loading DokuLLM actions...';
+        loadingIndicator.id = 'dokullm-loading';
         toolbar.appendChild(loadingIndicator);
         
         // Insert toolbar before the editor
@@ -137,13 +137,13 @@
         // Add custom prompt input below the editor
         console.log('DokuLLM: Adding custom prompt input below editor');
         const customPromptContainer = document.createElement('div');
-        customPromptContainer.className = 'llm-custom-prompt';
-        customPromptContainer.id = 'llm-custom-prompt';
+        customPromptContainer.className = 'dokullm-custom-prompt';
+        customPromptContainer.id = 'dokullm-custom-prompt';
         
         const promptInput = document.createElement('input');
         promptInput.type = 'text';
         promptInput.placeholder = 'Enter your prompt...';
-        promptInput.className = 'llm-prompt-input';
+        promptInput.className = 'dokullm-prompt-input';
         
         // Add event listener for Enter key
         promptInput.addEventListener('keypress', function(e) {
@@ -168,7 +168,7 @@
         getActions()
             .then(actions => {
                 // Remove loading indicator
-                const loadingElement = document.getElementById('llm-loading');
+                const loadingElement = document.getElementById('dokullm-loading');
                 if (loadingElement) {
                     loadingElement.remove();
                 }
@@ -183,12 +183,12 @@
                     btn.dataset.action = action.id;
                     btn.dataset.result = action.result;
                     btn.addEventListener('click', function(event) {
-                        processLLMAction(action.id, event);
+                        processDokuLLMAction(action.id, event);
                     });
                     toolbar.appendChild(btn);
                 });
                 
-                console.log('DokuLLM: LLM toolbars added successfully');
+                console.log('DokuLLM: DokuLLM toolbars added successfully');
             })
             .catch(error => {
                 console.error('DokuLLM: Error fetching action definitions:', error);
@@ -249,7 +249,7 @@
 
     
     /**
-     * Process text using the specified LLM action
+     * Process text using the specified DokuLLM action
      * 
      * Gets the selected text (or full editor content), sends it to the
      * backend for processing, and handles the result based on the button's
@@ -271,7 +271,7 @@
     // Store selection range for processing
     let currentSelectionRange = null;
     
-    function processLLMAction(action, event) {
+    function processDokuLLMAction(action, event) {
         console.log('DokuLLM: Processing text with action:', action);
         const editor = document.getElementById('wiki__text');
         if (!editor) {
@@ -301,10 +301,10 @@
         }
         
         // Disable the entire toolbar and prompt input
-        const toolbar = document.getElementById('llm-toolbar');
-        const promptContainer = document.getElementById('llm-custom-prompt');
-        const promptInput = promptContainer ? promptContainer.querySelector('.llm-prompt-input') : null;
-        const buttons = toolbar.querySelectorAll('button:not(.llm-modal-close)');
+        const toolbar = document.getElementById('dokullm-toolbar');
+        const promptContainer = document.getElementById('dokullm-custom-prompt');
+        const promptInput = promptContainer ? promptContainer.querySelector('.dokullm-prompt-input') : null;
+        const buttons = toolbar.querySelectorAll('button:not(.dokullm-modal-close)');
         
         // Store original states for restoration
         const originalStates = {
@@ -535,17 +535,17 @@
     function showModal(contentText, action = 'analyze', titleText = '') {
         // Create modal container
         const modal = document.createElement('div');
-        modal.id = 'llm-' + action + '-modal';
-        modal.className = 'llm-modal';
+        modal.id = 'dokullm-' + action + '-modal';
+        modal.className = 'dokullm-modal';
         
         // Create modal content
         const modalContent = document.createElement('div');
-        modalContent.className = 'llm-modal-content';
+        modalContent.className = 'dokullm-modal-content';
         
         // Create close button
         const closeButton = document.createElement('button');
         closeButton.textContent = 'Close';
-        closeButton.className = 'llm-modal-close';
+        closeButton.className = 'dokullm-modal-close';
         closeButton.addEventListener('click', () => {
             document.body.removeChild(modal);
         });
@@ -554,7 +554,7 @@
         const appendButton = document.createElement('button');
         appendButton.textContent = 'Append';
         appendButton.title = 'Append to report';
-        appendButton.className = 'llm-modal-append';
+        appendButton.className = 'dokullm-modal-append';
         appendButton.addEventListener('click', () => {
             appendToReport(contentText);
             document.body.removeChild(modal);
@@ -676,7 +676,7 @@
         console.log('DokuLLM: Retrieved metadata for custom prompt:', metadata);
         
         // Find the Send button and show loading state
-        const toolbar = document.getElementById('llm-custom-prompt');
+        const toolbar = document.getElementById('dokullm-custom-prompt');
         const sendButton = toolbar.querySelector('.toolbutton');
         const originalText = sendButton.textContent;
         sendButton.textContent = 'Processing...';
@@ -736,7 +736,7 @@
             }
             
             // Clear the input field
-            const promptInput = toolbar.querySelector('.llm-prompt-input');
+            const promptInput = toolbar.querySelector('.dokullm-prompt-input');
             if (promptInput) {
                 promptInput.value = '';
             }
@@ -818,7 +818,7 @@
     /**
      * Extract metadata directives from the beginning of the text
      * 
-     * Finds and returns LLM metadata directives (~~LLM_*~~) that appear
+     * Finds and returns DokuLLM metadata directives (~~LLM_*~~) that appear
      * at the beginning of the page content.
      * 
      * @param {string} text - The full text content
@@ -844,7 +844,7 @@
     }
     
     /**
-     * Get page metadata for LLM context
+     * Get page metadata for DokuLLM context
      * 
      * Extracts template and example page information from page metadata
      * directives in the page content.
@@ -935,10 +935,10 @@
         }
         
         // Disable the entire toolbar and prompt input
-        const toolbar = document.getElementById('llm-toolbar');
-        const promptContainer = document.getElementById('llm-custom-prompt');
-        const promptInput = promptContainer ? promptContainer.querySelector('.llm-prompt-input') : null;
-        const buttons = toolbar.querySelectorAll('button:not(.llm-modal-close)');
+        const toolbar = document.getElementById('dokullm-toolbar');
+        const promptContainer = document.getElementById('dokullm-custom-prompt');
+        const promptInput = promptContainer ? promptContainer.querySelector('.dokullm-prompt-input') : null;
+        const buttons = toolbar.querySelectorAll('button:not(.dokullm-modal-close)');
         
         // Store original states for restoration
         const originalStates = {
@@ -1047,7 +1047,7 @@
         }
         
         // Show loading indicator
-        const toolbar = document.getElementById('llm-toolbar');
+        const toolbar = document.getElementById('dokullm-toolbar');
         const originalContent = toolbar.innerHTML;
         toolbar.innerHTML = '<span>Loading template...</span>';
         editor.readOnly = true;
@@ -1099,7 +1099,7 @@
     /**
      * Fetch action definitions from the API endpoint
      * 
-     * Makes an AJAX request to get the LLM action definitions from the backend
+     * Makes an AJAX request to get the DokuLLM action definitions from the backend
      * 
      * @returns {Promise<Array>} Promise that resolves to an array of action definitions
      */

@@ -1,6 +1,6 @@
 <?php
 /**
- * English language file for dokullm plugin
+ * English language file for DokuLLM plugin
  *
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  Costin Stroie <costinstroie@eridu.eu.org>

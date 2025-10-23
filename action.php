@@ -1,6 +1,6 @@
 <?php
 /**
- * DokuWiki Plugin dokullm (Action Component)
+ * DokuWiki Plugin DokuLLM (Action Component)
  *
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  Costin Stroie <costinstroie@eridu.eu.org>
@@ -303,12 +303,12 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $content = $this->getPageContent('dokullm:profiles:' . $profile);
         } catch (Exception $e) {
             // If access is denied or page doesn't exist, return empty list
-            \dokuwiki\Logger::warning('dokullm: Profile page not accessible: dokullm:profiles:' . $profile);
+            \dokuwiki\Logger::warning('DokuLLM: Profile page not accessible: dokullm:profiles:' . $profile);
             return [];
         }
         // Return empty list if page doesn't exist
         if ($content === false) {
-            \dokuwiki\Logger::warning('dokullm: Profile page not found: dokullm:profiles:' . $profile);
+            \dokuwiki\Logger::warning('DokuLLM: Profile page not found: dokullm:profiles:' . $profile);
             return [];
         }
         // Parse the table from the page content
@@ -447,7 +447,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         // Check ACL before accessing page content
         if (auth_quickaclcheck($ID) < AUTH_READ) {
             // Log error but don't stop execution
-            \dokuwiki\Logger::error('dokullm: Access denied for page: ' . $ID);
+            \dokuwiki\Logger::error('DokuLLM: Access denied for page: ' . $ID);
             return;
         }
         
@@ -462,7 +462,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $this->sendPageToChromaDB($ID, $content);
         } catch (Exception $e) {
             // Log error but don't stop execution
-            \dokuwiki\Logger::error('dokullm: Error sending page to ChromaDB: ' . $e->getMessage());
+            \dokuwiki\Logger::error('DokuLLM: Error sending page to ChromaDB: ' . $e->getMessage());
         }
     }
 
@@ -509,11 +509,11 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $result = $chroma->processSingleFile($filePath, $collectionName, false);
             // Log success or failure
             if ($result['status'] === 'success') {
-                \dokuwiki\Logger::debug('dokullm: Successfully sent page to ChromaDB: ' . $pageId);
+                \dokuwiki\Logger::debug('DokuLLM: Successfully sent page to ChromaDB: ' . $pageId);
             } else if ($result['status'] === 'skipped') {
-                \dokuwiki\Logger::debug('dokullm: Skipped sending page to ChromaDB: ' . $pageId . ' - ' . $result['message']);
+                \dokuwiki\Logger::debug('DokuLLM: Skipped sending page to ChromaDB: ' . $pageId . ' - ' . $result['message']);
             } else {
-                \dokuwiki\Logger::error('dokullm: Error sending page to ChromaDB: ' . $pageId . ' - ' . $result['message']);
+                \dokuwiki\Logger::error('DokuLLM: Error sending page to ChromaDB: ' . $pageId . ' - ' . $result['message']);
             }
         } catch (Exception $e) {
             throw $e;

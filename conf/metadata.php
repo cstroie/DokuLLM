@@ -190,15 +190,6 @@ $meta['chroma_database'] = array('string');
 $meta['chroma_collection'] = array('string');
 
 /**
- * Metadata for the default institution configuration option
- * 
- * Defines the default institution as a string input field in the configuration interface.
- * 
- * @var array
- */
-$meta['default_institution'] = array('string');
-
-/**
  * Metadata for the Ollama host configuration option
  * 
  * Defines the Ollama host as a string input field in the configuration interface.
