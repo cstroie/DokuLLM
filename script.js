@@ -176,12 +176,13 @@
                 // Check if no actions were found
                 if (actions.length === 0) {
                     console.log('DokuLLM: No LLM actions found - profile page may not exist');
-                    const pageIdElement = document.querySelector('.pageId');
-                    if (pageIdElement) {
+                    const contentElement = document.getElementById('dokuwiki__content');
+                    if (contentElement) {
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'error';
                         errorDiv.textContent = 'dokullm: Profile page not found. Please check the profile page configuration.';
-                        pageIdElement.parentNode.insertBefore(errorDiv, pageIdElement);
+                        // Insert as first child of dokuwiki__content
+                        contentElement.insertBefore(errorDiv, contentElement.firstChild);
                     }
                 }
                 
