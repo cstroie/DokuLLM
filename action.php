@@ -122,7 +122,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         }
 
         $JSINFO['plugins']['dokullm'] = [
-            'enable_chromadb' => $this->getConf('enable_chromashdb')
+            'enable_chromadb' => $this->getConf('enable_chromadb')
         ];
 
         // Add language strings
