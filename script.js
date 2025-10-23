@@ -17,6 +17,7 @@
 (function() {
     'use strict';
 
+    // Load language strings from JSINFO
     lang = typeof JSINFO !== 'undefined' && JSINFO.plugins && JSINFO.plugins.dokullm ? JSINFO.plugins.dokullm.lang : {};
     
     /**

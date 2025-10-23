@@ -130,7 +130,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         foreach ($this->getLang('js') as $key => $value) {
             $l10n[$key] = $value;
         }
-        $LANG['plugins']['dokullm'] = $l10n;
+        $JSINFO['plugins']['dokullm']['lang'] = $l10n;
     }
 
 
