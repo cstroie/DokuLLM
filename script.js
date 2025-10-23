@@ -107,7 +107,7 @@
             const templateBtn = document.createElement('button');
             templateBtn.type = 'button';
             templateBtn.className = 'toolbutton';
-            templateBtn.textContent = 'Insert Template';
+            templateBtn.textContent = JSINFO.lang.insert_template || 'Insert Template';
             templateBtn.addEventListener('click', () => insertTemplateContent(metadata.template));
             toolbar.appendChild(templateBtn);
         } else {
@@ -119,7 +119,7 @@
                 const findTemplateBtn = document.createElement('button');
                 findTemplateBtn.type = 'button';
                 findTemplateBtn.className = 'toolbutton';
-                findTemplateBtn.textContent = 'Find Template';
+                findTemplateBtn.textContent = JSINFO.lang.find_template || 'Find Template';
                 findTemplateBtn.addEventListener('click', findTemplate);
                 toolbar.appendChild(findTemplateBtn);
             }
@@ -127,7 +127,7 @@
         
         // Add loading indicator while fetching actions
         const loadingIndicator = document.createElement('span');
-        loadingIndicator.textContent = 'Loading DokuLLM actions...';
+        loadingIndicator.textContent = JSINFO.lang.loading_actions || 'Loading DokuLLM actions...';
         loadingIndicator.id = 'dokullm-loading';
         toolbar.appendChild(loadingIndicator);
         
@@ -142,7 +142,7 @@
         
         const promptInput = document.createElement('input');
         promptInput.type = 'text';
-        promptInput.placeholder = 'Enter your prompt...';
+        promptInput.placeholder = JSINFO.lang.custom_prompt_placeholder || 'Enter your prompt...';
         promptInput.className = 'dokullm-prompt-input';
         
         // Add event listener for Enter key
@@ -155,7 +155,7 @@
         const sendButton = document.createElement('button');
         sendButton.type = 'button';
         sendButton.className = 'toolbutton';
-        sendButton.textContent = 'Send';
+        sendButton.textContent = JSINFO.lang.send || 'Send';
         sendButton.addEventListener('click', () => processCustomPrompt(promptInput.value));
         
         customPromptContainer.appendChild(promptInput);
@@ -203,7 +203,7 @@
                 if (pageIdElement) {
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'error';
-                    errorDiv.textContent = 'DokuLLM profiles page not found. Please check the "dokullm:" namespace.';
+                    errorDiv.textContent = JSINFO.lang.error_loading_dokullm || 'DokuLLM profiles page not found. Please check the "dokullm:" namespace.';
                     pageIdElement.parentNode.insertBefore(errorDiv, pageIdElement);
                 }
             });
@@ -232,14 +232,15 @@
         // Original code: https://www.dokuwiki.org/plugin:copypage
         var oldId = JSINFO.id;
         while (true) {
-           var newId = prompt('Enter the new page ID:', oldId);
+           var newId = prompt(JSINFO.lang.enter_page_id || 'Enter the new page ID: ', oldId);
            // Note: When a user canceled, most browsers return the null, but Safari returns the empty string
            if (newId) {
                if (newId === oldId) {
-                   alert('The new page ID must be different from the current page ID.');
+                   alert(JSINFO.lang.different_id_required || 'The new page ID must be different from the current page ID.');
                    continue;
                }
-               var url = DOKU_BASE + 'doku.php?id=' + encodeURIComponent(newId) +
+               var url = DOKU_BASE +
+                         'doku.php?id=' + encodeURIComponent(newId) +
                          '&do=edit&copyfrom=' + encodeURIComponent(oldId);
                location.href = url;
            }
@@ -296,7 +297,7 @@
         
         if (!textToProcess.trim()) {
             console.log('DokuLLM: No text to process');
-            alert('Please select text or enter content to process');
+            alert(JSINFO.lang.no_text_provided || 'Please select text or enter content to process');
             return;
         }
         
@@ -327,7 +328,7 @@
             });
             // Only change text of the button that triggered the action
             if (event && event.target === button) {
-                button.textContent = 'Processing...';
+                button.textContent = JSINFO.lang.processing || 'Processing...';
             }
             button.disabled = true;
         });
@@ -359,7 +360,7 @@
         .then(response => {
             if (!response.ok) {
                 return response.text().then(text => {
-                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+                    throw new Error((JSINFO.lang.backend_error || 'Network response was not ok: ') + response.status + ' ' + response.statusText + ' - ' + text);
                 });
             }
             console.log('DokuLLM: Received response from backend');
@@ -392,7 +393,7 @@
                 editor.value = metadata + contentWithoutMetadata + '\n\n' + cleanedResult;
                 // Show thinking content in modal if it exists and thinking is enabled
                 if (thinkingContent) {
-                    showModal(thinkingContent, 'thinking', 'AI Thinking Process');
+                    showModal(thinkingContent, 'thinking', JSINFO.lang.thinking_process || 'AI Thinking Process');
                 }
             } else if (resultHandling === 'insert') {
                 console.log('DokuLLM: Inserting result before existing text');
@@ -402,14 +403,14 @@
                 editor.value = metadata + cleanedResult + '\n\n' + contentWithoutMetadata;
                 // Show thinking content in modal if it exists and thinking is enabled
                 if (thinkingContent) {
-                    showModal(thinkingContent, 'thinking', 'AI Thinking Process');
+                    showModal(thinkingContent, 'thinking', JSINFO.lang.thinking_process || 'AI Thinking Process');
                 }
             } else if (selectedText) {
                 console.log('DokuLLM: Replacing selected text');
                 replaceSelectedText(editor, cleanedResult);
                 // Show thinking content in modal if it exists and thinking is enabled
                 if (thinkingContent) {
-                    showModal(thinkingContent, 'thinking', 'AI Thinking Process');
+                    showModal(thinkingContent, 'thinking', JSINFO.lang.thinking_process || 'AI Thinking Process');
                 }
             } else {
                 console.log('DokuLLM: Replacing full text content');
@@ -418,7 +419,7 @@
                 editor.value = metadata + cleanedResult;
                 // Show thinking content in modal if it exists and thinking is enabled
                 if (thinkingContent) {
-                    showModal(thinkingContent, 'thinking', 'AI Thinking Process');
+                    showModal(thinkingContent, 'thinking', JSINFO.lang.thinking_process || 'AI Thinking Process');
                 }
             }
         })
@@ -544,7 +545,8 @@
         
         // Create close button
         const closeButton = document.createElement('button');
-        closeButton.textContent = 'Close';
+        closeButton.textContent = JSINFO.lang.close || 'Close';
+        closeButton.title = JSINFO.lang.close_title || 'Close Modal';
         closeButton.className = 'dokullm-modal-close';
         closeButton.addEventListener('click', () => {
             document.body.removeChild(modal);
@@ -552,8 +554,8 @@
         
         // Create append button
         const appendButton = document.createElement('button');
-        appendButton.textContent = 'Append';
-        appendButton.title = 'Append to report';
+        appendButton.textContent = JSINFO.lang.append || 'Append';
+        appendButton.title = JSINFO.lang.append_title || 'Append to report';
         appendButton.className = 'dokullm-modal-append';
         appendButton.addEventListener('click', () => {
             appendToReport(contentText);
@@ -644,7 +646,7 @@
         console.log('DokuLLM: Processing custom prompt:', customPrompt);
         if (!customPrompt.trim()) {
             console.log('DokuLLM: No custom prompt provided');
-            alert('Please enter a prompt');
+            alert(JSINFO.lang.no_prompt_provided || 'Please enter a prompt');
             return;
         }
         
@@ -667,7 +669,7 @@
         
         if (!textToProcess.trim()) {
             console.log('DokuLLM: No text to process for custom prompt');
-            alert('Please select text or enter content to process');
+            alert(JSINFO.lang.no_text_provided || 'Please select text or enter content to process');
             return;
         }
         
@@ -679,7 +681,7 @@
         const toolbar = document.getElementById('dokullm-custom-prompt');
         const sendButton = toolbar.querySelector('.toolbutton');
         const originalText = sendButton.textContent;
-        sendButton.textContent = 'Processing...';
+        sendButton.textContent = JSINFO.lang.processing || 'Processing...';
         sendButton.disabled = true;
         console.log('DokuLLM: Send button disabled, showing processing state');
         
@@ -709,7 +711,7 @@
         .then(response => {
             if (!response.ok) {
                 return response.text().then(text => {
-                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+                    throw new Error((JSINFO.lang.backend_error || 'Network response was not ok: ') + response.status + ' ' + response.statusText + ' - ' + text);
                 });
             }
             console.log('DokuLLM: Received response for custom prompt');
@@ -742,12 +744,12 @@
             }
             // Show thinking content in modal if it exists and thinking is enabled
             if (thinkingContent) {
-                showModal(thinkingContent, 'thinking', 'AI Thinking Process');
+                showModal(thinkingContent, 'thinking', JSINFO.lang.thinking_process || 'AI Thinking Process');
             }
         })
         .catch(error => {
             console.log('DokuLLM: Error during custom prompt processing:', error.message);
-            alert('Error: ' + error.message);
+            alert((JSINFO.lang.backend_error || 'Network response was not ok: ') + error.message);
         })
         .finally(() => {
             console.log('DokuLLM: Resetting send button and enabling editor');
@@ -959,7 +961,7 @@
                 text: button.textContent,
                 disabled: button.disabled
             });
-            button.textContent = 'Searching...';
+            button.textContent = JSINFO.lang.searching || 'Searching...';
             button.disabled = true;
         });
         editor.readOnly = true;
@@ -996,15 +998,15 @@
                 editor.value = insertMetadataAfterTitle(editor.value, metadataLine);
                     
                 // Show success message
-                alert(`Template found and inserted: ${data.result.template}`);
+                alert(JSINFO.lang.template_found + data.result.template);
             } else {
                 console.log('DokuLLM: No template found');
-                alert('No suitable template found for this content.');
+                alert(JSINFO.lang.no_template_found || 'No suitable template found.');
             }
         })
         .catch(error => {
             console.log('DokuLLM: Error during template search:', error.message);
-            alert('Error: ' + error.message);
+            alert((JSINFO.lang.backend_error || 'Network response was not ok: ') + error.message);
         })
         .finally(() => {
             console.log('DokuLLM: Restoring toolbar and enabling editor');
@@ -1049,7 +1051,7 @@
         // Show loading indicator
         const toolbar = document.getElementById('dokullm-toolbar');
         const originalContent = toolbar.innerHTML;
-        toolbar.innerHTML = '<span>Loading template...</span>';
+        toolbar.innerHTML = '<span>' + (JSINFO.lang.loading_template || 'Loading template...') + '</span>';
         editor.readOnly = true;
         console.log('DokuLLM: Showing loading indicator for template');
         
@@ -1087,7 +1089,7 @@
         })
         .catch(error => {
             console.log('DokuLLM: Error during template insertion:', error.message);
-            alert('Error: ' + error.message);
+            alert((JSINFO.lang.backend_error || 'Network response was not ok: ') + error.message);
         })
         .finally(() => {
             console.log('DokuLLM: Restoring toolbar and enabling editor');
@@ -1116,7 +1118,7 @@
             .then(response => {
                 if (!response.ok) {
                     return response.text().then(text => {
-                        throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+                        throw new Error((JSINFO.lang.backend_error || 'Network response was not ok: ') + response.status + ' ' + response.statusText + ' - ' + text);
                     });
                 }
                 return response.json();

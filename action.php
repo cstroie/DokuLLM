@@ -126,11 +126,11 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         ];
 
         // Add language strings
-        $lang = array();
+        $l10n = array();
         foreach ($this->getLang('js') as $key => $value) {
-            $lang[$key] = $value;
+            $l10n[$key] = $value;
         }
-        $JSINFO['lang'] = $lang;
+        $JSINFO['lang'] = $l10n;
     }
 
 
