@@ -18,7 +18,7 @@
     'use strict';
 
     // Load language strings from JSINFO
-    lang = typeof JSINFO !== 'undefined' && JSINFO.plugins && JSINFO.plugins.dokullm ? JSINFO.plugins.dokullm.lang : {};
+    const lang = typeof JSINFO !== 'undefined' && JSINFO.plugins && JSINFO.plugins.dokullm ? JSINFO.plugins.dokullm.lang : {};
     
     /**
      * Initialize the plugin when the DOM is ready
