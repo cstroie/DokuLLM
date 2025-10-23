@@ -415,6 +415,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $this->getConf('top_k'),
                 $this->getConf('min_p'),
                 $this->getConf('think', false),
+                $this->getConf('tools', false),
                 $this->getConf('profile', 'default'),
                 $chromaClient,
                 $ID
