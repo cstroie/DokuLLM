@@ -173,6 +173,19 @@
                     loadingElement.remove();
                 }
                 
+                // Check if no actions were found
+                if (actions.length === 0) {
+                    console.log('DokuLLM: No LLM actions found - profile page may not exist');
+                    const toolbar = document.getElementById('llm-toolbar');
+                    if (toolbar) {
+                        const warning = document.createElement('span');
+                        warning.textContent = 'No LLM actions configured. Please check the profile page.';
+                        warning.style.color = 'orange';
+                        warning.style.fontStyle = 'italic';
+                        toolbar.appendChild(warning);
+                    }
+                }
+                
                 // Add buttons based on fetched actions
                 actions.forEach(action => {
                     const btn = document.createElement('button');

@@ -303,10 +303,12 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $content = $this->getPageContent('dokullm:profiles:' . $profile);
         } catch (Exception $e) {
             // If access is denied or page doesn't exist, return empty list
+            \dokuwiki\Logger::warning('dokullm: Profile page not accessible: dokullm:profiles:' . $profile);
             return [];
         }
         // Return empty list if page doesn't exist
         if ($content === false) {
+            \dokuwiki\Logger::warning('dokullm: Profile page not found: dokullm:profiles:' . $profile);
             return [];
         }
         // Parse the table from the page content
