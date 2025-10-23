@@ -93,7 +93,7 @@ class LlmClient
      * - chromaClient: ChromaDB client instance (optional)
      * - pageId: Page ID (optional)
      */
-    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null, $profile = null, $chromaClient = null, $pageId = null)
+    public function __construct($api_url = null, $api_key = null, $model = null, $timeout = null, $temperature = null, $top_p = null, $top_k = null, $min_p = null, $think = null, $tools = null, $profile = null, $chromaClient = null, $pageId = null)
     {
         $this->api_url = $api_url;
         $this->api_key = $api_key;
@@ -104,6 +104,7 @@ class LlmClient
         $this->top_k = $top_k;
         $this->min_p = $min_p;
         $this->think = $think;
+        $this->tools = $tools;
         $this->profile = $profile;
         $this->chromaClient = $chromaClient;
         $this->pageId = $pageId;
@@ -141,7 +142,7 @@ class LlmClient
         $prompt = $this->loadPrompt($action, $metadata);
 
         // Call the API
-        return $this->callAPI($action, $prompt, $metadata);
+        return $this->callAPI($action, $prompt, $metadata, $this->tools);
     }
 
     /**
@@ -556,16 +557,16 @@ class LlmClient
             switch ($placeholder) {
                 case 'template':
                     // If we have a page_template in variables, use it
-                    $variables[$placeholder] = $this->getTemplateContent($variables['page_template']);
+                    $variables[$placeholder] = $this->tools ? '' : $this->getTemplateContent($variables['page_template']);
                     break;
 
                 case 'snippets':
-                    $variables[$placeholder] = $this->chromaClient !== null ? $this->getSnippets(10) : '( no examples )';
+                    $variables[$placeholder] = $this->tools ? '' : ($this->chromaClient !== null ? $this->getSnippets(10) : '( no examples )');
                     break;
 
                 case 'examples':
                     // If we have example page IDs in metadata, add examples content
-                    $variables[$placeholder] = $this->getExamplesContent($variables['page_examples']);
+                    $variables[$placeholder] = $this->tools ? '' : $this->getExamplesContent($variables['page_examples']);
                     break;
 
                 case 'previous':

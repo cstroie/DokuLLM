@@ -13,17 +13,17 @@ if (!defined('DOKU_INC')) {
 
 /**
  * Main action component for the dokullm plugin
- * 
+ *
  * This class handles:
  * - Registering event handlers for page rendering and AJAX calls
  * - Adding JavaScript to edit pages
  * - Processing AJAX requests from the frontend
  * - Handling page template loading with metadata support
  * - Adding copy page button to page tools
- * 
+ *
  * The plugin provides integration with LLM APIs for text processing
  * operations directly within the DokuWiki editor.
- * 
+ *
  * Configuration options:
  * - api_url: The LLM API endpoint URL
  * - api_key: Authentication key for the API (optional)
@@ -42,11 +42,11 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
 {
     /**
      * Register the event handlers for this plugin
-     * 
+     *
      * Hooks into:
      * - TPL_METAHEADER_OUTPUT: To add JavaScript to edit pages
      * - AJAX_CALL_UNKNOWN: To handle plugin-specific AJAX requests
-     * 
+     *
      * @param Doku_Event_Handler $controller The event handler controller
      */
     public function register(Doku_Event_Handler $controller)
@@ -62,10 +62,10 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
 
     /**
      * Insert metadata line after the first title in DokuWiki format
-     * 
+     *
      * If the first line starts with '=', insert the metadata after it.
      * Otherwise, insert at the very beginning.
-     * 
+     *
      * @param string $text The text content
      * @param string $metadataLine The metadata line to insert
      * @return string The text with metadata inserted
@@ -86,10 +86,10 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
 
     /**
      * Add JavaScript to the page header for edit pages
-     * 
+     *
      * This method checks if we're on an edit or preview page and adds
      * the plugin's JavaScript file to the page header.
-     * 
+     *
      * @param Doku_Event $event The event object
      * @param mixed $param Additional parameters
      */
@@ -109,18 +109,18 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
 
     /**
      * Add dokullm configuration to JSINFO
-     * 
+     *
      * @param Doku_Event $event The event object
      * @param mixed $param Additional parameters
      */
     public function handleDokuwikiStarted(Doku_Event $event, $param)
     {
         global $JSINFO;
-        
+
         if (!isset($JSINFO['plugins'])) {
             $JSINFO['plugins'] = [];
         }
-        
+
         $JSINFO['plugins']['dokullm'] = [
             'enable_chromadb' => $this->getConf('enable_chromadb')
         ];
@@ -129,10 +129,10 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
 
     /**
      * Handle AJAX requests for the plugin
-     * 
+     *
      * Processes AJAX calls with the identifier 'plugin_dokullm' and
      * routes them to the appropriate text processing method.
-     * 
+     *
      * @param Doku_Event $event The event object
      * @param mixed $param Additional parameters
      */
@@ -141,10 +141,10 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         if ($event->data !== 'plugin_dokullm') {
             return;
         }
-        
+
         $event->stopPropagation();
         $event->preventDefault();
-        
+
         // Handle the AJAX request
         $this->processRequest();
     }
@@ -152,11 +152,11 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
 
     /**
      * Process the AJAX request and return JSON response
-     * 
+     *
      * Extracts action, text, prompt, metadata, and template parameters from the request,
      * validates the input, and calls the appropriate processing method.
      * Returns JSON encoded result or error.
-     * 
+     *
      * @return void
      */
     private function processRequest()
@@ -250,6 +250,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $this->getConf('top_k'),
             $this->getConf('min_p'),
             $this->getConf('think', false),
+            $this->getConf('tools', false),
             $this->getConf('profile', 'default'),
             $chromaClient,
             $ID
@@ -266,9 +267,9 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
 
     /**
      * Get action definitions from the DokuWiki table at dokullm:profiles:PROFILE
-     * 
+     *
      * Parses the table containing action definitions with the following columns:
-     * 
+     *
      * - ID: The action identifier, which corresponds to the prompt name
      * - Label: The text displayed on the button
      * - Description: A detailed description of the action, used as a tooltip
@@ -278,16 +279,16 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
      *   - append: Add the result to the end of the current content
      *   - replace: Replace the selected content with the result
      *   - insert: Insert the result at the cursor position
-     * 
+     *
      * The parsing stops after the first table ends to avoid processing
      * additional tables that might contain disabled or work-in-progress commands.
-     * 
+     *
      * The ID can be either:
      * - A simple word (e.g., "summary")
      * - A link to a page in the profile namespace (e.g., "[[.:default:summarize]]")
-     * 
+     *
      * For page links, the actual ID is extracted as the last part after the final ':'
-     * 
+     *
      * @return array Array of action definitions, each containing:
      *               - id: string, the action identifier
      *               - label: string, the button label
@@ -354,10 +355,10 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
 
     /**
      * Get the content of a DokuWiki page
-     * 
+     *
      * Retrieves the raw content of a DokuWiki page by its ID.
      * Used for loading template and example page content for context.
-     * 
+     *
      * @param string $pageId The page ID to retrieve
      * @return string|false The page content or false if not found/readable
      * @throws Exception If access is denied
@@ -369,7 +370,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         if (auth_quickaclcheck($cleanId) < AUTH_READ) {
             throw new Exception('You are not allowed to read this file');
         }
-        
+
         // Convert page ID to file path
         $pageFile = wikiFN($cleanId);
         // Check if file exists and is readable
@@ -381,9 +382,9 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
 
     /**
      * Find an appropriate template based on the provided text
-     * 
+     *
      * Uses ChromaDB to search for the most relevant template based on the content.
-     * 
+     *
      * @param string $text The text to use for finding a template
      * @return array The template ID array or empty array if none found
      * @throws Exception If an error occurs during the search
@@ -429,10 +430,10 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
 
     /**
      * Handle page save event and send page to ChromaDB
-     * 
+     *
      * This method is triggered after a page is saved and sends the page content
      * to ChromaDB for indexing.
-     * 
+     *
      * @param Doku_Event $event The event object
      * @param mixed $param Additional parameters
      */
@@ -443,14 +444,14 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         if (empty($ID)) {
             return;
         }
-        
+
         // Check ACL before accessing page content
         if (auth_quickaclcheck($ID) < AUTH_READ) {
             // Log error but don't stop execution
             \dokuwiki\Logger::error('DokuLLM: Access denied for page: ' . $ID);
             return;
         }
-        
+
         // Get the page content
         $content = rawWiki($ID);
         // Skip empty pages
@@ -469,7 +470,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
 
     /**
      * Send page content to ChromaDB
-     * 
+     *
      * @param string $pageId The page ID
      * @param string $content The page content
      * @return void
