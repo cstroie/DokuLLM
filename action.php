@@ -195,7 +195,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
                 $templateId = $template;
                 $templateContent = $this->getPageContent($templateId);
                 if ($templateContent === false) {
-                    throw new Exception('Template not found: ' . $templateId);
+                    throw new Exception($this->getLang('template_not_found') . $templateId);
                 }
                 echo json_encode(['result' => ['content' => $templateContent]]);
             } catch (Exception $e) {
@@ -223,7 +223,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         // Validate input
         if (empty($text)) {
             http_status(400);
-            echo json_encode(['error' => 'No text provided']);
+            echo json_encode(['error' => $this->getLang('no_text_provided')]);
             return;
         }
         // Create ChromaDB client only if enabled
@@ -368,7 +368,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         // Clean the ID and check ACL
         $cleanId = cleanID($pageId);
         if (auth_quickaclcheck($cleanId) < AUTH_READ) {
-            throw new Exception('You are not allowed to read this file');
+            throw new Exception($this->getLang('unauthorized') . $pageId);
         }
 
         // Convert page ID to file path
@@ -424,7 +424,7 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
             $template = $client->queryChromaDBTemplate($text);
             return $template;
         } catch (Exception $e) {
-            throw new Exception('Error finding template: ' . $e->getMessage());
+            throw new Exception($this->getLang('error_finding_template') . $e->getMessage());
         }
     }
 
