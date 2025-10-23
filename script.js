@@ -173,19 +173,6 @@
                     loadingElement.remove();
                 }
                 
-                // Check if no actions were found
-                if (actions.length === 0) {
-                    console.log('DokuLLM: No LLM actions found - profile page may not exist');
-                    const contentElement = document.getElementById('dokuwiki__content');
-                    if (contentElement) {
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'error';
-                        errorDiv.textContent = 'dokullm: Profile page not found. Please check the profile page configuration.';
-                        // Insert as first child of dokuwiki__content
-                        contentElement.insertBefore(errorDiv, contentElement.firstChild);
-                    }
-                }
-                
                 // Add buttons based on fetched actions
                 actions.forEach(action => {
                     const btn = document.createElement('button');
@@ -205,10 +192,19 @@
             })
             .catch(error => {
                 console.error('DokuLLM: Error fetching action definitions:', error);
-                // Remove loading indicator and show error
-                const loadingElement = document.getElementById('llm-loading');
-                if (loadingElement) {
-                    loadingElement.textContent = 'Failed to load LLM actions';
+                // Remove the toolbar and the custom prompt
+                if (toolbar) {
+                    toolbar.remove();
+                }
+                if (customPromptContainer) {
+                    customPromptContainer.remove();
+                }
+                const pageIdElement = document.querySelector('.pageId');
+                if (pageIdElement) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error';
+                    errorDiv.textContent = 'DokuLLM profiles page not found. Please check the "dokullm:" namespace.';
+                    pageIdElement.parentNode.insertBefore(errorDiv, pageIdElement);
                 }
             });
     }

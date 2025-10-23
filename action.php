@@ -309,7 +309,6 @@ class action_plugin_dokullm extends DokuWiki_Action_Plugin
         // Return empty list if page doesn't exist
         if ($content === false) {
             \dokuwiki\Logger::warning('dokullm: Profile page not found: dokullm:profiles:' . $profile);
-            echo '<div class="error" style="display:none">dokullm: Profile page not found: dokullm:profiles:' . $profile . '</div>';
             return [];
         }
         // Parse the table from the page content
