@@ -109,9 +109,7 @@ class LlmClient
         $this->pageId = $pageId;
     }
 
-
-
-    public function process($action, $text, $metadata = [], $useContext = true)
+    public function process($action, $text, $metadata = [])
     {
         // Store the current text for tool usage
         $this->currentText = $text;
@@ -139,9 +137,11 @@ class LlmClient
             unset($metadata['previous']);
         }
 
+        // Load the prompt
         $prompt = $this->loadPrompt($action, $metadata);
 
-        return $this->callAPI($action, $prompt, $metadata, $useContext);
+        // Call the API
+        return $this->callAPI($action, $prompt, $metadata);
     }
 
     /**
@@ -152,7 +152,6 @@ class LlmClient
      * @param string $text The text to process
      * @param string $customPrompt The custom prompt to use
      * @param array $metadata Optional metadata containing template and examples
-     * @param bool $useContext Whether to include template and examples in the context (default: true)
      * @return string The processed text
      */
 
@@ -252,60 +251,14 @@ class LlmClient
      * @param string $command The command name for loading command-specific system prompts
      * @param string $prompt The prompt to send to the LLM as user message
      * @param array $metadata Optional metadata containing template, examples, and snippets
-     * @param bool $useContext Whether to include template and examples in the context (default: true)
      * @return string The response content from the LLM
      * @throws Exception If the API request fails or returns unexpected format
      */
 
-    private function callAPI($command, $prompt, $metadata = [], $useContext = true, $useTools = false)
+    private function callAPI($command, $prompt, $metadata = [], $useTools = false)
     {
         // Load system prompt which provides general instructions to the LLM
         $systemPrompt = $this->loadSystemPrompt($command, []);
-
-        // Enhance the prompt with context information from metadata
-        // This provides the LLM with additional context about templates and examples
-        if ($useContext && !empty($metadata) && (!empty($metadata['template']) || !empty($metadata['examples']) || !empty($metadata['snippets']))) {
-            $contextInfo = "\n\n<context>\n";
-
-            // Add template content if specified in metadata
-            if (!empty($metadata['template'])) {
-                $templateContent = $this->getPageContent($metadata['template']);
-                if ($templateContent !== false) {
-                    $contextInfo .= "\n\n<template>\nPornește de la acest template (" . $metadata['template'] . "):\n" . $templateContent . "\n</template>\n";
-                }
-            }
-
-            // Add example pages content if specified in metadata
-            if (!empty($metadata['examples'])) {
-                $examplesContent = [];
-                foreach ($metadata['examples'] as $example) {
-                    $content = $this->getPageContent($example);
-                    if ($content !== false) {
-                        $examplesContent[] = "\n<example_page source=\"" . $example . "\">\n" . $content . "\n</example_page>\n";
-                    }
-                }
-                if (!empty($examplesContent)) {
-                    $contextInfo .= "\n<style_examples>\nAcestea sunt rapoarte complete anterioare - studiază stilul meu de redactare:\n" . implode("\n", $examplesContent) . "\n</style_examples>\n";
-                }
-            }
-
-            // Add text snippets if specified in metadata
-            if (!empty($metadata['snippets'])) {
-                $snippetsContent = [];
-                foreach ($metadata['snippets'] as $index => $snippet) {
-                    // These are text snippets from ChromaDB
-                    $snippetsContent[] = "\n<example id=\"" . ($index + 1) . "\">\n" . $snippet . "\n</example>\n";
-                }
-                if (!empty($snippetsContent)) {
-                    $contextInfo .= "\n\n<style_examples>\nAcestea sunt exemple din rapoartele mele anterioare - studiază stilul de redactare, terminologia și structura frazelor:\n" . implode("\n", $snippetsContent) . "\n</style_examples>\n";
-                }
-            }
-
-            $contextInfo .= "\n</context>\n";
-
-            // Append context information to system prompt
-            $prompt = $contextInfo . "\n\n" . $prompt;
-        }
 
         // Prepare API request data with model parameters
         $data = [
@@ -344,75 +297,6 @@ class LlmClient
 
         // Make an API call with tool responses
         return $this->callAPIWithTools($data, false);
-    }
-
-    /**
-     * Handle tool calls from the LLM
-     *
-     * Processes tool calls made by the LLM and returns appropriate responses.
-     * Implements caching to avoid duplicate calls with identical parameters.
-     *
-     * @param array $toolCall The tool call data from the LLM
-     * @return array The tool response message
-     */
-    private function handleToolCall($toolCall)
-    {
-        $toolName = $toolCall['function']['name'];
-        $arguments = json_decode($toolCall['function']['arguments'], true);
-
-        // Create a cache key from the tool name and arguments
-        $cacheKey = md5($toolName . serialize($arguments));
-
-        // Check if we have a cached result for this tool call
-        if (isset($this->toolCallCache[$cacheKey])) {
-            // Return cached result and indicate it was found in cache
-            $toolResponse = $this->toolCallCache[$cacheKey];
-            // Update with current tool call ID
-            $toolResponse['tool_call_id'] = $toolCall['id'];
-            $toolResponse['cached'] = true; // Indicate this response was cached
-            return $toolResponse;
-        }
-
-        $toolResponse = [
-            'role' => 'tool',
-            'tool_call_id' => $toolCall['id'],
-            'cached' => false // Indicate this is a fresh response
-        ];
-
-        switch ($toolName) {
-            case 'get_document':
-                $documentId = $arguments['id'];
-                $content = $this->getPageContent($documentId);
-                if ($content === false) {
-                    $toolResponse['content'] = 'Document not found: ' . $documentId;
-                } else {
-                    $toolResponse['content'] = $content;
-                }
-                break;
-
-            case 'get_template':
-                // Get template content using the convenience function
-                $toolResponse['content'] = $this->getTemplateContent();
-                break;
-
-            case 'get_examples':
-                // Get examples content using the convenience function
-                $count = isset($arguments['count']) ? (int)$arguments['count'] : 5;
-                $toolResponse['content'] = '<examples>\n' . $this->getSnippets($count) . '\n</examples>';
-                break;
-
-            default:
-                $toolResponse['content'] = 'Unknown tool: ' . $toolName;
-        }
-
-        // Cache the result for future calls with the same parameters
-        $cacheEntry = $toolResponse;
-        // Remove tool_call_id and cached flag from cache as they change per call
-        unset($cacheEntry['tool_call_id']);
-        unset($cacheEntry['cached']);
-        $this->toolCallCache[$cacheKey] = $cacheEntry;
-
-        return $toolResponse;
     }
 
     /**
@@ -544,6 +428,75 @@ class LlmClient
 
         // Throw exception for unexpected response format
         throw new Exception('Unexpected API response format');
+    }
+
+    /**
+     * Handle tool calls from the LLM
+     *
+     * Processes tool calls made by the LLM and returns appropriate responses.
+     * Implements caching to avoid duplicate calls with identical parameters.
+     *
+     * @param array $toolCall The tool call data from the LLM
+     * @return array The tool response message
+     */
+    private function handleToolCall($toolCall)
+    {
+        $toolName = $toolCall['function']['name'];
+        $arguments = json_decode($toolCall['function']['arguments'], true);
+
+        // Create a cache key from the tool name and arguments
+        $cacheKey = md5($toolName . serialize($arguments));
+
+        // Check if we have a cached result for this tool call
+        if (isset($this->toolCallCache[$cacheKey])) {
+            // Return cached result and indicate it was found in cache
+            $toolResponse = $this->toolCallCache[$cacheKey];
+            // Update with current tool call ID
+            $toolResponse['tool_call_id'] = $toolCall['id'];
+            $toolResponse['cached'] = true; // Indicate this response was cached
+            return $toolResponse;
+        }
+
+        $toolResponse = [
+            'role' => 'tool',
+            'tool_call_id' => $toolCall['id'],
+            'cached' => false // Indicate this is a fresh response
+        ];
+
+        switch ($toolName) {
+            case 'get_document':
+                $documentId = $arguments['id'];
+                $content = $this->getPageContent($documentId);
+                if ($content === false) {
+                    $toolResponse['content'] = 'Document not found: ' . $documentId;
+                } else {
+                    $toolResponse['content'] = $content;
+                }
+                break;
+
+            case 'get_template':
+                // Get template content using the convenience function
+                $toolResponse['content'] = $this->getTemplateContent();
+                break;
+
+            case 'get_examples':
+                // Get examples content using the convenience function
+                $count = isset($arguments['count']) ? (int)$arguments['count'] : 5;
+                $toolResponse['content'] = '<examples>\n' . $this->getSnippets($count) . '\n</examples>';
+                break;
+
+            default:
+                $toolResponse['content'] = 'Unknown tool: ' . $toolName;
+        }
+
+        // Cache the result for future calls with the same parameters
+        $cacheEntry = $toolResponse;
+        // Remove tool_call_id and cached flag from cache as they change per call
+        unset($cacheEntry['tool_call_id']);
+        unset($cacheEntry['cached']);
+        $this->toolCallCache[$cacheKey] = $cacheEntry;
+
+        return $toolResponse;
     }
 
     /**
